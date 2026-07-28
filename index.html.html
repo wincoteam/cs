@@ -326,9 +326,11 @@
     color:#8a9891;
   }
 
-  .postit-widget{position:fixed;right:18px;bottom:18px;z-index:90;width:min(360px,calc(100vw - 28px));font-family:inherit;}
-  .postit-panel{overflow:hidden;border:1px solid #e4cf8d;border-radius:18px;background:#fffdf5;box-shadow:0 22px 60px rgba(35,45,39,.2),0 3px 12px rgba(35,45,39,.09);}
-  .postit-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:10px 11px 10px 16px;border-bottom:1px solid rgba(132,102,26,.14);background:linear-gradient(135deg,#ffecab,#ffe393);}
+  .postit-widget{position:fixed;right:18px;bottom:18px;z-index:90;width:min(360px,calc(100vw - 28px));min-width:280px;font-family:inherit;}
+  .postit-panel{position:relative;overflow:hidden;border:1px solid #e4cf8d;border-radius:18px;background:#fffdf5;box-shadow:0 22px 60px rgba(35,45,39,.2),0 3px 12px rgba(35,45,39,.09);}
+  .postit-widget.has-custom-size .postit-panel{display:flex;height:100%;min-height:180px;flex-direction:column;}
+  .postit-head{display:flex;flex:0 0 auto;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:10px 11px 10px 16px;border-bottom:1px solid rgba(132,102,26,.14);background:linear-gradient(135deg,#ffecab,#ffe393);cursor:grab;touch-action:none;user-select:none;}
+  .postit-head.is-dragging{cursor:grabbing;}
   .postit-heading{display:flex;align-items:baseline;gap:7px;min-width:0;}
   .postit-heading strong{color:#463b22;font-size:14px;font-weight:850;letter-spacing:-.02em;}
   .postit-count{color:#8b7440;font-size:11px;font-weight:750;}
@@ -337,7 +339,8 @@
   .postit-button:hover{background:#fff;}
   .postit-add{padding:0 11px;}
   .postit-collapse{width:34px;padding:0;font-size:19px;line-height:1;}
-  .postit-list{display:flex;max-height:min(52vh,470px);flex-direction:column;gap:9px;overflow:auto;padding:12px;}
+  .postit-list{display:flex;max-height:min(52vh,470px);flex:1 1 auto;min-height:0;flex-direction:column;gap:9px;overflow:auto;padding:12px;}
+  .postit-widget.has-custom-size .postit-list{max-height:none;}
   .postit-empty{padding:25px 14px;border:1px dashed #dfcf9f;border-radius:12px;color:#8b805f;font-size:12.5px;text-align:center;}
   .postit-note{position:relative;flex:0 0 auto;border:1px solid rgba(139,107,25,.16);border-radius:12px;background:#fff2ae;box-shadow:0 5px 13px rgba(82,67,29,.07);}
   .postit-note:nth-child(3n+2){border-color:rgba(46,115,76,.13);background:#e8f5e9;}
@@ -346,11 +349,14 @@
   .postit-text::placeholder{color:#9a8e69;}
   .postit-delete{position:absolute;top:7px;right:7px;width:27px;height:27px;border:0;border-radius:8px;background:rgba(255,255,255,.62);color:#8e7654;font:inherit;font-size:17px;cursor:pointer;}
   .postit-delete:hover{background:#fff;color:#a33a32;}
-  .postit-foot{padding:0 13px 10px;color:#9b8b61;font-size:10.5px;text-align:right;}
+  .postit-foot{flex:0 0 auto;padding:0 29px 10px 13px;color:#9b8b61;font-size:10.5px;text-align:right;}
+  .postit-resize{position:absolute;right:5px;bottom:5px;width:22px;height:22px;border:0;background:transparent;color:#9c824b;font:inherit;font-size:16px;line-height:1;cursor:nwse-resize;touch-action:none;}
+  .postit-resize::after{content:"◢";display:block;transform:scale(.85);transform-origin:center;}
   .postit-open{display:none;align-items:center;gap:8px;margin-left:auto;min-height:46px;padding:0 15px;border:1px solid #dfca87;border-radius:14px;background:linear-gradient(135deg,#ffedae,#ffe293);box-shadow:0 12px 32px rgba(35,45,39,.17);color:#493c20;font:inherit;font-size:13px;font-weight:850;cursor:pointer;}
   .postit-badge{display:grid;min-width:21px;height:21px;place-items:center;border-radius:99px;background:#6e5926;color:#fff;font-size:10.5px;}
   .postit-widget.is-collapsed .postit-panel{display:none;}
   .postit-widget.is-collapsed .postit-open{display:flex;}
+  .postit-widget.is-collapsed{width:auto!important;height:auto!important;min-width:0;}
 
   @media (max-width:800px){
     .home-wrap{padding-top:34px;}
@@ -495,18 +501,20 @@
       <span class="postit-badge" id="postitCollapsedCount">0</span>
     </button>
     <section class="postit-panel" id="postitPanel">
-      <div class="postit-head">
+      <div class="postit-head" title="잡고 좌우로 이동">
         <div class="postit-heading">
           <strong>업무 포스트잇</strong>
           <span class="postit-count" id="postitCount">0개</span>
         </div>
         <div class="postit-actions">
+          <button class="postit-button postit-add" id="postitSizeBtn" type="button" aria-pressed="false">크게</button>
           <button class="postit-button postit-add" id="postitAddBtn" type="button">+ 추가</button>
           <button class="postit-button postit-collapse" id="postitCollapseBtn" type="button" aria-label="포스트잇 접기">−</button>
         </div>
       </div>
       <div class="postit-list" id="postitList"></div>
       <div class="postit-foot" id="postitSaveState" aria-live="polite">이 기기에 자동 저장됩니다</div>
+      <button class="postit-resize" id="postitResize" type="button" aria-label="포스트잇 크기 조절" title="드래그하여 크기 조절"></button>
     </section>
   </aside>
 
@@ -529,14 +537,20 @@ const viewer    = document.getElementById("viewer");
 
 const POSTIT_KEY = "winco_postit_notes_v1";
 const POSTIT_COLLAPSE_KEY = "winco_postit_collapsed_v1";
+const POSTIT_LAYOUT_KEY = "winco_postit_layout_v1";
 const postitWidget = document.getElementById("postitWidget");
+const postitPanel = document.getElementById("postitPanel");
+const postitHead = postitPanel.querySelector(".postit-head");
 const postitList = document.getElementById("postitList");
 const postitCount = document.getElementById("postitCount");
 const postitCollapsedCount = document.getElementById("postitCollapsedCount");
 const postitSaveState = document.getElementById("postitSaveState");
 const postitOpenBtn = document.getElementById("postitOpenBtn");
+const postitSizeBtn = document.getElementById("postitSizeBtn");
+const postitResize = document.getElementById("postitResize");
 let postitNotes = [];
 let postitSaveTimer = null;
+let postitLayout = null;
 
 try{
   const savedPostits = localStorage.getItem(POSTIT_KEY);
@@ -546,6 +560,11 @@ try{
       return note && typeof note.id === "string" && typeof note.text === "string";
     });
   }
+}catch(e){}
+
+try{
+  const savedLayout = JSON.parse(localStorage.getItem(POSTIT_LAYOUT_KEY) || "null");
+  if(savedLayout && typeof savedLayout === "object") postitLayout = savedLayout;
 }catch(e){}
 
 function postitId(){
@@ -621,10 +640,173 @@ function renderPostits(focusId){
 function setPostitCollapsed(collapsed, persist){
   postitWidget.classList.toggle("is-collapsed", collapsed);
   postitOpenBtn.setAttribute("aria-expanded", String(!collapsed));
+  if(!collapsed && postitLayout) requestAnimationFrame(function(){ applyPostitLayout(postitLayout); });
   if(persist !== false){
     try{ localStorage.setItem(POSTIT_COLLAPSE_KEY, collapsed ? "1" : "0"); }catch(e){}
   }
 }
+
+function clampPostit(value, min, max){
+  return Math.min(Math.max(value, min), Math.max(min, max));
+}
+
+function setPostitSizeButton(large){
+  postitSizeBtn.textContent = large ? "작게" : "크게";
+  postitSizeBtn.setAttribute("aria-pressed", String(!!large));
+}
+
+function applyPostitLayout(layout){
+  if(!layout || postitWidget.classList.contains("is-collapsed")) return;
+  postitWidget.classList.remove("has-custom-size");
+  postitWidget.style.left = "";
+  postitWidget.style.top = "";
+  postitWidget.style.right = "";
+  postitWidget.style.bottom = "";
+  postitWidget.style.width = "";
+  postitWidget.style.height = "";
+
+  const gap = window.innerWidth <= 620 ? 10 : 18;
+  const maxWidth = Math.max(260, window.innerWidth - gap * 2);
+  const maxHeight = Math.max(180, window.innerHeight - gap * 2);
+  const custom = Number.isFinite(layout.width) && Number.isFinite(layout.height);
+
+  if(custom){
+    const width = clampPostit(layout.width, Math.min(280,maxWidth), maxWidth);
+    const height = clampPostit(layout.height, 180, maxHeight);
+    const left = clampPostit(Number(layout.left) || gap, gap, window.innerWidth - width - gap);
+    const top = clampPostit(Number(layout.top) || gap, gap, window.innerHeight - height - gap);
+    postitWidget.classList.add("has-custom-size");
+    postitWidget.style.left = left + "px";
+    postitWidget.style.top = top + "px";
+    postitWidget.style.right = "auto";
+    postitWidget.style.bottom = "auto";
+    postitWidget.style.width = width + "px";
+    postitWidget.style.height = height + "px";
+  }else if(Number.isFinite(layout.left)){
+    const rect = postitWidget.getBoundingClientRect();
+    postitWidget.style.left = clampPostit(layout.left, gap, window.innerWidth - rect.width - gap) + "px";
+    postitWidget.style.right = "auto";
+  }
+  setPostitSizeButton(!!layout.large);
+}
+
+function storePostitLayout(layout){
+  postitLayout = layout;
+  try{ localStorage.setItem(POSTIT_LAYOUT_KEY, JSON.stringify(layout)); }catch(e){}
+}
+
+function currentPostitLayout(custom, large, restore){
+  const rect = postitWidget.getBoundingClientRect();
+  return {
+    left:Math.round(rect.left),
+    top:custom ? Math.round(rect.top) : null,
+    width:custom ? Math.round(rect.width) : null,
+    height:custom ? Math.round(rect.height) : null,
+    large:!!large,
+    restore:restore || null
+  };
+}
+
+postitSizeBtn.addEventListener("click", function(){
+  const isLarge = !!(postitLayout && postitLayout.large);
+  if(isLarge){
+    const restore = postitLayout.restore;
+    const next = restore && typeof restore === "object"
+      ? restore
+      : {left:18,top:null,width:null,height:null,large:false,restore:null};
+    storePostitLayout(next);
+    applyPostitLayout(next);
+    return;
+  }
+
+  const wasCustom = postitWidget.classList.contains("has-custom-size");
+  const restore = currentPostitLayout(wasCustom, false, null);
+  const rect = postitWidget.getBoundingClientRect();
+  const gap = window.innerWidth <= 620 ? 10 : 18;
+  const width = Math.min(620, window.innerWidth - gap * 2);
+  const height = Math.min(600, window.innerHeight - gap * 2);
+  const large = {
+    left:clampPostit(rect.right - width, gap, window.innerWidth - width - gap),
+    top:clampPostit(rect.bottom - height, gap, window.innerHeight - height - gap),
+    width:width,
+    height:height,
+    large:true,
+    restore:restore
+  };
+  storePostitLayout(large);
+  applyPostitLayout(large);
+});
+
+postitHead.addEventListener("pointerdown", function(event){
+  if(event.button !== 0 || event.target.closest("button")) return;
+  const rect = postitWidget.getBoundingClientRect();
+  const startX = event.clientX;
+  const startLeft = rect.left;
+  const gap = window.innerWidth <= 620 ? 10 : 18;
+  postitWidget.style.left = startLeft + "px";
+  postitWidget.style.right = "auto";
+  postitHead.classList.add("is-dragging");
+  postitHead.setPointerCapture(event.pointerId);
+
+  function move(moveEvent){
+    const maxLeft = window.innerWidth - postitWidget.getBoundingClientRect().width - gap;
+    postitWidget.style.left = clampPostit(startLeft + moveEvent.clientX - startX, gap, maxLeft) + "px";
+  }
+  function end(endEvent){
+    postitHead.classList.remove("is-dragging");
+    try{ postitHead.releasePointerCapture(endEvent.pointerId); }catch(e){}
+    postitHead.removeEventListener("pointermove", move);
+    postitHead.removeEventListener("pointerup", end);
+    postitHead.removeEventListener("pointercancel", end);
+    const custom = postitWidget.classList.contains("has-custom-size");
+    storePostitLayout(currentPostitLayout(custom, !!(postitLayout && postitLayout.large),
+      postitLayout && postitLayout.restore));
+  }
+  postitHead.addEventListener("pointermove", move);
+  postitHead.addEventListener("pointerup", end);
+  postitHead.addEventListener("pointercancel", end);
+});
+
+postitResize.addEventListener("pointerdown", function(event){
+  if(event.button !== 0) return;
+  event.preventDefault();
+  const rect = postitWidget.getBoundingClientRect();
+  const startX = event.clientX;
+  const startY = event.clientY;
+  const startWidth = rect.width;
+  const startHeight = rect.height;
+  const gap = window.innerWidth <= 620 ? 10 : 18;
+  postitWidget.classList.add("has-custom-size");
+  postitWidget.style.left = rect.left + "px";
+  postitWidget.style.top = rect.top + "px";
+  postitWidget.style.right = "auto";
+  postitWidget.style.bottom = "auto";
+  postitWidget.style.width = rect.width + "px";
+  postitWidget.style.height = rect.height + "px";
+  postitResize.setPointerCapture(event.pointerId);
+
+  function resize(moveEvent){
+    const minWidth = Math.min(280, window.innerWidth - gap * 2);
+    const maxWidth = window.innerWidth - rect.left - gap;
+    const maxHeight = window.innerHeight - rect.top - gap;
+    postitWidget.style.width =
+      clampPostit(startWidth + moveEvent.clientX - startX, minWidth, maxWidth) + "px";
+    postitWidget.style.height =
+      clampPostit(startHeight + moveEvent.clientY - startY, 180, maxHeight) + "px";
+  }
+  function endResize(endEvent){
+    try{ postitResize.releasePointerCapture(endEvent.pointerId); }catch(e){}
+    postitResize.removeEventListener("pointermove", resize);
+    postitResize.removeEventListener("pointerup", endResize);
+    postitResize.removeEventListener("pointercancel", endResize);
+    const next = currentPostitLayout(true, false, null);
+    storePostitLayout(next);
+    setPostitSizeButton(false);
+  }
+  postitResize.addEventListener("pointermove", resize);
+  postitResize.addEventListener("pointerup", endResize);
+  postitResize.addEventListener("pointercancel", endResize);
+});
 
 document.getElementById("postitAddBtn").addEventListener("click", function(){
   const note = {id:postitId(), text:""};
@@ -667,6 +849,12 @@ let postitCollapsed = false;
 try{ postitCollapsed = localStorage.getItem(POSTIT_COLLAPSE_KEY) === "1"; }catch(e){}
 setPostitCollapsed(postitCollapsed, false);
 renderPostits();
+if(postitLayout && !postitCollapsed) applyPostitLayout(postitLayout);
+window.addEventListener("resize", function(){
+  if(postitLayout && !postitWidget.classList.contains("is-collapsed")){
+    applyPostitLayout(postitLayout);
+  }
+});
 window.addEventListener("beforeunload", savePostits);
 
 function decode(b64){
