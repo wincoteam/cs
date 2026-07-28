@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WINCO FAQ</title>
+<style>
+:root{--bg:#f5f7f6;--card:#fff;--ink:#17231f;--muted:#68756f;--line:#dfe7e3;--green:#0a6b56;--soft:#e8f3ef;--shadow:0 12px 32px rgba(25,48,40,.07)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 8% 0,rgba(10,107,86,.08),transparent 30%),var(--bg);color:var(--ink);font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.58;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:38px 20px 72px}
+.hero{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:24px}
+.eyebrow{font-size:11px;font-weight:850;letter-spacing:.13em;color:var(--green)}
+h1{margin:5px 0 7px;font-size:32px;letter-spacing:-.045em}
+.lead{margin:0;color:var(--muted);font-size:14px}
+.source{flex:0 0 auto;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);padding:9px 12px;text-decoration:none;font-size:12px;font-weight:750}
+.source:hover{border-color:var(--green);color:var(--green)}
+.search{position:relative;margin-bottom:14px}
+.search input{width:100%;height:56px;border:1px solid var(--line);border-radius:15px;background:#fff;padding:0 48px 0 48px;color:var(--ink);font-size:15px;box-shadow:var(--shadow);outline:0}
+.search input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(10,107,86,.09)}
+.search::before{content:"🔍";position:absolute;left:17px;top:15px;font-size:18px}
+.clear{display:none;position:absolute;right:13px;top:12px;width:32px;height:32px;border:0;border-radius:9px;background:#eef2f0;color:#66736e;cursor:pointer}
+.clear.show{display:block}
+.cats{display:flex;gap:7px;overflow:auto;padding:3px 1px 19px}
+.cat{flex:0 0 auto;border:1px solid var(--line);border-radius:99px;background:#fff;color:#65726d;padding:8px 13px;font-size:12px;font-weight:800;cursor:pointer}
+.cat.on{border-color:var(--green);background:var(--green);color:#fff}
+.cat small{opacity:.72;margin-left:4px}
+.meta{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px;color:var(--muted);font-size:12px}
+.products{display:flex;flex-direction:column;gap:10px}
+.product{overflow:hidden;border:1px solid var(--line);border-radius:17px;background:var(--card);box-shadow:var(--shadow)}
+.product>summary{display:flex;align-items:center;gap:13px;min-height:72px;padding:13px 17px;cursor:pointer;list-style:none}
+.product>summary::-webkit-details-marker,.section>summary::-webkit-details-marker,.qa>summary::-webkit-details-marker{display:none}
+.pico{display:grid;flex:0 0 auto;width:42px;height:42px;place-items:center;border-radius:13px;background:var(--psoft,#e8f3ef);font-size:20px}
+.ptext{min-width:0;flex:1}
+.pname{display:block;font-size:15px;font-weight:850;letter-spacing:-.02em}
+.pmodel{display:block;margin-top:2px;color:var(--muted);font-size:11.5px}
+.arrow{color:#84918c;font-size:18px;transition:transform .18s}
+.product[open] .arrow{transform:rotate(90deg)}
+.product-body{padding:0 16px 16px;border-top:1px solid #edf1ef}
+.sections{display:flex;flex-direction:column;gap:8px;padding-top:13px}
+.section{overflow:hidden;border:1px solid var(--line);border-radius:12px;background:#fbfcfb}
+.section>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;cursor:pointer;font-size:13px;font-weight:820}
+.section>summary::after{content:"+";color:#819089;font-size:17px}
+.section[open]>summary::after{content:"−"}
+.section-body{padding:0 14px 13px;color:#42504a;font-size:13px;white-space:pre-line}
+.line{position:relative;margin:7px 0;padding-left:13px}
+.line::before{content:"";position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:#93a59d}
+.notice{margin:7px 0;padding:10px 12px;border-radius:9px;background:#eef6f3;color:#315d50}
+.faq-title{margin:18px 2px 9px;font-size:14px;font-weight:900}
+.qa{margin-top:7px;border:1px solid #e2e9e6;border-radius:11px;background:#fff}
+.qa>summary{display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:780}
+.qa>summary::before{content:"Q";display:grid;flex:0 0 auto;width:22px;height:22px;place-items:center;border-radius:7px;background:var(--soft);color:var(--green);font-size:11px;font-weight:900}
+.answer{position:relative;padding:0 48px 13px 42px;color:#4b5853;font-size:12.7px;white-space:pre-line}
+.copy{position:absolute;right:10px;top:0;border:1px solid var(--line);border-radius:7px;background:#fff;color:#77837e;padding:4px 7px;font-size:10.5px;font-weight:750;cursor:pointer}
+.copy:hover{border-color:var(--green);color:var(--green)}
+.original{display:inline-block;margin-top:13px;color:var(--green);font-size:11.5px;font-weight:800;text-decoration:none}
+.empty{display:none;padding:60px 20px;border:1px dashed #ccd8d3;border-radius:16px;background:#fff;color:#7b8882;text-align:center}
+.empty.show{display:block}
+.care{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:22px}
+.care a{border:1px solid var(--line);border-radius:13px;background:#fff;padding:13px 14px;color:#35433d;text-decoration:none;font-size:12.5px;font-weight:780}
+.care a:hover{border-color:var(--green);color:var(--green)}
+mark{border-radius:4px;background:#fff0a8;color:inherit;padding:0 2px}
+@media(max-width:650px){.wrap{padding:25px 14px 52px}.hero{display:block}.source{display:inline-block;margin-top:12px}h1{font-size:27px}.product>summary{padding:12px 13px}.product-body{padding:0 11px 12px}.care{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">WINCO SERVICE</div>
+      <h1>WINCO FAQ🍀</h1>
+      <p class="lead">제품을 선택하거나 증상을 검색해 안내 내용을 바로 확인하세요.</p>
+    </div>
+    <a class="source" href="https://wincoservice.notion.site/WINCO-FAQ-21c4f43a7c128072a213f32d59c69144" target="_blank" rel="noopener">Notion 원본 ↗</a>
+  </header>
+
+  <div class="search">
+    <input id="query" type="search" placeholder="제품명·증상·질문 검색" aria-label="FAQ 검색" autocomplete="off">
+    <button class="clear" id="clearBtn" type="button" aria-label="검색어 지우기">×</button>
+  </div>
+  <nav class="cats" aria-label="제품 카테고리">
+    <button class="cat on" data-cat="air" type="button">에어건 <small>6</small></button>
+    <button class="cat" data-cat="cleaner" type="button">청소기 <small>0</small></button>
+    <button class="cat" data-cat="camp" type="button">캠핑용품 <small>0</small></button>
+    <button class="cat" data-cat="charger" type="button">충전기 <small>0</small></button>
+    <button class="cat" data-cat="lantern" type="button">랜턴 <small>0</small></button>
+    <button class="cat" data-cat="living" type="button">생활용품 <small>0</small></button>
+  </nav>
+  <div class="meta"><span id="resultText">에어건 6개 제품</span><span>질문을 누르면 답변이 열립니다</span></div>
+  <section class="products" id="products"></section>
+  <div class="empty" id="empty">등록된 FAQ가 없습니다.</div>
+
+  <section class="care">
+    <a href="https://smartstore.naver.com/winco_kr/shoppingstory/detail?id=5002606120&page=1" target="_blank" rel="noopener">🧰 WINCO A/S 서비스 이용 안내 ↗</a>
+    <a href="https://careplz.kr/as-pre/as-5e5242d0" target="_blank" rel="noopener">🛠️ WINCO A/S 접수 등록 바로가기 ↗</a>
+  </section>
+</main>
+
+<script>
+const COMMON = {
+  hair:["머리카락이 들어갔어요.","제품 특성상 머리카락이나 이물질이 내부에 유입된 경우 자가 수리가 어렵습니다.\n해당 사유는 제품 고장의 원인이 될 수 있으며, A/S 시 유상 처리되는 점 양해 부탁드립니다.\n먼저 네이버 톡톡을 통해 문의 주시면 담당자의 안내에 따라 A/S 접수를 도와드리겠습니다."],
+  back:["노즐 장착 시 역풍이 생겨요","노즐을 장착하면 바람이 곡면에 반사되어 흡입구 쪽으로 역풍이 발생할 수 있습니다.\n이 경우 풍속을 중간 단계로 설정해 사용하시면 보다 안정적인 작동이 가능합니다."],
+  tent:["에어텐트에 사용이 가능한가요?","고압이 필요한 에어텐트류 제품에는 본 제품 사용을 권장드리지 않습니다.\n에어건의 출력 특성상 에어텐트 공기 주입용으로는 적합하지 않을 수 있으니 참고 부탁드립니다."],
+  filter:["청소 필터는 어떻게 관리하나요?","필요 시 물세척이 가능하지만 헤파필터는 구조상 물에 약해 자주 세척하거나 물에 오래 담그는 방식은 권장드리지 않습니다.\n\n🔍 권장 사용 방법\n1. 일상적인 먼지나 오염은 부드러운 솔이나 브러시로 가볍게 털어내 주세요.\n2. 물세척이 필요한 경우 짧게 헹군 후 완전히 건조된 상태에서만 재사용해 주세요.\n\n⚠️ 물세척 후 필터 성능이 일부 저하될 수 있습니다."],
+  weak:["출력이 약해지고 꺼져요.","스마트 보호 기능으로 모터가 과열되면 자동으로 출력이 제한되거나 전원이 종료될 수 있습니다. 제품 및 모터를 보호하기 위한 정상 작동이므로 잠시 휴식 후 다시 사용해 주세요."],
+  port:["충전 포트 쪽에서 바람이 나와요.","모터 발열 방지 기능이 탑재되어 있으며 충전 포트 주변 열 방출구에서 모터의 열을 식히기 위한 바람이 나올 수 있습니다. 정상적인 작동 상태입니다."],
+  flight:["기내 반입이 가능한가요?","기내 반입 가능 여부는 항공사별 기준에 따라 상이하므로 이용하실 항공사에 직접 문의하시는 것을 권장드립니다."]
+};
+const P = [
+  {
+    name:"에어몬스터 (WBM-1000)",model:"WBM-1000",icon:"💨",soft:"#e8f3ef",url:"https://wincoservice.notion.site/WBM-1000-21c4f43a7c128042bf33cb6dcce68275",
+    sections:[
+      ["1️⃣ 제품 구성 안내",["제품 색상: 블랙 / 그레이 / 카키 / 레드 / 베이지","구성품: 본체 + 실리콘 노즐 + USB-C 타입 충전 케이블","※ 황동밸브 / 에어매트 노즐은 별도 구매 제품입니다."]],
+      ["2️⃣ 작동 방법 안내",["전원 ON/OFF: 본체 하단 전원 버튼을 약 2초간 길게 누릅니다.","일반 작동: 작동 버튼을 누르고 있는 동안만 바람이 나옵니다.","연속 작동: 전원 버튼 + 작동 버튼을 동시에 누르면 고정 작동됩니다.","10분간 작동이 없으면 전원이 자동으로 꺼집니다."]],
+      ["3️⃣ LED 표시등 안내",["초록불: 배터리 잔량 있음","빨간불: 배터리 잔량 부족","총 4단계 바람 세기를 LED로 표시하며 전원 버튼을 짧게 누르면 단계가 변경됩니다."]],
+      ["4️⃣ 사용 시간 & 충전 안내",["1단계 최대 약 3.5시간 / 4단계 최대 약 20분","충전 시간 약 2~3시간"]],
+      ["⚠️ 기능 안내",["스마트 보호 기능이 없어 과열이 감지되면 즉시 사용을 중단하고 충분히 식힌 후 다시 사용해 주세요.","충전 중에는 제품을 사용하지 마세요.","기타 노즐은 호환링을 장착한 후 사용해야 합니다."]]
+    ],
+    faqs:[COMMON.hair,["충전이 되지 않아요.","5V 1A 충전을 권장합니다. 고출력 충전기는 충전 불량이나 배터리 부담의 원인이 될 수 있습니다. 권장 사양 충전기로도 충전되지 않으면 A/S를 접수해 주세요."],COMMON.back,COMMON.tent,COMMON.filter,COMMON.flight]
+  },
+  {
+    name:"에어몬스터 (PRO)",model:"GEPRO-101",icon:"🌪️",soft:"#e8eef8",url:"https://wincoservice.notion.site/PRO-21c4f43a7c128065bd0ecbbc2b8cdc68",
+    sections:[
+      ["1️⃣ 제품 구성 안내",["색상: 블랙 / 베이지 / 카키 / 로즈골드","구성품: 본품 + 노즐 4종(넓은/좁은/청소/드라이) + USB-C 타입 케이블","※ 황동밸브 / 에어매트 노즐은 별도 구매 제품입니다."]],
+      ["2️⃣ 작동 방법 안내",["전원 버튼을 길게 누르면 작동을 시작합니다.","작동 중 전원 버튼을 짧게 누르면 정지 / 재작동합니다.","레버를 위로 올리면 고속, 아래로 내리면 저속 모드입니다.","충전 단자 주변 구멍은 모터 열을 배출하는 방열구입니다."]],
+      ["3️⃣ LED 표시등 안내",["사용 중 초록불: 정상 작동","사용 중 빨간불 점멸: 충전 필요","충전 중 초록불: 충전 완료 / 빨간불: 충전 중"]],
+      ["4️⃣ 사용 시간 & 충전 안내",["저속 모드 약 3시간 / 고속 모드 약 10~15분","완전 충전까지 약 3시간"]],
+      ["⚠️ 기능 안내",["모터 과열 시 스마트 보호 기능으로 출력이 제한되거나 전원이 종료될 수 있습니다.","충전 중에는 제품을 사용하지 마세요."]]
+    ],
+    faqs:[COMMON.hair,["충전이 되지 않아요.","5V 1A 충전을 권장합니다. 고출력 충전기 사용은 삼가 주세요. 권장 사양 충전기로도 충전되지 않으면 A/S를 접수해 주세요."],COMMON.back,COMMON.tent,COMMON.filter,COMMON.weak,COMMON.port,COMMON.flight]
+  },
+  {
+    name:"에어몬스터 (PRO NEW)",model:"GEPRO-101 NEW",icon:"✨",soft:"#f2eafa",url:"https://wincoservice.notion.site/PRO-NEW-21d4f43a7c1280ebb014eaaf8f529dc5",
+    sections:[
+      ["1️⃣ 제품 구성 안내",["색상: 블랙 / 베이지 / 카키","구성품: 본품 + 노즐 5종(넓은/좁은/청소/드라이/매트) + USB-C 타입 케이블","※ 황동밸브 노즐은 별도 구매 제품입니다."]],
+      ["2️⃣ 작동 방법 안내",["레버를 올리면 전원 ON, 끝까지 내리면 전원 OFF","레버를 내리면 저속, 올리면 고속 모드","터보 버튼을 누르는 동안 최고 속도를 유지하며 손을 떼면 이전 속도로 복귀합니다."]],
+      ["3️⃣ LED 표시등 안내",["사용 중 현재 배터리 잔량을 확인할 수 있습니다.","충전 중에는 잔량에 따라 깜빡이는 LED 개수로 상태를 표시합니다."]],
+      ["4️⃣ 사용 시간 & 충전 안내",["사용 환경과 바람 단계에 따라 사용 시간이 달라질 수 있습니다."]],
+      ["⚠️ 기능 안내",["모터 과열 시 스마트 보호 기능으로 출력이 제한되거나 전원이 종료될 수 있습니다.","충전 중에는 제품을 사용하지 마세요."]]
+    ],
+    faqs:[COMMON.hair,["충전이 되지 않아요.","5V 1A 충전을 권장합니다. 권장 사양 충전기로도 충전되지 않으면 A/S를 접수해 주세요."],COMMON.back,COMMON.tent,COMMON.filter,COMMON.weak,COMMON.port,COMMON.flight]
+  },
+  {
+    name:"에어몬스터 터보 (WT-500)",model:"WT-500",icon:"🚀",soft:"#fff0df",url:"https://wincoservice.notion.site/WT-500-21e4f43a7c128076a9c2c9cd689e96e9",
+    sections:[
+      ["1️⃣ 제품 구성 안내",["색상: 블랙 / 카키","구성품: 본체 + 배터리 + C 케이블 + 클리닝 노즐","※ 와이드 / 연장 노즐은 별도 구매 제품입니다."]],
+      ["2️⃣ 작동 방법 안내",["전원 버튼을 길게 누르면 전원이 켜지며 단계 0 대기 상태가 됩니다.","일반 모드는 0~100단계까지 조절할 수 있습니다.","터보 버튼을 누르는 동안 약 10초간 터보 모드가 작동하고 이후 이전 단계로 복귀합니다."]],
+      ["3️⃣ 오류알림 기능 안내",["오류 코드가 확인되면 기기를 종료한 후 재작동해 주세요."]],
+      ["4️⃣ 사용 시간 & 충전 안내",["65W 충전기 기준 약 3~4시간 소요됩니다."]],
+      ["⚠️ 기능 안내",["모터 온도가 높으면 냉각 보호 모드로 전환되며 터보 버튼이 일시적으로 비활성화됩니다.","슬라이딩 레버로 0~100단계 풍속을 조절합니다.","충전 중에는 제품을 사용하지 마세요."]]
+    ],
+    faqs:[COMMON.hair,["충전 Q&A","1. 특정 %에서 충전이 멈추면 배터리를 0%까지 소진한 후 다시 충전해 주세요.\n2. 정상 충전 시간은 65W 기준 약 3~4시간입니다.\n3. 100W 충전기를 사용해도 제품은 최대 54W까지만 받아들이며 보호 회로가 작동합니다."],COMMON.tent,COMMON.filter,COMMON.weak,["청소 노즐이 안 빠져요.","클리닝 통 양옆의 작은 홈을 누른 상태에서 검은색 뚜껑의 홈을 잡고 위로 당기듯 들어 올려 주세요."],["배터리에 돌출된 부분이 있어요.","배터리 내부 전선을 고정하는 핀이 위치한 지점으로 모든 배터리에 동일하게 적용되는 정상 구조입니다."],["연장노즐과 와이드노즐을 동시에 사용할 수 있나요?","네. 연장노즐을 먼저 연결한 뒤 와이드노즐을 결합해 사용해 주세요."],COMMON.flight]
+  },
+  {
+    name:"에어몬스터2 (WOL-007)",model:"WOL-007",icon:"💫",soft:"#e8f5f7",url:"https://wincoservice.notion.site/2-WOL-007-2544f43a7c128028b90ac07e744ad91b",
+    sections:[
+      ["1️⃣ 제품 구성 안내",["색상: 블랙","구성품: 본품 + 클리닝 노즐 + C to C 케이블"]],
+      ["2️⃣ 작동 방법 안내",["레버를 올리면 전원 ON, 끝까지 내리면 전원 OFF","레버를 내리면 저속, 올리면 고속 모드","터보 버튼을 누르는 동안 최고 속도를 유지하며 손을 떼면 이전 속도로 복귀합니다."]],
+      ["3️⃣ LED 표시등 안내",["사용 중 현재 배터리 잔량을 확인할 수 있습니다.","충전 중에는 잔량에 따라 깜빡이는 LED 개수로 상태를 표시합니다."]],
+      ["4️⃣ 사용 시간 & 충전 안내",["사용 환경과 바람 단계에 따라 사용 시간이 달라질 수 있습니다."]],
+      ["⚠️ 기능 안내",["모터 과열 시 스마트 보호 기능으로 출력이 제한되거나 전원이 종료될 수 있습니다.","충전 중에는 제품을 사용하지 마세요."]]
+    ],
+    faqs:[COMMON.hair,COMMON.back,COMMON.tent,COMMON.filter,COMMON.weak,COMMON.port,COMMON.flight]
+  },
+  {
+    name:"에어몬스터 (PRO 2)",model:"GEPRO-101-2",icon:"⚡",soft:"#fff4d8",url:"https://wincoservice.notion.site/PRO-2-2d94f43a7c1280df99b3e2016421c77f",
+    sections:[
+      ["1️⃣ 제품 구성 안내",["색상: 블랙","구성품: 본품 + 클리닝 노즐 + C to C 케이블","※ 전용 케이스는 별도 구매 제품입니다."]],
+      ["2️⃣ 작동 방법 안내",["전원 버튼을 길게 누르면 전원이 켜지거나 꺼집니다.","전원 버튼을 짧게 누르면 저속 → 고속 → 초고속 → 최고속으로 전환됩니다.","터보 버튼을 길게 누르면 즉시 터보 모드로 전환되고 손을 떼면 이전 속도로 복귀합니다."]],
+      ["3️⃣ LED 표시등 안내",["충전 중에는 잔량에 따라 깜빡이는 LED 개수로 상태를 표시합니다."]],
+      ["4️⃣ 사용 시간 & 충전 안내",["사용 환경과 바람 단계에 따라 사용 시간이 달라질 수 있습니다."]],
+      ["⚠️ 기능 안내",["모터 과열 시 스마트 보호 기능으로 출력이 제한되거나 전원이 종료될 수 있습니다.","충전 중에는 제품을 사용하지 마세요."]]
+    ],
+    faqs:[COMMON.hair,COMMON.back,COMMON.tent,COMMON.filter,COMMON.weak,COMMON.port,COMMON.flight]
+  }
+];
+
+const products=document.getElementById("products");
+const query=document.getElementById("query");
+const clearBtn=document.getElementById("clearBtn");
+const empty=document.getElementById("empty");
+const resultText=document.getElementById("resultText");
+let category="air";
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function norm(v){return String(v||"").toLocaleLowerCase("ko").replace(/\s+/g," ")}
+function marked(v,q){const safe=esc(v);if(!q)return safe;const pos=norm(v).indexOf(q);if(pos<0)return safe;return safe}
+function render(){
+  const q=norm(query.value.trim());
+  clearBtn.classList.toggle("show",!!q);
+  if(category!=="air"){
+    products.innerHTML="";empty.textContent="현재 등록된 FAQ가 없습니다.";empty.classList.add("show");resultText.textContent="결과 없음";return;
+  }
+  const list=P.filter(p=>!q||norm([p.name,p.model,...p.sections.flat(2),...p.faqs.flat(2)].join(" ")).includes(q));
+  products.innerHTML=list.map(p=>`
+    <details class="product" style="--psoft:${p.soft}" ${q?"open":""}>
+      <summary><span class="pico">${p.icon}</span><span class="ptext"><span class="pname">${esc(p.name)}</span><span class="pmodel">${esc(p.model)}</span></span><span class="arrow">›</span></summary>
+      <div class="product-body">
+        <div class="sections">${p.sections.map((s,i)=>`
+          <details class="section" ${q&&norm(s.flat().join(" ")).includes(q)?"open":""}>
+            <summary>${esc(s[0])}</summary>
+            <div class="section-body">${s[1].map((line,j)=>`<div class="${j===s[1].length-1&&line.startsWith("※")?"notice":"line"}">${esc(line)}</div>`).join("")}</div>
+          </details>`).join("")}
+        </div>
+        <div class="faq-title">📖 자주 묻는 질문</div>
+        ${p.faqs.map(qa=>`
+          <details class="qa" ${q&&norm(qa.join(" ")).includes(q)?"open":""}>
+            <summary>${esc(qa[0])}</summary>
+            <div class="answer">${esc(qa[1])}<button class="copy" type="button" data-copy="${esc(qa[1])}">복사</button></div>
+          </details>`).join("")}
+        <a class="original" href="${p.url}" target="_blank" rel="noopener">이 제품의 Notion 원본 보기 ↗</a>
+      </div>
+    </details>`).join("");
+  empty.textContent="검색 결과가 없습니다.";empty.classList.toggle("show",list.length===0);
+  resultText.textContent=q?`검색 결과 ${list.length}개 제품`:`에어건 ${list.length}개 제품`;
+}
+query.addEventListener("input",render);
+clearBtn.addEventListener("click",()=>{query.value="";render();query.focus()});
+document.querySelector(".cats").addEventListener("click",e=>{
+  const btn=e.target.closest("[data-cat]");if(!btn)return;
+  category=btn.dataset.cat;document.querySelectorAll(".cat").forEach(x=>x.classList.toggle("on",x===btn));render();
+});
+products.addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-copy]");if(!btn)return;
+  try{await navigator.clipboard.writeText(btn.dataset.copy);btn.textContent="복사됨";setTimeout(()=>btn.textContent="복사",1200)}
+  catch(err){btn.textContent="실패"}
+});
+render();
+</script>
+</body>
+</html>
