@@ -504,7 +504,7 @@
       <span class="postit-badge" id="postitCollapsedCount">0</span>
     </button>
     <section class="postit-panel" id="postitPanel">
-      <div class="postit-head" title="잡고 좌우로 이동">
+      <div class="postit-head" title="좌우로 이동 · 위로 끌어 높이 늘리기">
         <div class="postit-heading">
           <strong>업무 포스트잇</strong>
           <span class="postit-count" id="postitCount">0개</span>
@@ -746,8 +746,13 @@ postitHead.addEventListener("pointerdown", function(event){
   if(event.button !== 0 || event.target.closest("button")) return;
   const rect = postitWidget.getBoundingClientRect();
   const startX = event.clientX;
+  const startY = event.clientY;
   const startLeft = rect.left;
+  const startTop = rect.top;
+  const fixedBottom = rect.bottom;
   const gap = window.innerWidth <= 620 ? 10 : 18;
+  const wasLarge = !!(postitLayout && postitLayout.large);
+  let verticalResize = false;
   postitWidget.style.left = startLeft + "px";
   postitWidget.style.right = "auto";
   postitHead.classList.add("is-dragging");
@@ -756,6 +761,20 @@ postitHead.addEventListener("pointerdown", function(event){
   function move(moveEvent){
     const maxLeft = window.innerWidth - postitWidget.getBoundingClientRect().width - gap;
     postitWidget.style.left = clampPostit(startLeft + moveEvent.clientX - startX, gap, maxLeft) + "px";
+    const deltaY = moveEvent.clientY - startY;
+    if(!verticalResize && Math.abs(deltaY) > 4){
+      verticalResize = true;
+      postitWidget.classList.add("has-custom-size");
+      postitWidget.style.top = startTop + "px";
+      postitWidget.style.bottom = "auto";
+      postitWidget.style.width = rect.width + "px";
+      postitWidget.style.height = rect.height + "px";
+    }
+    if(verticalResize){
+      const top = clampPostit(startTop + deltaY, gap, fixedBottom - 180);
+      postitWidget.style.top = top + "px";
+      postitWidget.style.height = (fixedBottom - top) + "px";
+    }
   }
   function end(endEvent){
     postitHead.classList.remove("is-dragging");
@@ -764,8 +783,9 @@ postitHead.addEventListener("pointerdown", function(event){
     postitHead.removeEventListener("pointerup", end);
     postitHead.removeEventListener("pointercancel", end);
     const custom = postitWidget.classList.contains("has-custom-size");
-    storePostitLayout(currentPostitLayout(custom, !!(postitLayout && postitLayout.large),
-      postitLayout && postitLayout.restore));
+    storePostitLayout(currentPostitLayout(custom, verticalResize ? false : wasLarge,
+      verticalResize ? null : postitLayout && postitLayout.restore));
+    if(verticalResize) setPostitSizeButton(false);
   }
   postitHead.addEventListener("pointermove", move);
   postitHead.addEventListener("pointerup", end);
