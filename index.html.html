@@ -342,19 +342,21 @@
   .postit-list{display:flex;max-height:min(52vh,470px);flex:1 1 auto;min-height:0;flex-direction:column;gap:9px;overflow:auto;padding:12px;}
   .postit-widget.has-custom-size .postit-list{max-height:none;}
   .postit-empty{padding:25px 14px;border:1px dashed #dfcf9f;border-radius:12px;color:#8b805f;font-size:12.5px;text-align:center;}
-  .postit-note{position:relative;flex:0 0 auto;border:1px solid rgba(139,107,25,.16);border-radius:12px;background:#fff2ae;box-shadow:0 5px 13px rgba(82,67,29,.07);}
+  .postit-note{position:relative;flex:0 0 auto;min-height:92px;border:1px solid rgba(139,107,25,.16);border-radius:12px;background:#fff2ae;box-shadow:0 5px 13px rgba(82,67,29,.07);}
   .postit-note:nth-child(3n+2){border-color:rgba(46,115,76,.13);background:#e8f5e9;}
   .postit-note:nth-child(3n){border-color:rgba(55,96,141,.13);background:#eaf2fb;}
-  .postit-text{display:block;width:100%;min-height:92px;resize:vertical;border:0;outline:0;background:transparent;padding:13px 40px 13px 13px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;}
+  .postit-text{display:block;width:100%;height:100%;min-height:90px;resize:none;border:0;outline:0;background:transparent;padding:15px 40px 15px 13px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;}
   .postit-text::placeholder{color:#9a8e69;}
+  .postit-note-grip{position:absolute;left:50%;z-index:3;width:48px;height:12px;transform:translateX(-50%);border:0;background:transparent;cursor:ns-resize;touch-action:none;}
+  .postit-note-grip::after{content:"";display:block;width:28px;height:3px;margin:auto;border-radius:99px;background:rgba(100,79,29,.22);}
+  .postit-note-grip:hover::after{background:rgba(77,58,17,.52);}
+  .postit-note-grip.top{top:0;}
+  .postit-note-grip.bottom{bottom:0;}
   .postit-delete{position:absolute;top:7px;right:7px;width:27px;height:27px;border:0;border-radius:8px;background:rgba(255,255,255,.62);color:#8e7654;font:inherit;font-size:17px;cursor:pointer;}
   .postit-delete:hover{background:#fff;color:#a33a32;}
   .postit-foot{flex:0 0 auto;padding:0 29px 10px 13px;color:#9b8b61;font-size:10.5px;text-align:right;}
   .postit-resize{position:absolute;right:5px;bottom:5px;width:22px;height:22px;border:0;background:transparent;color:#9c824b;font:inherit;font-size:16px;line-height:1;cursor:nwse-resize;touch-action:none;}
   .postit-resize::after{content:"◢";display:block;transform:scale(.85);transform-origin:center;}
-  .postit-resize-top{position:absolute;top:3px;left:50%;z-index:4;width:52px;height:14px;transform:translateX(-50%);border:0;background:transparent;cursor:ns-resize;touch-action:none;}
-  .postit-resize-top::after{content:"";display:block;width:30px;height:4px;margin:auto;border-radius:99px;background:rgba(111,85,28,.32);transition:background .15s;}
-  .postit-resize-top:hover::after{background:rgba(79,58,15,.62);}
   .postit-open{display:none;align-items:center;gap:8px;margin-left:auto;min-height:46px;padding:0 15px;border:1px solid #dfca87;border-radius:14px;background:linear-gradient(135deg,#ffedae,#ffe293);box-shadow:0 12px 32px rgba(35,45,39,.17);color:#493c20;font:inherit;font-size:13px;font-weight:850;cursor:pointer;}
   .postit-badge{display:grid;min-width:21px;height:21px;place-items:center;border-radius:99px;background:#6e5926;color:#fff;font-size:10.5px;}
   .postit-widget.is-collapsed .postit-panel{display:none;}
@@ -504,7 +506,7 @@
       <span class="postit-badge" id="postitCollapsedCount">0</span>
     </button>
     <section class="postit-panel" id="postitPanel">
-      <div class="postit-head" title="좌우로 이동 · 위로 끌어 높이 늘리기">
+      <div class="postit-head" title="잡고 좌우로 이동">
         <div class="postit-heading">
           <strong>업무 포스트잇</strong>
           <span class="postit-count" id="postitCount">0개</span>
@@ -517,7 +519,6 @@
       </div>
       <div class="postit-list" id="postitList"></div>
       <div class="postit-foot" id="postitSaveState" aria-live="polite">이 기기에 자동 저장됩니다</div>
-      <button class="postit-resize-top" id="postitResizeTop" type="button" aria-label="포스트잇을 위로 늘리기" title="위로 드래그하여 높이 늘리기"></button>
       <button class="postit-resize" id="postitResize" type="button" aria-label="포스트잇 크기 조절" title="드래그하여 크기 조절"></button>
     </section>
   </aside>
@@ -552,7 +553,6 @@ const postitSaveState = document.getElementById("postitSaveState");
 const postitOpenBtn = document.getElementById("postitOpenBtn");
 const postitSizeBtn = document.getElementById("postitSizeBtn");
 const postitResize = document.getElementById("postitResize");
-const postitResizeTop = document.getElementById("postitResizeTop");
 let postitNotes = [];
 let postitSaveTimer = null;
 let postitLayout = null;
@@ -611,6 +611,9 @@ function renderPostits(focusId){
     postitNotes.forEach(function(note){
       const card = document.createElement("div");
       card.className = "postit-note";
+      if(Number.isFinite(note.height)){
+        card.style.height = clampPostit(note.height, 92, 520) + "px";
+      }
 
       const field = document.createElement("textarea");
       field.className = "postit-text";
@@ -627,8 +630,26 @@ function renderPostits(focusId){
       remove.setAttribute("aria-label", "메모 삭제");
       remove.dataset.deleteNote = note.id;
 
+      const topGrip = document.createElement("button");
+      topGrip.className = "postit-note-grip top";
+      topGrip.type = "button";
+      topGrip.dataset.noteResize = "top";
+      topGrip.dataset.noteId = note.id;
+      topGrip.setAttribute("aria-label", "메모 위쪽 높이 조절");
+      topGrip.title = "위아래로 드래그하여 높이 조절";
+
+      const bottomGrip = document.createElement("button");
+      bottomGrip.className = "postit-note-grip bottom";
+      bottomGrip.type = "button";
+      bottomGrip.dataset.noteResize = "bottom";
+      bottomGrip.dataset.noteId = note.id;
+      bottomGrip.setAttribute("aria-label", "메모 아래쪽 높이 조절");
+      bottomGrip.title = "위아래로 드래그하여 높이 조절";
+
       card.appendChild(field);
       card.appendChild(remove);
+      card.appendChild(topGrip);
+      card.appendChild(bottomGrip);
       postitList.appendChild(card);
     });
   }
@@ -746,13 +767,8 @@ postitHead.addEventListener("pointerdown", function(event){
   if(event.button !== 0 || event.target.closest("button")) return;
   const rect = postitWidget.getBoundingClientRect();
   const startX = event.clientX;
-  const startY = event.clientY;
   const startLeft = rect.left;
-  const startTop = rect.top;
-  const fixedBottom = rect.bottom;
   const gap = window.innerWidth <= 620 ? 10 : 18;
-  const wasLarge = !!(postitLayout && postitLayout.large);
-  let verticalResize = false;
   postitWidget.style.left = startLeft + "px";
   postitWidget.style.right = "auto";
   postitHead.classList.add("is-dragging");
@@ -761,20 +777,6 @@ postitHead.addEventListener("pointerdown", function(event){
   function move(moveEvent){
     const maxLeft = window.innerWidth - postitWidget.getBoundingClientRect().width - gap;
     postitWidget.style.left = clampPostit(startLeft + moveEvent.clientX - startX, gap, maxLeft) + "px";
-    const deltaY = moveEvent.clientY - startY;
-    if(!verticalResize && Math.abs(deltaY) > 4){
-      verticalResize = true;
-      postitWidget.classList.add("has-custom-size");
-      postitWidget.style.top = startTop + "px";
-      postitWidget.style.bottom = "auto";
-      postitWidget.style.width = rect.width + "px";
-      postitWidget.style.height = rect.height + "px";
-    }
-    if(verticalResize){
-      const top = clampPostit(startTop + deltaY, gap, fixedBottom - 180);
-      postitWidget.style.top = top + "px";
-      postitWidget.style.height = (fixedBottom - top) + "px";
-    }
   }
   function end(endEvent){
     postitHead.classList.remove("is-dragging");
@@ -783,9 +785,8 @@ postitHead.addEventListener("pointerdown", function(event){
     postitHead.removeEventListener("pointerup", end);
     postitHead.removeEventListener("pointercancel", end);
     const custom = postitWidget.classList.contains("has-custom-size");
-    storePostitLayout(currentPostitLayout(custom, verticalResize ? false : wasLarge,
-      verticalResize ? null : postitLayout && postitLayout.restore));
-    if(verticalResize) setPostitSizeButton(false);
+    storePostitLayout(currentPostitLayout(custom, !!(postitLayout && postitLayout.large),
+      postitLayout && postitLayout.restore));
   }
   postitHead.addEventListener("pointermove", move);
   postitHead.addEventListener("pointerup", end);
@@ -833,46 +834,8 @@ postitResize.addEventListener("pointerdown", function(event){
   postitResize.addEventListener("pointercancel", endResize);
 });
 
-postitResizeTop.addEventListener("pointerdown", function(event){
-  if(event.button !== 0) return;
-  event.preventDefault();
-  const rect = postitWidget.getBoundingClientRect();
-  const fixedBottom = rect.bottom;
-  const startY = event.clientY;
-  const startTop = rect.top;
-  const gap = window.innerWidth <= 620 ? 10 : 18;
-
-  postitWidget.classList.add("has-custom-size");
-  postitWidget.style.left = rect.left + "px";
-  postitWidget.style.top = rect.top + "px";
-  postitWidget.style.right = "auto";
-  postitWidget.style.bottom = "auto";
-  postitWidget.style.width = rect.width + "px";
-  postitWidget.style.height = rect.height + "px";
-  postitResizeTop.setPointerCapture(event.pointerId);
-
-  function resizeUp(moveEvent){
-    const desiredTop = startTop + moveEvent.clientY - startY;
-    const top = clampPostit(desiredTop, gap, fixedBottom - 180);
-    postitWidget.style.top = top + "px";
-    postitWidget.style.height = (fixedBottom - top) + "px";
-  }
-  function endResizeUp(endEvent){
-    try{ postitResizeTop.releasePointerCapture(endEvent.pointerId); }catch(e){}
-    postitResizeTop.removeEventListener("pointermove", resizeUp);
-    postitResizeTop.removeEventListener("pointerup", endResizeUp);
-    postitResizeTop.removeEventListener("pointercancel", endResizeUp);
-    const next = currentPostitLayout(true, false, null);
-    storePostitLayout(next);
-    setPostitSizeButton(false);
-  }
-  postitResizeTop.addEventListener("pointermove", resizeUp);
-  postitResizeTop.addEventListener("pointerup", endResizeUp);
-  postitResizeTop.addEventListener("pointercancel", endResizeUp);
-});
-
 document.getElementById("postitAddBtn").addEventListener("click", function(){
-  const note = {id:postitId(), text:""};
+  const note = {id:postitId(), text:"", height:110};
   postitNotes.unshift(note);
   setPostitCollapsed(false);
   savePostits();
@@ -886,6 +849,47 @@ document.getElementById("postitCollapseBtn").addEventListener("click", function(
 
 postitOpenBtn.addEventListener("click", function(){
   setPostitCollapsed(false);
+});
+
+postitList.addEventListener("pointerdown", function(event){
+  const grip = event.target.closest("[data-note-resize]");
+  if(!grip || event.button !== 0) return;
+  event.preventDefault();
+  const note = postitNotes.find(function(item){ return item.id === grip.dataset.noteId; });
+  const card = grip.closest(".postit-note");
+  if(!note || !card) return;
+
+  const edge = grip.dataset.noteResize;
+  const startY = event.clientY;
+  const startHeight = card.getBoundingClientRect().height;
+  const startScroll = postitList.scrollTop;
+  grip.setPointerCapture(event.pointerId);
+
+  function resizeNote(moveEvent){
+    const deltaY = moveEvent.clientY - startY;
+    const height = clampPostit(
+      edge === "top" ? startHeight - deltaY : startHeight + deltaY,
+      92,
+      520
+    );
+    card.style.height = height + "px";
+    note.height = Math.round(height);
+    if(edge === "top"){
+      postitList.scrollTop = startScroll + height - startHeight;
+    }
+  }
+
+  function endNoteResize(endEvent){
+    try{ grip.releasePointerCapture(endEvent.pointerId); }catch(e){}
+    grip.removeEventListener("pointermove", resizeNote);
+    grip.removeEventListener("pointerup", endNoteResize);
+    grip.removeEventListener("pointercancel", endNoteResize);
+    savePostits();
+  }
+
+  grip.addEventListener("pointermove", resizeNote);
+  grip.addEventListener("pointerup", endNoteResize);
+  grip.addEventListener("pointercancel", endNoteResize);
 });
 
 postitList.addEventListener("input", function(event){
