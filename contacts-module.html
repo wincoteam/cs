@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS 업무 바로가기</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#f4f7f6;--surface:#fff;--ink:#15221d;--muted:#66736e;--line:#dce5e1;
+  --accent:#176b57;--accent-soft:#e7f2ee;--blue:#386d9b;--blue-soft:#eaf2fa;
+  --shadow:0 12px 30px rgba(28,54,46,.07);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;color:var(--ink);background:
+  radial-gradient(circle at 7% 0%,rgba(23,107,87,.09),transparent 29%),var(--bg);
+  font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+button,a{font:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:36px 22px 64px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:23px}
+.eyebrow{font-size:11px;font-weight:900;letter-spacing:.13em;color:var(--accent)}
+h1{margin:5px 0 5px;font-size:30px;line-height:1.25;letter-spacing:-.045em}
+.lead{margin:0;color:var(--muted);font-size:14px}
+.summary{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.75);font-size:12px;font-weight:800;white-space:nowrap}
+.pill b{color:var(--accent)}
+.section{margin-top:28px}
+.section-head{display:flex;align-items:baseline;gap:9px;margin:0 2px 11px}
+.section-head h2{margin:0;font-size:18px;letter-spacing:-.025em}
+.count{font-size:12px;color:var(--muted);font-weight:700}
+.address-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.address-card{
+  min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:17px;
+  box-shadow:var(--shadow);padding:17px;display:flex;flex-direction:column;
+}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.place{display:flex;align-items:center;gap:9px;min-width:0}
+.ico{width:38px;height:38px;display:grid;place-items:center;flex:none;border-radius:12px;background:var(--accent-soft);font-size:18px}
+.place-name{font-weight:900;font-size:16px;letter-spacing:-.02em}
+.use-badge{font-size:10px;font-weight:850;color:var(--accent);background:var(--accent-soft);padding:4px 7px;border-radius:99px;white-space:nowrap}
+.purpose{margin:12px 0 13px;padding:9px 10px;background:#f7f9f8;border-radius:10px;color:#4f5d57;font-size:12.5px;font-weight:650}
+.info{display:grid;grid-template-columns:44px 1fr;gap:6px 8px;margin:0;font-size:13px}
+.info dt{color:#83908b;font-weight:700}
+.info dd{margin:0;font-weight:650;word-break:keep-all}
+.phone{color:var(--accent);text-decoration:none}
+.actions{display:flex;gap:7px;margin-top:auto;padding-top:16px}
+.btn{
+  flex:1;border:1px solid var(--line);background:#fff;color:#33423c;border-radius:9px;
+  padding:8px 9px;font-size:12px;font-weight:800;cursor:pointer;transition:.15s ease;
+}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.link-card{
+  display:flex;align-items:center;gap:13px;padding:15px 16px;background:#fff;border:1px solid var(--line);
+  border-radius:15px;text-decoration:none;color:var(--ink);box-shadow:0 5px 16px rgba(28,54,46,.04);
+  transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+.link-card:hover{transform:translateY(-2px);border-color:#9cbdb3;box-shadow:var(--shadow)}
+.link-ico{width:39px;height:39px;display:grid;place-items:center;flex:none;border-radius:11px;background:var(--blue-soft);font-size:18px}
+.link-body{min-width:0;flex:1}
+.link-name{font-size:14px;font-weight:900}
+.link-desc{margin-top:2px;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arrow{color:var(--accent);font-weight:900}
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,15px);padding:10px 15px;
+  border-radius:99px;background:#18362e;color:#fff;font-size:12.5px;font-weight:800;
+  opacity:0;pointer-events:none;transition:.2s ease;box-shadow:0 8px 25px rgba(0,0,0,.18);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+*:focus-visible{outline:3px solid rgba(23,107,87,.25);outline-offset:2px}
+@media(max-width:760px){
+  .wrap{padding:25px 14px 48px}.top{display:block}.summary{justify-content:flex-start;margin-top:15px}
+  h1{font-size:26px}.address-grid{grid-template-columns:1fr}.links{grid-template-columns:1fr}
+  .address-card{padding:15px}.purpose{margin-top:11px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">WINCO CS QUICK ACCESS</div>
+      <h1>CS 업무 바로가기</h1>
+      <p class="lead">발송지를 확인하고 자주 쓰는 CS 페이지로 바로 이동하세요.</p>
+    </div>
+    <div class="summary" aria-label="등록 정보 요약">
+      <span class="pill">발송 주소 <b>3곳</b></span>
+      <span class="pill">업무 링크 <b>4개</b></span>
+    </div>
+  </header>
+
+  <section class="section" aria-labelledby="addressTitle">
+    <div class="section-head"><h2 id="addressTitle">🚚 발송 주소</h2><span class="count">용도에 맞는 발송지를 선택하세요</span></div>
+    <div class="address-grid">
+      <article class="address-card">
+        <div class="card-top">
+          <div class="place"><span class="ico">📦</span><div class="place-name">인천 창고</div></div>
+          <span class="use-badge">보상판매</span>
+        </div>
+        <p class="purpose">보상판매 제품을 반납받을 때 사용</p>
+        <dl class="info">
+          <dt>이름</dt><dd>윈코 보상판매센터 / 물류센터</dd>
+          <dt>주소</dt><dd>인천시 검단구 오류동 1544-3번지 은산해운창고</dd>
+        </dl>
+        <div class="actions">
+          <button class="btn" type="button" data-copy="인천시 검단구 오류동 1544-3번지 은산해운창고">주소 복사</button>
+          <button class="btn primary" type="button" data-copy="이름 : 윈코 보상판매센터 / 물류센터&#10;주소 : 인천시 검단구 오류동 1544-3번지 은산해운창고">전체 복사</button>
+        </div>
+      </article>
+
+      <article class="address-card">
+        <div class="card-top">
+          <div class="place"><span class="ico">🔎</span><div class="place-name">고빅스</div></div>
+          <span class="use-badge">제품 검수</span>
+        </div>
+        <p class="purpose">제품 상태 확인과 검수가 필요할 때 사용</p>
+        <dl class="info">
+          <dt>이름</dt><dd>윈코 A/S 센터</dd>
+          <dt>주소</dt><dd>서울 양천구 오목로17길 8 1층</dd>
+          <dt>전화</dt><dd><a class="phone" href="tel:01059292438">010-5929-2438</a></dd>
+        </dl>
+        <div class="actions">
+          <button class="btn" type="button" data-copy="서울 양천구 오목로17길 8 1층">주소 복사</button>
+          <button class="btn primary" type="button" data-copy="이름 : 윈코 A/S 센터&#10;주소 : 서울 양천구 오목로17길 8 1층&#10;전화번호 : 010-5929-2438">전체 복사</button>
+        </div>
+      </article>
+
+      <article class="address-card">
+        <div class="card-top">
+          <div class="place"><span class="ico">🏢</span><div class="place-name">사무실</div></div>
+          <span class="use-badge">특이사항</span>
+        </div>
+        <p class="purpose">특이사항이 있어 사무실에서 직접 검수할 때 사용</p>
+        <dl class="info">
+          <dt>이름</dt><dd>윈코</dd>
+          <dt>주소</dt><dd>서울특별시 금천구 디지털로10길 37, 가산아스크타워 A동 1711~1718호</dd>
+          <dt>전화</dt><dd><a class="phone" href="tel:07047229200">070-4722-9200</a></dd>
+        </dl>
+        <div class="actions">
+          <button class="btn" type="button" data-copy="서울특별시 금천구 디지털로10길 37, 가산아스크타워 A동 1711~1718호">주소 복사</button>
+          <button class="btn primary" type="button" data-copy="이름 : 윈코&#10;주소 : 서울특별시 금천구 디지털로10길 37, 가산아스크타워 A동 1711~1718호&#10;전화번호 : 070-4722-9200">전체 복사</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="linkTitle">
+    <div class="section-head"><h2 id="linkTitle">🔗 업무 링크</h2><span class="count">선택하면 새 창에서 열립니다</span></div>
+    <div class="links">
+      <a class="link-card" href="https://talk.naver.com/ct/wc3l0s?frm=psf" target="_blank" rel="noopener">
+        <span class="link-ico">💬</span><span class="link-body"><span class="link-name">네이버 톡톡</span><span class="link-desc">고객 문의와 상담 확인</span></span><span class="arrow">↗</span>
+      </a>
+      <a class="link-card" href="https://careplz.kr/" target="_blank" rel="noopener">
+        <span class="link-ico">🛠️</span><span class="link-body"><span class="link-name">A/S 접수</span><span class="link-desc">케어플러스 A/S 접수 페이지</span></span><span class="arrow">↗</span>
+      </a>
+      <a class="link-card" href="https://wincoservice.notion.site/WINCO-A-S-2c74f43a7c128084893afb6a941883e5?pvs=73" target="_blank" rel="noopener">
+        <span class="link-ico">📋</span><span class="link-body"><span class="link-name">A/S 접수방법</span><span class="link-desc">접수 절차와 안내 확인</span></span><span class="arrow">↗</span>
+      </a>
+      <a class="link-card" href="https://wincoservice.notion.site/WINCO-FAQ-21c4f43a7c128072a213f32d59c69144?source=copy_link" target="_blank" rel="noopener">
+        <span class="link-ico">🍀</span><span class="link-body"><span class="link-name">WINCO FAQ</span><span class="link-desc">제품별 사용법과 자주 묻는 질문</span></span><span class="arrow">↗</span>
+      </a>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite">복사했습니다</div>
+<script>
+const toast=document.getElementById("toast");
+let toastTimer;
+function showToast(message){
+  toast.textContent=message;toast.classList.add("show");
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),1400);
+}
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(error){
+    const area=document.createElement("textarea");
+    area.value=text;area.style.position="fixed";area.style.opacity="0";
+    document.body.appendChild(area);area.select();
+    document.execCommand("copy");area.remove();
+  }
+}
+document.addEventListener("click",async event=>{
+  const button=event.target.closest("[data-copy]");
+  if(!button)return;
+  await copyText(button.dataset.copy);
+  const original=button.textContent;
+  button.textContent="복사됨 ✓";showToast("복사했습니다");
+  setTimeout(()=>button.textContent=original,1200);
+});
+</script>
+</body>
+</html>
