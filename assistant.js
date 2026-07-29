@@ -32,6 +32,10 @@
     ["접수","신청","등록","접수방법"],
     ["충전","충전기","배터리","전원"],
     ["불량","안돼","안됨","안되","되지않","고장","문제","작동안"],
+    ["출력","바람","풍량","세기","약함"],
+    ["사용법","작동법","작동방법","어떻게사용","사용방법"],
+    ["구성품","구성","동봉","뭐들어","포함"],
+    ["사용시간","작동시간","몇시간","얼마나사용"],
     ["모터","펌프","에어펌프"],
     ["에어건","에어몬스터","먼지제거기"],
     ["랜턴","캠핑등","led랜턴","스트레치랜턴"],
@@ -260,11 +264,14 @@
   }
 
   function contextualQuery(query){
-    const shortFollowUp = compact(query).length <= 30 && hasAny(query,[
-      "그거","그건","그제품","그상품","이거","이제품","그럼","그러면","아까",
-      "얼마","가격","배송비","어디","주소","방법","링크","접수","보내",
-      "어떻게","안내","뭐라고","고객","추가","더"
+    const compactQuery = compact(query);
+    const explicitFollowUp = hasAny(query,[
+      "그거","그건","그제품","그상품","이거","이제품","그럼","그러면","아까","방금","위에"
     ]);
+    const terseFollowUp = compactQuery.length <= 7 && hasAny(query,[
+      "얼마","가격","배송비","어디","주소","방법","링크","접수","보내","어떻게","안내","뭐라고","추가","더"
+    ]);
+    const shortFollowUp = compactQuery.length <= 30 && (explicitFollowUp || terseFollowUp);
     if(shortFollowUp && previousResult){
       const currentProduct = detectedProduct(query);
       const previousProduct = detectedProduct(previousResult.title);
@@ -277,10 +284,10 @@
 
   function scoreItem(item, query){
     const q = normalize(query);
-    const qCompact = canonicalProduct(q);
-    const titleCompact = canonicalProduct(item.title);
-    const keywordCompact = canonicalProduct(item.keywords+" "+item.category);
-    const answerCompact = canonicalProduct(item.answer);
+    const qCompact = semanticCompact(q);
+    const titleCompact = semanticCompact(item.title);
+    const keywordCompact = semanticCompact(item.keywords+" "+item.category);
+    const answerCompact = semanticCompact(item.answer);
     const queryTokens = tokens(q);
     let score = 0;
     if(!qCompact) return 0;
@@ -290,7 +297,7 @@
     if(qCompact.includes(titleCompact) && titleCompact.length > 3) score += 72;
 
     queryTokens.forEach(function(token){
-      const c = canonicalProduct(token);
+      const c = semanticCompact(token);
       if(!c) return;
       if(titleCompact.includes(c)) score += c.length >= 4 ? 24 : 15;
       else if(keywordCompact.includes(c)) score += c.length >= 4 ? 15 : 9;
@@ -306,8 +313,11 @@
     const tradeIntent = hasAny(q,["보상","보상판매","기기반납"]);
     const chargeIntent = hasAny(q,["충전","배터리","전원"]);
     const failureIntent = hasAny(q,["불량","안돼","안됨","안되","되지않","고장","문제","작동안"]);
+    const requestedProduct = detectedProduct(q);
+    const itemProduct = itemProductName(item);
 
     if(priceIntent && item.kind === "price") score += tradeIntent ? 58 : 8;
+    if(!priceIntent && !tradeIntent && item.kind === "price") score -= 95;
     if(priceIntent && ["part","vendor"].includes(item.kind)) score += 13;
     if(addressIntent && item.kind === "address") score += 52;
     if(linkIntent && item.kind === "link") score += 32;
@@ -322,6 +332,19 @@
     if(hasAny(q,["사무실","특이사항","직접검수"]) && item.title.includes("사무실")) score += 70;
     if(hasAny(q,["톡톡","네이버"]) && item.title.includes("톡톡")) score += 80;
     if(hasAny(q,["접수방법","어떻게접수"]) && item.title.includes("접수방법")) score += 65;
+
+    if(requestedProduct){
+      const requested = canonicalProduct(requestedProduct);
+      const itemName = canonicalProduct(itemProduct || item.title);
+      if(itemName === requested) score += 125;
+      else if(item.module === "faq") score -= 34;
+    }
+
+    symptomRules.forEach(function(rule){
+      if(hasAny(q,rule.query) && hasAny(item.title,rule.title)){
+        score += rule.boost || 90;
+      }
+    });
 
     return score;
   }
@@ -360,7 +383,44 @@
       .replace(/스트래치/g,"스트레치");
   }
 
-  function exactPriceItem(query){
+  function semanticCompact(value){
+    return canonicalProduct(value)
+      .replace(/충전이?되지않아요?|충전이?안돼요?|충전안됨|충전불량/g,"충전실패")
+      .replace(/전원이?켜지지않아요?|전원안켜짐|전원불량/g,"전원실패")
+      .replace(/작동이?되지않아요?|작동안됨|작동안함/g,"작동실패")
+      .replace(/출력이?약해요?|바람이?약해요?|풍량이?약해요?/g,"출력약함")
+      .replace(/사용하는방법|사용방법|작동하는방법|작동방법/g,"사용법")
+      .replace(/구성품목|제품구성|기본구성/g,"구성품")
+      .replace(/완전충전|완충/g,"완충")
+      .replace(/몇시간|얼마나사용/g,"사용시간");
+  }
+
+  const symptomRules = [
+    {query:["충전불량","충전안돼","충전안됨","충전이안되","충전되지않"],title:["충전이되지않","충전이안돼","충전불량"],boost:125},
+    {query:["전원안켜","전원불량","켜지지않"],title:["전원이켜지지않","전원불량","작동이되지않"],boost:115},
+    {query:["작동안돼","작동안됨","작동불량"],title:["작동이되지않","작동안돼","전원이켜지지않"],boost:105},
+    {query:["바람약","출력약","풍량약","세기약"],title:["출력이약","바람이약","출력","풍량"],boost:105},
+    {query:["꺼져","꺼짐","자동종료"],title:["꺼져","종료","출력이약해지고"],boost:92},
+    {query:["역풍","바람거꾸로"],title:["역풍"],boost:125},
+    {query:["노즐","연장노즐","와이드노즐","좁은노즐"],title:["노즐"],boost:118},
+    {query:["같이사용","동시에사용","같이써","동시에써"],title:["동시에사용","같이사용"],boost:105},
+    {query:["필터","헤파"],title:["필터"],boost:112},
+    {query:["구성품","뭐들어","동봉","포함품"],title:["제품구성","구성품"],boost:112},
+    {query:["사용법","사용방법","작동방법","어떻게써"],title:["작동방법","사용방법"],boost:108},
+    {query:["사용시간","몇시간","얼마나사용"],title:["사용시간","충전안내"],boost:108},
+    {query:["충전시간","완충시간","완충"],title:["사용시간","충전안내"],boost:102},
+    {query:["기내","비행기","항공"],title:["기내반입"],boost:118},
+    {query:["에어텐트","텐트공기"],title:["에어텐트"],boost:118}
+  ];
+
+  function itemProductName(item){
+    if(item.module === "faq" && item.title.includes("·")){
+      return item.title.split("·")[0].trim();
+    }
+    return "";
+  }
+
+  function exactPriceItem(query, allowFuzzy){
     const q = canonicalProduct(query);
     const matches = priceAliases.filter(function(row){
       return row[1].some(function(alias){ return q.includes(canonicalProduct(alias)); });
@@ -369,6 +429,7 @@
       const aliased = itemByTitle(matches[0][0]);
       if(aliased) return aliased;
     }
+    if(!allowFuzzy) return null;
 
     const noise = /보상판매|협의구매|가격|금액|얼마|비용|알려줘|찾아줘|확인|제품|상품|윈코/g;
     const productQuery = q.replace(noise,"");
@@ -399,6 +460,26 @@
     if(q.includes("에어몬스터프로") || q.includes("윈코프로")) return "에어몬스터 프로";
     if(q.includes("스트레치랜턴")) return "스트레치 랜턴";
     if(q.includes("led캠핑랜턴") || q.includes("led랜턴")) return "LED 캠핑 랜턴";
+    const products = [...new Set(knowledge
+      .filter(function(item){ return item.module === "faq" && item.title.includes("·"); })
+      .map(function(item){ return item.title.split("·")[0].trim(); }))];
+    let best = null;
+    products.forEach(function(product){
+      const canonical = canonicalProduct(product);
+      const modelMatches = [...String(product).matchAll(/\(([^)]+)\)/g)]
+        .map(function(match){ return canonicalProduct(match[1]); });
+      const variants = [
+        canonical,
+        canonical.replace(/윈코|무선|제품/g,""),
+        ...modelMatches
+      ].filter(function(value){ return value.length >= 3; });
+      variants.forEach(function(variant){
+        if(q.includes(variant) && (!best || variant.length > best.length)){
+          best = {name:product,length:variant.length};
+        }
+      });
+    });
+    if(best) return best.name;
     return "";
   }
 
@@ -415,7 +496,7 @@
     const contextRepair = hasAny(q,["as","에이에스","수리","고장","불량","검수"]);
     const followsPrevious = compact(query).length <= 12 &&
       hasAny(query,["그거","그건","그제품","그상품","그러면","어디","보내"]);
-    const matchedTradePrice = exactPriceItem(q);
+    const matchedTradePrice = exactPriceItem(q,wantsTrade || pendingIntent === "price");
     const productName = detectedProduct(q);
 
     if(hasAny(query,["출시","출시일","언제나왔","언제출시","발매"])){
@@ -498,9 +579,13 @@
 
     let text = top.item.answer;
     if(top.item.kind === "product") text = `${top.item.title} 상품 정보입니다.\n\n${top.item.answer}`;
-    if(hasAny(query,[
+    const wantsCustomerReply = hasAny(query,[
       "어떻게안내","안내해야","안내해","뭐라고말해","뭐라고","답변해야","답변해","고객안내","고객한테"
-    ])){
+    ]);
+    if(productName && top.item.module === "faq" && !wantsCustomerReply){
+      text = `${productName} 기준으로 안내드립니다.\n\n${top.item.answer}`;
+    }
+    if(wantsCustomerReply){
       const subject = productName ? `${productName} 제품은 ` : "";
       text = `고객님께는 이렇게 안내하시면 됩니다.\n\n안녕하세요, 고객님. ${subject}${top.item.answer}`;
     }
