@@ -15,9 +15,40 @@ const polishStyle = `<!-- winco-global-polish -->
   ::-webkit-scrollbar-track{background:transparent}
   @media(max-width:620px){html{scrollbar-gutter:auto}body{background-attachment:fixed}}
 </style>`;
-function applyPolish(source) {
-  const clean = source.replace(/\n?<!-- winco-global-polish -->[\s\S]*?<style id="winco-global-polish">[\s\S]*?<\/style>\n?/, "");
-  return clean.replace("</head>", `${polishStyle}\n</head>`);
+const csEditorPolish = `<!-- winco-cs-editor-polish -->
+<style id="winco-cs-editor-polish">
+  #wcEditList{display:flex;flex-direction:column;gap:12px}
+  #wcEditList .wc-erow{
+    display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:10px;
+    margin:0;padding:14px;border-radius:14px;border-color:#dce5e1;
+    box-shadow:0 7px 20px rgba(25,48,40,.045);
+  }
+  #wcEditList .wc-erow>div{min-width:0!important;gap:8px!important}
+  #wcEditList input[data-f="question"]{min-height:42px;padding:10px 12px;font-weight:700}
+  #wcEditList textarea.wc-inp{
+    field-sizing:content;min-height:145px;max-height:360px;padding:12px 13px;
+    overflow:auto;resize:vertical;background:#fff;line-height:1.65;font-size:13.5px;
+  }
+  #wcEditList input[data-f="category"]{min-height:42px;padding:10px 11px}
+  .wc-add textarea.wc-inp{field-sizing:content;min-height:170px;max-height:380px;padding:12px 13px}
+  .wc-ebar:has(#wcSaveBtn:not(.wc-hidden)){
+    position:sticky;top:0;z-index:30;padding:11px 12px;background:rgba(255,255,255,.94);
+    backdrop-filter:blur(10px);box-shadow:0 8px 22px rgba(25,48,40,.08);
+  }
+  @media(max-width:700px){
+    #wcEditList .wc-erow{grid-template-columns:minmax(0,1fr) auto;padding:12px}
+    #wcEditList input[data-f="category"]{grid-column:1}
+    #wcEditList .wc-erow>div{grid-column:1/-1;grid-row:2}
+    #wcEditList .wc-erow>button{grid-column:2;grid-row:1}
+    #wcEditList textarea.wc-inp{min-height:170px}
+  }
+</style>`;
+function applyPolish(source, moduleId = "") {
+  const clean = source
+    .replace(/\n?<!-- winco-global-polish -->[\s\S]*?<style id="winco-global-polish">[\s\S]*?<\/style>\n?/, "")
+    .replace(/\n?<!-- winco-cs-editor-polish -->[\s\S]*?<style id="winco-cs-editor-polish">[\s\S]*?<\/style>\n?/, "");
+  const modulePolish = moduleId === "cs" ? `\n${csEditorPolish}` : "";
+  return clean.replace("</head>", `${polishStyle}${modulePolish}\n</head>`);
 }
 let html = fs.readFileSync(indexPath, "utf8");
 const pattern = /<script type="application\/json" id="mod-data">([\s\S]*?)<\/script>/;
@@ -26,10 +57,10 @@ if (!match) throw new Error("mod-data not found");
 
 const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts"].includes(item.id));
 for (const module of modules) {
-  const polished = applyPolish(Buffer.from(module.b64, "base64").toString("utf8"));
+  const polished = applyPolish(Buffer.from(module.b64, "base64").toString("utf8"), module.id);
   module.b64 = Buffer.from(polished, "utf8").toString("base64");
 }
-const source = applyPolish(fs.readFileSync("faq-module.html", "utf8"));
+const source = applyPolish(fs.readFileSync("faq-module.html", "utf8"), "faq");
 const faq = {
   id: "faq",
   name: "WINCO FAQ",
@@ -39,7 +70,7 @@ const faq = {
   tag: "제품별 FAQ",
   b64: Buffer.from(source, "utf8").toString("base64")
 };
-const contactsSource = applyPolish(fs.readFileSync("contacts-module.html", "utf8"));
+const contactsSource = applyPolish(fs.readFileSync("contacts-module.html", "utf8"), "contacts");
 const contacts = {
   id: "contacts",
   name: "주소 링크모음",
