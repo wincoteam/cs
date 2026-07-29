@@ -607,7 +607,7 @@
       <span class="postit-badge" id="postitCollapsedCount">0</span>
     </button>
     <section class="postit-panel" id="postitPanel">
-      <div class="postit-head" title="잡고 좌우로 이동">
+      <div class="postit-head" title="잡고 원하는 위치로 이동">
         <div class="postit-heading">
           <strong>업무 포스트잇</strong>
           <span class="postit-count" id="postitCount">0개</span>
@@ -809,10 +809,14 @@ function applyPostitLayout(layout){
     postitWidget.style.bottom = "auto";
     postitWidget.style.width = width + "px";
     postitWidget.style.height = height + "px";
-  }else if(Number.isFinite(layout.left)){
+  }else if(Number.isFinite(layout.left) || Number.isFinite(layout.top)){
     const rect = postitWidget.getBoundingClientRect();
-    postitWidget.style.left = clampPostit(layout.left, gap, window.innerWidth - rect.width - gap) + "px";
+    const left = Number.isFinite(layout.left) ? layout.left : rect.left;
+    const top = Number.isFinite(layout.top) ? layout.top : rect.top;
+    postitWidget.style.left = clampPostit(left, gap, window.innerWidth - rect.width - gap) + "px";
+    postitWidget.style.top = clampPostit(top, gap, window.innerHeight - rect.height - gap) + "px";
     postitWidget.style.right = "auto";
+    postitWidget.style.bottom = "auto";
   }
   setPostitSizeButton(!!layout.large);
 }
@@ -826,7 +830,7 @@ function currentPostitLayout(custom, large, restore){
   const rect = postitWidget.getBoundingClientRect();
   return {
     left:Math.round(rect.left),
-    top:custom ? Math.round(rect.top) : null,
+    top:Math.round(rect.top),
     width:custom ? Math.round(rect.width) : null,
     height:custom ? Math.round(rect.height) : null,
     large:!!large,
@@ -868,16 +872,23 @@ postitHead.addEventListener("pointerdown", function(event){
   if(event.button !== 0 || event.target.closest("button")) return;
   const rect = postitWidget.getBoundingClientRect();
   const startX = event.clientX;
+  const startY = event.clientY;
   const startLeft = rect.left;
+  const startTop = rect.top;
   const gap = window.innerWidth <= 620 ? 10 : 18;
   postitWidget.style.left = startLeft + "px";
+  postitWidget.style.top = startTop + "px";
   postitWidget.style.right = "auto";
+  postitWidget.style.bottom = "auto";
   postitHead.classList.add("is-dragging");
   postitHead.setPointerCapture(event.pointerId);
 
   function move(moveEvent){
-    const maxLeft = window.innerWidth - postitWidget.getBoundingClientRect().width - gap;
+    const currentRect = postitWidget.getBoundingClientRect();
+    const maxLeft = window.innerWidth - currentRect.width - gap;
+    const maxTop = window.innerHeight - currentRect.height - gap;
     postitWidget.style.left = clampPostit(startLeft + moveEvent.clientX - startX, gap, maxLeft) + "px";
+    postitWidget.style.top = clampPostit(startTop + moveEvent.clientY - startY, gap, maxTop) + "px";
   }
   function end(endEvent){
     postitHead.classList.remove("is-dragging");
