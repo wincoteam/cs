@@ -260,11 +260,17 @@
   }
 
   function contextualQuery(query){
-    const shortFollowUp = compact(query).length <= 12 && hasAny(query,[
-      "그거","그건","그제품","그상품","얼마","어디","방법","링크","그러면","보내"
+    const shortFollowUp = compact(query).length <= 30 && hasAny(query,[
+      "그거","그건","그제품","그상품","이거","이제품","그럼","그러면","아까",
+      "얼마","가격","배송비","어디","주소","방법","링크","접수","보내",
+      "어떻게","안내","뭐라고","고객","추가","더"
     ]);
     if(shortFollowUp && previousResult){
-      return `${previousResult.title} ${previousQuery} ${query}`;
+      const currentProduct = detectedProduct(query);
+      const previousProduct = detectedProduct(previousResult.title);
+      if(!currentProduct || !previousProduct || currentProduct === previousProduct){
+        return `${previousResult.title} ${previousResult.category || ""} ${previousQuery} ${query}`;
+      }
     }
     return query;
   }
@@ -388,7 +394,7 @@
     const q = canonicalProduct(query);
     if(q.includes("프로뉴")) return "에어몬스터 프로 New";
     if(q.includes("프로2") || q.includes("프로투")) return "에어몬스터 프로2";
-    if(q.includes("에어몬스터터보") || q.includes("윈코터보")) return "에어몬스터 터보";
+    if(q.includes("에어몬스터터보") || q.includes("윈코터보") || q.includes("터보")) return "에어몬스터 터보";
     if(q.includes("에어몬스터2") || q.includes("에어몬스터투")) return "에어몬스터2";
     if(q.includes("에어몬스터프로") || q.includes("윈코프로")) return "에어몬스터 프로";
     if(q.includes("스트레치랜턴")) return "스트레치 랜턴";
@@ -492,7 +498,9 @@
 
     let text = top.item.answer;
     if(top.item.kind === "product") text = `${top.item.title} 상품 정보입니다.\n\n${top.item.answer}`;
-    if(hasAny(query,["어떻게안내","안내해야","뭐라고말해","답변해야","고객안내"])){
+    if(hasAny(query,[
+      "어떻게안내","안내해야","안내해","뭐라고말해","뭐라고","답변해야","답변해","고객안내","고객한테"
+    ])){
       const subject = productName ? `${productName} 제품은 ` : "";
       text = `고객님께는 이렇게 안내하시면 됩니다.\n\n안녕하세요, 고객님. ${subject}${top.item.answer}`;
     }
