@@ -31,6 +31,7 @@
     ["보상","보상판매","교환","반납판매"],
     ["접수","신청","등록","접수방법"],
     ["충전","충전기","배터리","전원"],
+    ["불량","안돼","안됨","안되","되지않","고장","문제","작동안"],
     ["모터","펌프","에어펌프"],
     ["에어건","에어몬스터","먼지제거기"],
     ["랜턴","캠핑등","led랜턴","스트레치랜턴"],
@@ -187,11 +188,11 @@
       savedParts.categories.forEach(function(category,categoryIndex){
         (category.items || []).forEach(function(item,itemIndex){
           if(!item.name) return;
-          const details = [
+          const details = [...new Set([
             item.price === null ? "개별 구매 불가" : `부품 가격: ${Number(item.price || 0).toLocaleString("ko-KR")}원`,
             item.note,
             typeof savedParts.ship === "number" && `기본 배송비: ${savedParts.ship.toLocaleString("ko-KR")}원`
-          ].filter(Boolean);
+          ].filter(Boolean))];
           rows.push({
             id:`saved-part-${categoryIndex}-${itemIndex}`,
             kind:"part",
@@ -270,36 +271,45 @@
 
   function scoreItem(item, query){
     const q = normalize(query);
-    const qCompact = compact(q);
+    const qCompact = canonicalProduct(q);
+    const titleCompact = canonicalProduct(item.title);
+    const keywordCompact = canonicalProduct(item.keywords+" "+item.category);
+    const answerCompact = canonicalProduct(item.answer);
     const queryTokens = tokens(q);
     let score = 0;
     if(!qCompact) return 0;
 
-    if(item._titleCompact === qCompact) score += 180;
-    if(item._titleCompact.includes(qCompact) && qCompact.length > 2) score += 95;
-    if(qCompact.includes(item._titleCompact) && item._titleCompact.length > 3) score += 72;
+    if(titleCompact === qCompact) score += 180;
+    if(titleCompact.includes(qCompact) && qCompact.length > 2) score += 95;
+    if(qCompact.includes(titleCompact) && titleCompact.length > 3) score += 72;
 
     queryTokens.forEach(function(token){
-      const c = compact(token);
+      const c = canonicalProduct(token);
       if(!c) return;
-      if(item._titleCompact.includes(c)) score += c.length >= 4 ? 24 : 15;
-      else if(compact(item._keywords).includes(c)) score += c.length >= 4 ? 15 : 9;
-      else if(compact(item._answer).includes(c)) score += c.length >= 4 ? 7 : 3;
+      if(titleCompact.includes(c)) score += c.length >= 4 ? 24 : 15;
+      else if(keywordCompact.includes(c)) score += c.length >= 4 ? 15 : 9;
+      else if(answerCompact.includes(c)) score += c.length >= 4 ? 7 : 3;
     });
 
-    score += dice(qCompact,item._titleCompact)*44;
+    score += dice(qCompact,titleCompact)*44;
 
     const priceIntent = hasAny(q,["얼마","가격","금액","비용","보상가"]);
     const addressIntent = hasAny(q,["주소","어디로","보내","발송","택배","반납"]);
     const linkIntent = hasAny(q,["링크","페이지","사이트","홈페이지","접수"]);
     const repairIntent = hasAny(q,["as","에이에스","수리","고장","불량","작동안","안돼","안되"]);
     const tradeIntent = hasAny(q,["보상","보상판매","기기반납"]);
+    const chargeIntent = hasAny(q,["충전","배터리","전원"]);
+    const failureIntent = hasAny(q,["불량","안돼","안됨","안되","되지않","고장","문제","작동안"]);
 
     if(priceIntent && item.kind === "price") score += tradeIntent ? 58 : 8;
     if(priceIntent && ["part","vendor"].includes(item.kind)) score += 13;
     if(addressIntent && item.kind === "address") score += 52;
     if(linkIntent && item.kind === "link") score += 32;
     if(repairIntent && ["faq","guide","manual"].includes(item.kind)) score += 13;
+    if(chargeIntent && failureIntent && hasAny(item.title,["충전","배터리","전원"])){
+      score += item.kind === "faq" || item.kind === "manual" ? 72 : 12;
+      if(hasAny(item.title,["되지않","안돼","안됨","불량"])) score += 38;
+    }
     if(tradeIntent && item.module === "trade") score += 32;
     if(tradeIntent && item.title.includes("인천 창고") && addressIntent) score += 52;
     if(repairIntent && addressIntent && item.title.includes("고빅스")) score += 46;
@@ -339,6 +349,7 @@
     return compact(value)
       .replace(/winc?o/g,"윈코")
       .replace(/pro/g,"프로")
+      .replace(/new/g,"뉴")
       .replace(/turbo/g,"터보")
       .replace(/스트래치/g,"스트레치");
   }
@@ -373,6 +384,18 @@
     return candidates[0].item;
   }
 
+  function detectedProduct(query){
+    const q = canonicalProduct(query);
+    if(q.includes("프로뉴")) return "에어몬스터 프로 New";
+    if(q.includes("프로2") || q.includes("프로투")) return "에어몬스터 프로2";
+    if(q.includes("에어몬스터터보") || q.includes("윈코터보")) return "에어몬스터 터보";
+    if(q.includes("에어몬스터2") || q.includes("에어몬스터투")) return "에어몬스터2";
+    if(q.includes("에어몬스터프로") || q.includes("윈코프로")) return "에어몬스터 프로";
+    if(q.includes("스트레치랜턴")) return "스트레치 랜턴";
+    if(q.includes("led캠핑랜턴") || q.includes("led랜턴")) return "LED 캠핑 랜턴";
+    return "";
+  }
+
   function answerResolution(query){
     const q = pendingIntent && pendingQuery
       ? `${pendingQuery} ${query}`
@@ -387,6 +410,15 @@
     const followsPrevious = compact(query).length <= 12 &&
       hasAny(query,["그거","그건","그제품","그상품","그러면","어디","보내"]);
     const matchedTradePrice = exactPriceItem(q);
+    const productName = detectedProduct(q);
+
+    if(hasAny(query,["출시","출시일","언제나왔","언제출시","발매"])){
+      return {
+        text:productName
+          ? `현재 저장된 업무 자료에는 ${productName}의 정확한 출시일 정보가 등록되어 있지 않습니다.`
+          : "현재 저장된 업무 자료에는 해당 제품의 정확한 출시일 정보가 등록되어 있지 않습니다."
+      };
+    }
 
     if((wantsPrice && matchedTradePrice) ||
       (pendingIntent === "price" && !wantsAddress && !wantsLink && !wantsRepair) ||
@@ -447,23 +479,23 @@
     }
 
     const top = results[0];
-    const second = results[1];
-    const sameAnswer = second && compact(top.item.answer) === compact(second.item.answer);
-    const clearlyAhead = !second || top.score-second.score >= 14;
-    const exactWords = compact(q).length > 3 &&
-      (top.item._titleCompact.includes(compact(q)) || compact(q).includes(top.item._titleCompact));
 
-    const minimumScore = top.item.kind === "note" ? 24 : 42;
-    if(top.score < minimumScore || (!clearlyAhead && !sameAnswer && !exactWords)){
-      return {
-        text:"제품이나 상황을 조금만 더 알려주세요.\n앞에서 말씀하신 내용과 이어서 정확한 답 하나만 안내해 드릴게요.",
-        pending:"clarify",
-        pendingQuery:q
-      };
+    const minimumScore = top.item.kind === "note" ? 20 : 28;
+    if(top.score < minimumScore){
+      if(productName){
+        return {
+          text:`${productName} 관련 자료는 확인했지만, 질문하신 내용에 대한 정확한 안내는 현재 저장된 자료에 없습니다.`
+        };
+      }
+      return {text:"현재 저장된 전체 업무 자료에서 질문과 관련된 내용을 확인하지 못했습니다."};
     }
 
     let text = top.item.answer;
     if(top.item.kind === "product") text = `${top.item.title} 상품 정보입니다.\n\n${top.item.answer}`;
+    if(hasAny(query,["어떻게안내","안내해야","뭐라고말해","답변해야","고객안내"])){
+      const subject = productName ? `${productName} 제품은 ` : "";
+      text = `고객님께는 이렇게 안내하시면 됩니다.\n\n안녕하세요, 고객님. ${subject}${top.item.answer}`;
+    }
     return {item:top.item,text:text};
   }
 

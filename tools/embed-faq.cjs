@@ -200,11 +200,11 @@ function buildAssistantKnowledge() {
     const parts = evaluateExpression(partsMatch[1]);
     for (const category of parts.categories || []) {
       for (const item of category.items || []) {
-        const details = [
+        const details = [...new Set([
           item.price === null ? "개별 구매 불가" : `부품 가격: ${Number(item.price || 0).toLocaleString("ko-KR")}원`,
           item.note,
           typeof parts.ship === "number" && `기본 배송비: ${parts.ship.toLocaleString("ko-KR")}원`
-        ].filter(Boolean);
+        ].filter(Boolean))];
         add({
           kind: "part",
           title: `${category.cat} · ${item.name}`,
