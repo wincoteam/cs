@@ -20,7 +20,7 @@ const faq = {
 const contactsSource = fs.readFileSync("contacts-module.html", "utf8");
 const contacts = {
   id: "contacts",
-  name: "CS 업무 바로가기",
+  name: "주소 링크모음",
   desc: "보상판매·검수 발송지를 복사하고 자주 쓰는 CS 페이지를 바로 엽니다.",
   icon: "📍",
   accent: "#176b57",
