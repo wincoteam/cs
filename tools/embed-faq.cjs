@@ -1,23 +1,45 @@
 const fs = require("fs");
 
 const indexPath = "index.html.html";
+const polishStyle = `<!-- winco-global-polish -->
+<style id="winco-global-polish">
+  :root{color-scheme:light;accent-color:#0a6b56}
+  html{scrollbar-gutter:stable}
+  body{min-height:100vh}
+  ::selection{background:#cce7dd;color:#12372d}
+  button,a,input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease,background-color .15s ease,transform .15s ease}
+  button:active{transform:translateY(1px)}
+  *:focus-visible{outline:3px solid rgba(10,107,86,.22)!important;outline-offset:2px!important}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#b8c7c1;background-clip:padding-box}
+  ::-webkit-scrollbar-track{background:transparent}
+  @media(max-width:620px){html{scrollbar-gutter:auto}body{background-attachment:fixed}}
+</style>`;
+function applyPolish(source) {
+  const clean = source.replace(/\n?<!-- winco-global-polish -->[\s\S]*?<style id="winco-global-polish">[\s\S]*?<\/style>\n?/, "");
+  return clean.replace("</head>", `${polishStyle}\n</head>`);
+}
 let html = fs.readFileSync(indexPath, "utf8");
 const pattern = /<script type="application\/json" id="mod-data">([\s\S]*?)<\/script>/;
 const match = html.match(pattern);
 if (!match) throw new Error("mod-data not found");
 
 const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts"].includes(item.id));
-const source = fs.readFileSync("faq-module.html", "utf8");
+for (const module of modules) {
+  const polished = applyPolish(Buffer.from(module.b64, "base64").toString("utf8"));
+  module.b64 = Buffer.from(polished, "utf8").toString("base64");
+}
+const source = applyPolish(fs.readFileSync("faq-module.html", "utf8"));
 const faq = {
   id: "faq",
   name: "WINCO FAQ",
-  desc: "에어몬스터 제품별 사용법과 자주 묻는 질문을 검색하고 펼쳐봅니다.",
+  desc: "에어건·청소기·캠핑용품 등 제품별 사용법과 FAQ를 검색합니다.",
   icon: "🍀",
   accent: "#25856f",
   tag: "제품별 FAQ",
   b64: Buffer.from(source, "utf8").toString("base64")
 };
-const contactsSource = fs.readFileSync("contacts-module.html", "utf8");
+const contactsSource = applyPolish(fs.readFileSync("contacts-module.html", "utf8"));
 const contacts = {
   id: "contacts",
   name: "주소 링크모음",
