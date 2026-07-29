@@ -194,6 +194,54 @@ function buildAssistantKnowledge() {
     }
   }
 
+  const partsSource = decodeModule("parts");
+  const partsMatch = partsSource.match(/const DEFAULT_DB\s*=\s*(\{[\s\S]*?\});\s*const PRESET/);
+  if (partsMatch) {
+    const parts = evaluateExpression(partsMatch[1]);
+    for (const category of parts.categories || []) {
+      for (const item of category.items || []) {
+        const details = [
+          item.price === null ? "개별 구매 불가" : `부품 가격: ${Number(item.price || 0).toLocaleString("ko-KR")}원`,
+          item.note,
+          typeof parts.ship === "number" && `기본 배송비: ${parts.ship.toLocaleString("ko-KR")}원`
+        ].filter(Boolean);
+        add({
+          kind: "part",
+          title: `${category.cat} · ${item.name}`,
+          answer: details.join("\n"),
+          module: "parts",
+          category: category.cat,
+          keywords: `${category.cat} ${item.name} 부품 소모품 구매 가격 재고 배송비`
+        });
+      }
+    }
+  }
+
+  const vendorSource = decodeModule("vendor");
+  const vendorMatch = vendorSource.match(/const PRESET\s*=\s*(\{[\s\S]*?\});\s*\/\*__WINCO_PRESET__\*\//);
+  if (vendorMatch) {
+    const vendorData = evaluateExpression(vendorMatch[1]);
+    for (const product of vendorData.products || []) {
+      const prices = Object.entries(product.prices || {}).map(([vendor, price]) => {
+        const ship = product.ship ?? (vendorData.vendorShip || {})[vendor];
+        return `${vendor}: ${Number(price || 0).toLocaleString("ko-KR")}원${typeof ship === "number" ? ` · 배송비 ${ship.toLocaleString("ko-KR")}원` : ""}`;
+      });
+      const details = [
+        product.sku && `상품번호: ${product.sku}`,
+        ...prices,
+        !prices.length && typeof product.ship === "number" && `배송비: ${product.ship.toLocaleString("ko-KR")}원`
+      ].filter(Boolean);
+      add({
+        kind: "vendor",
+        title: product.name,
+        answer: details.length ? details.join("\n") : "거래처 모듈에 등록된 상품입니다.",
+        module: "vendor",
+        category: "거래처·배송비",
+        keywords: `${product.sku || ""} ${Object.keys(product.prices || {}).join(" ")} 거래처 공급가 배송비 발주`
+      });
+    }
+  }
+
   [
     {
       title: "인천 창고 · 보상판매 반납",

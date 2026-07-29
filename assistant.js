@@ -15,10 +15,14 @@
     faq: "제품 FAQ",
     trade: "보상·협의구매",
     contacts: "주소·링크",
-    product: "상품 목록"
+    product: "상품 목록",
+    parts: "부품 구매",
+    vendor: "거래처·배송비"
   };
   let previousQuery = "";
   let previousResult = null;
+  let pendingIntent = "";
+  let pendingQuery = "";
 
   const groups = [
     ["as","a/s","에이에스","수리","고장","점검","서비스","서비스센터"],
@@ -95,7 +99,159 @@
     });
   }
 
-  const knowledge = data.map(prepare);
+  let knowledge = [];
+
+  function savedRows(key){
+    try{
+      const value = JSON.parse(localStorage.getItem(key) || "null");
+      return Array.isArray(value) ? value : null;
+    }catch(error){
+      return null;
+    }
+  }
+
+  function savedObject(key){
+    try{
+      const value = JSON.parse(localStorage.getItem(key) || "null");
+      return value && typeof value === "object" && !Array.isArray(value) ? value : null;
+    }catch(error){
+      return null;
+    }
+  }
+
+  function refreshKnowledge(){
+    let rows = data.slice();
+    const savedCs = savedRows("winco_cs_faqs_v1");
+    const savedTrade = savedRows("winco_trade_prices_v1");
+    const savedProducts = savedRows("winco_products_v1");
+    const savedParts = savedObject("winco_parts_db_v1");
+    const savedVendors = savedObject("winco_vendor_db_v1");
+    const savedNotes = savedRows("winco_postit_notes_v1");
+
+    if(savedCs){
+      rows = rows.filter(function(item){ return item.module !== "cs"; });
+      savedCs.forEach(function(row,index){
+        if(!row.question || !row.answer) return;
+        rows.push({
+          id:`saved-cs-${index}`,
+          kind:"manual",
+          title:row.question,
+          answer:row.answer,
+          module:"cs",
+          category:row.category || "CS",
+          keywords:`${row.category || ""} 고객안내 상담 답변 매뉴얼`
+        });
+      });
+    }
+
+    if(savedTrade){
+      rows = rows.filter(function(item){ return item.module !== "trade"; });
+      savedTrade.forEach(function(item,index){
+        if(!item.name || item.price === undefined) return;
+        const price = Number(item.price || 0).toLocaleString("ko-KR");
+        rows.push({
+          id:`saved-trade-${index}`,
+          kind:"price",
+          title:item.name,
+          answer:`${price}원${item.note ? ` (${item.note})` : ""}`,
+          module:"trade",
+          category:item.type === "trade" ? "보상판매" : "협의구매",
+          keywords:`${item.type === "trade" ? "보상판매 반납 교환" : "협의구매"} 가격 금액 얼마 비용`
+        });
+      });
+    }
+
+    if(savedProducts){
+      rows = rows.filter(function(item){ return item.module !== "product"; });
+      savedProducts.forEach(function(product,index){
+        if(!product.name) return;
+        const details = [
+          product.sku && `상품번호: ${product.sku}`,
+          product.model && `모델명: ${product.model}`,
+          product.option && `옵션: ${product.option}`
+        ].filter(Boolean);
+        rows.push({
+          id:`saved-product-${index}`,
+          kind:"product",
+          title:product.name,
+          answer:details.length ? details.join("\n") : "상품 목록에 등록된 제품입니다.",
+          module:"product",
+          category:product.category || "상품",
+          keywords:`${product.sku || ""} ${product.model || ""} ${product.option || ""} 상품 제품 검색`
+        });
+      });
+    }
+
+    if(savedParts && Array.isArray(savedParts.categories)){
+      rows = rows.filter(function(item){ return item.module !== "parts"; });
+      savedParts.categories.forEach(function(category,categoryIndex){
+        (category.items || []).forEach(function(item,itemIndex){
+          if(!item.name) return;
+          const details = [
+            item.price === null ? "개별 구매 불가" : `부품 가격: ${Number(item.price || 0).toLocaleString("ko-KR")}원`,
+            item.note,
+            typeof savedParts.ship === "number" && `기본 배송비: ${savedParts.ship.toLocaleString("ko-KR")}원`
+          ].filter(Boolean);
+          rows.push({
+            id:`saved-part-${categoryIndex}-${itemIndex}`,
+            kind:"part",
+            title:`${category.cat || "부품"} · ${item.name}`,
+            answer:details.join("\n"),
+            module:"parts",
+            category:category.cat || "부품",
+            keywords:`${category.cat || ""} ${item.name} 부품 소모품 구매 가격 재고 배송비`
+          });
+        });
+      });
+    }
+
+    if(savedVendors && Array.isArray(savedVendors.products)){
+      rows = rows.filter(function(item){ return item.module !== "vendor"; });
+      savedVendors.products.forEach(function(product,index){
+        if(!product.name) return;
+        const prices = Object.entries(product.prices || {}).map(function(entry){
+          const vendor = entry[0];
+          const price = entry[1];
+          const ship = product.ship ?? (savedVendors.vendorShip || {})[vendor];
+          return `${vendor}: ${Number(price || 0).toLocaleString("ko-KR")}원${typeof ship === "number" ? ` · 배송비 ${ship.toLocaleString("ko-KR")}원` : ""}`;
+        });
+        const details = [
+          product.sku && `상품번호: ${product.sku}`,
+          ...prices,
+          !prices.length && typeof product.ship === "number" && `배송비: ${product.ship.toLocaleString("ko-KR")}원`
+        ].filter(Boolean);
+        rows.push({
+          id:`saved-vendor-${index}`,
+          kind:"vendor",
+          title:product.name,
+          answer:details.length ? details.join("\n") : "거래처 모듈에 등록된 상품입니다.",
+          module:"vendor",
+          category:"거래처·배송비",
+          keywords:`${product.sku || ""} ${Object.keys(product.prices || {}).join(" ")} 거래처 공급가 배송비 발주`
+        });
+      });
+    }
+
+    if(savedNotes){
+      rows = rows.filter(function(item){ return item.kind !== "note"; });
+      savedNotes.forEach(function(note,index){
+        if(!note || !String(note.text || "").trim()) return;
+        const text = String(note.text).trim();
+        rows.push({
+          id:`saved-note-${index}`,
+          kind:"note",
+          title:`업무 메모 ${index + 1}`,
+          answer:text,
+          module:"",
+          category:"업무 포스트잇",
+          keywords:`업무 메모 포스트잇 ${text}`
+        });
+      });
+    }
+    knowledge = rows.map(prepare);
+  }
+
+  refreshKnowledge();
 
   function hasAny(text, words){
     const value = compact(text);
@@ -139,7 +295,8 @@
     const repairIntent = hasAny(q,["as","에이에스","수리","고장","불량","작동안","안돼","안되"]);
     const tradeIntent = hasAny(q,["보상","보상판매","기기반납"]);
 
-    if(priceIntent && item.kind === "price") score += 58;
+    if(priceIntent && item.kind === "price") score += tradeIntent ? 58 : 8;
+    if(priceIntent && ["part","vendor"].includes(item.kind)) score += 13;
     if(addressIntent && item.kind === "address") score += 52;
     if(linkIntent && item.kind === "link") score += 32;
     if(repairIntent && ["faq","guide","manual"].includes(item.kind)) score += 13;
@@ -162,7 +319,11 @@
   }
 
   const priceAliases = [
-    ["에어몬스터 프로 New",["에어몬스터프로new","에어몬스터프로뉴","에어몬스터pro","프로new","프로뉴","윈코프로new","윈코프로뉴"]],
+    ["에어몬스터 프로 New",[
+      "에어몬스터프로new","에어몬스터프로뉴","에어몬스터pro","에어몬스터pronew",
+      "프로new","프로뉴","프로제품","윈코프로new","윈코프로뉴",
+      "pro new","pronew","pro뉴","pro제품","윈코pro","윈코pro new","윈코pronew"
+    ]],
     ["에어몬스터 터보",["에어몬스터터보","윈코터보","터보"]],
     ["에어몬스터2",["에어몬스터2","에어몬스터투","몬스터2","몬스터투"]],
     ["스트레치 랜턴",["스트레치랜턴","스트레치등","스트레치"]],
@@ -174,16 +335,48 @@
     return knowledge.find(function(item){ return item.title === title; });
   }
 
+  function canonicalProduct(value){
+    return compact(value)
+      .replace(/winc?o/g,"윈코")
+      .replace(/pro/g,"프로")
+      .replace(/turbo/g,"터보")
+      .replace(/스트래치/g,"스트레치");
+  }
+
   function exactPriceItem(query){
-    const q = compact(query);
+    const q = canonicalProduct(query);
     const matches = priceAliases.filter(function(row){
-      return row[1].some(function(alias){ return q.includes(compact(alias)); });
+      return row[1].some(function(alias){ return q.includes(canonicalProduct(alias)); });
     });
-    return matches.length === 1 ? itemByTitle(matches[0][0]) : null;
+    if(matches.length === 1){
+      const aliased = itemByTitle(matches[0][0]);
+      if(aliased) return aliased;
+    }
+
+    const noise = /보상판매|협의구매|가격|금액|얼마|비용|알려줘|찾아줘|확인|제품|상품|윈코/g;
+    const productQuery = q.replace(noise,"");
+    const candidates = knowledge
+      .filter(function(item){ return item.kind === "price"; })
+      .map(function(item){
+        const name = canonicalProduct(item.title);
+        const shortName = name.replace(/에어몬스터|윈코/g,"");
+        let score = 0;
+        if(q.includes(name)) score += 120;
+        if(shortName.length >= 2 && q.includes(shortName)) score += 85;
+        score += dice(productQuery,name)*45;
+        score += dice(productQuery,shortName)*35;
+        return {item:item,score:score};
+      })
+      .sort(function(a,b){ return b.score-a.score; });
+    if(!candidates.length || candidates[0].score < 48) return null;
+    if(candidates[1] && candidates[0].score-candidates[1].score < 9) return null;
+    return candidates[0].item;
   }
 
   function answerResolution(query){
-    const q = contextualQuery(query);
+    const q = pendingIntent && pendingQuery
+      ? `${pendingQuery} ${query}`
+      : contextualQuery(query);
     const wantsPrice = hasAny(query,["얼마","가격","금액","비용","보상가"]);
     const wantsTrade = hasAny(query,["보상","보상판매","기기반납"]);
     const wantsAddress = hasAny(query,["주소","어디로","보내","보낼","발송","택배","반납"]);
@@ -193,9 +386,12 @@
     const contextRepair = hasAny(q,["as","에이에스","수리","고장","불량","검수"]);
     const followsPrevious = compact(query).length <= 12 &&
       hasAny(query,["그거","그건","그제품","그상품","그러면","어디","보내"]);
+    const matchedTradePrice = exactPriceItem(q);
 
-    if(wantsPrice || (wantsTrade && !wantsAddress && !wantsLink)){
-      const price = exactPriceItem(q);
+    if((wantsPrice && matchedTradePrice) ||
+      (pendingIntent === "price" && !wantsAddress && !wantsLink && !wantsRepair) ||
+      (wantsTrade && !wantsAddress && !wantsLink)){
+      const price = matchedTradePrice;
       if(price){
         return {
           item:price,
@@ -203,7 +399,9 @@
         };
       }
       return {
-        text:"어떤 제품의 보상판매 가격을 확인할까요?\n제품명을 알려주시면 해당 금액 하나만 정확하게 안내해 드릴게요."
+        text:"어떤 제품의 보상판매 가격을 확인할까요?\n제품명만 짧게 적어주세요. 예: 프로 New, 터보, 에어몬스터2",
+        pending:"price",
+        pendingQuery:q
       };
     }
 
@@ -255,8 +453,13 @@
     const exactWords = compact(q).length > 3 &&
       (top.item._titleCompact.includes(compact(q)) || compact(q).includes(top.item._titleCompact));
 
-    if(top.score < 42 || (!clearlyAhead && !sameAnswer && !exactWords)){
-      return {text:"비슷한 내용이 여러 개라서 제품을 임의로 정하면 안 될 것 같아요.\n제품명이나 모델명을 알려주시면 정확한 답 하나만 말씀드릴게요."};
+    const minimumScore = top.item.kind === "note" ? 24 : 42;
+    if(top.score < minimumScore || (!clearlyAhead && !sameAnswer && !exactWords)){
+      return {
+        text:"제품이나 상황을 조금만 더 알려주세요.\n앞에서 말씀하신 내용과 이어서 정확한 답 하나만 안내해 드릴게요.",
+        pending:"clarify",
+        pendingQuery:q
+      };
     }
 
     let text = top.item.answer;
@@ -374,9 +577,17 @@
     }
 
     const fullQuery = contextualQuery(query);
+    refreshKnowledge();
     const resolved = answerResolution(query);
     previousQuery = fullQuery;
-    if(resolved.item) previousResult = resolved.item;
+    if(resolved.item){
+      previousResult = resolved.item;
+      pendingIntent = "";
+      pendingQuery = "";
+    }else if(resolved.pending){
+      pendingIntent = resolved.pending;
+      pendingQuery = resolved.pendingQuery || fullQuery;
+    }
     addBotAnswer(resolved.text,resolved.item);
   }
 
@@ -384,6 +595,7 @@
     widget.classList.toggle("is-open",opened);
     launch.setAttribute("aria-expanded",String(opened));
     if(opened){
+      refreshKnowledge();
       setTimeout(function(){ input.focus(); scrollBottom(); },30);
     }
   }
