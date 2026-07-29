@@ -464,6 +464,7 @@
     .grid,.tool-section.cs .grid{grid-template-columns:1fr;}
   }
 </style>
+  <link rel="stylesheet" href="assistant.css">
 </head>
 <body class="">
 
@@ -621,6 +622,39 @@
       <div class="postit-list" id="postitList"></div>
       <div class="postit-foot" id="postitSaveState" aria-live="polite">이 기기에 자동 저장됩니다</div>
       <button class="postit-resize" id="postitResize" type="button" aria-label="포스트잇 크기 조절" title="드래그하여 크기 조절"></button>
+    </section>
+  </aside>
+
+  <aside class="assistant-widget" id="assistantWidget" aria-label="윈코 업무 도우미">
+    <button class="assistant-launch" id="assistantLaunch" type="button" aria-controls="assistantPanel" aria-expanded="false">
+      <span class="assistant-launch-icon" aria-hidden="true">✦</span>
+      <span>윈코 업무 도우미</span>
+    </button>
+    <section class="assistant-panel" id="assistantPanel">
+      <header class="assistant-head">
+        <span class="assistant-avatar" aria-hidden="true">✦</span>
+        <div class="assistant-heading">
+          <strong class="assistant-title">윈코 업무 도우미</strong>
+          <span class="assistant-status">내부 자료에서 바로 찾는 중</span>
+        </div>
+        <button class="assistant-close" id="assistantClose" type="button" aria-label="도우미 접기">−</button>
+      </header>
+      <div class="assistant-messages" id="assistantMessages" aria-live="polite">
+        <div class="assistant-row bot">
+          <div class="assistant-bubble">찾는 정보를 편하게 물어보세요.<br>정확한 문장이 아니어도 제품명·증상·가격 같은 단어만으로 찾아드려요.</div>
+        </div>
+      </div>
+      <div class="assistant-quick" aria-label="빠른 질문">
+        <button class="assistant-chip" type="button" data-prompt="A/S 제품 어디로 보내?">A/S 발송 주소</button>
+        <button class="assistant-chip" type="button" data-prompt="보상판매 가격 알려줘">보상판매 가격</button>
+        <button class="assistant-chip" type="button" data-prompt="충전이 안 돼요">충전 불량</button>
+        <button class="assistant-chip" type="button" data-prompt="A/S 접수 링크">접수 링크</button>
+      </div>
+      <div class="assistant-compose">
+        <textarea class="assistant-input" id="assistantInput" rows="1" placeholder="예: 터보 얼마야? / 청소기 충전 안 돼"></textarea>
+        <button class="assistant-send" id="assistantSend" type="button" aria-label="질문 보내기">↑</button>
+      </div>
+      <div class="assistant-note">CS 매뉴얼 · 제품 FAQ · 가격 · 주소 · 링크 통합 검색</div>
     </section>
   </aside>
 
@@ -1223,4 +1257,6 @@ syncFromHash();
 </script>
 
 
+<script src="assistant-data.js"></script>
+<script src="assistant.js"></script>
 </body></html>
