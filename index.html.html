@@ -608,7 +608,7 @@
       <span class="postit-badge" id="postitCollapsedCount">0</span>
     </button>
     <section class="postit-panel" id="postitPanel">
-      <div class="postit-head" title="잡고 원하는 위치로 이동">
+      <div class="postit-head" title="드래그하여 이동 · 더블클릭하여 접기">
         <div class="postit-heading">
           <strong>업무 포스트잇</strong>
           <span class="postit-count" id="postitCount">0개</span>
@@ -937,6 +937,13 @@ postitHead.addEventListener("pointerdown", function(event){
   postitHead.addEventListener("pointermove", move);
   postitHead.addEventListener("pointerup", end);
   postitHead.addEventListener("pointercancel", end);
+});
+
+postitHead.addEventListener("dblclick", function(event){
+  if(event.target.closest("button")) return;
+  event.preventDefault();
+  savePostits();
+  setPostitCollapsed(true);
 });
 
 postitResize.addEventListener("pointerdown", function(event){
