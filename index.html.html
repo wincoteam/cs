@@ -426,7 +426,8 @@
   .postit-foot{flex:0 0 auto;padding:0 29px 10px 13px;color:#9b8b61;font-size:10.5px;text-align:right;}
   .postit-resize{position:absolute;right:5px;bottom:5px;width:22px;height:22px;border:0;background:transparent;color:#9c824b;font:inherit;font-size:16px;line-height:1;cursor:nwse-resize;touch-action:none;}
   .postit-resize::after{content:"◢";display:block;transform:scale(.85);transform-origin:center;}
-  .postit-open{display:none;align-items:center;gap:8px;margin-left:auto;min-height:46px;padding:0 15px;border:1px solid #dfca87;border-radius:14px;background:linear-gradient(135deg,#ffedae,#ffe293);box-shadow:0 12px 32px rgba(35,45,39,.17);color:#493c20;font:inherit;font-size:13px;font-weight:850;cursor:pointer;}
+  .postit-open{display:none;align-items:center;gap:8px;margin-left:auto;min-height:46px;padding:0 15px;border:1px solid #dfca87;border-radius:14px;background:linear-gradient(135deg,#ffedae,#ffe293);box-shadow:0 12px 32px rgba(35,45,39,.17);color:#493c20;font:inherit;font-size:13px;font-weight:850;cursor:grab;touch-action:none;user-select:none;}
+  .postit-open.is-dragging{cursor:grabbing;}
   .postit-badge{display:grid;min-width:21px;height:21px;place-items:center;border-radius:99px;background:#6e5926;color:#fff;font-size:10.5px;}
   .postit-widget.is-collapsed .postit-panel{display:none;}
   .postit-widget.is-collapsed .postit-open{display:flex;}
@@ -603,7 +604,7 @@
   </section>
 
   <aside class="postit-widget" id="postitWidget" aria-label="업무 포스트잇">
-    <button class="postit-open" id="postitOpenBtn" type="button" aria-controls="postitPanel" aria-expanded="false">
+    <button class="postit-open" id="postitOpenBtn" type="button" aria-controls="postitPanel" aria-expanded="false" title="클릭하여 열기 · 드래그하여 이동">
       <span aria-hidden="true">📝</span><span>업무 메모</span>
       <span class="postit-badge" id="postitCollapsedCount">0</span>
     </button>
@@ -801,7 +802,12 @@ function renderPostits(focusId){
 function setPostitCollapsed(collapsed, persist){
   postitWidget.classList.toggle("is-collapsed", collapsed);
   postitOpenBtn.setAttribute("aria-expanded", String(!collapsed));
-  if(!collapsed && postitLayout) requestAnimationFrame(function(){ applyPostitLayout(postitLayout); });
+  if(postitLayout){
+    requestAnimationFrame(function(){
+      if(collapsed) applyCollapsedPostitPosition(postitLayout);
+      else applyPostitLayout(postitLayout);
+    });
+  }
   if(persist !== false){
     try{ localStorage.setItem(POSTIT_COLLAPSE_KEY, collapsed ? "1" : "0"); }catch(e){}
   }
@@ -814,6 +820,18 @@ function clampPostit(value, min, max){
 function setPostitSizeButton(large){
   postitSizeBtn.textContent = large ? "작게" : "크게";
   postitSizeBtn.setAttribute("aria-pressed", String(!!large));
+}
+
+function applyCollapsedPostitPosition(layout){
+  if(!layout || !postitWidget.classList.contains("is-collapsed")) return;
+  const rect = postitWidget.getBoundingClientRect();
+  const gap = window.innerWidth <= 620 ? 10 : 18;
+  const left = Number.isFinite(layout.left) ? layout.left : rect.left;
+  const top = Number.isFinite(layout.top) ? layout.top : rect.top;
+  postitWidget.style.left = clampPostit(left, gap, window.innerWidth - rect.width - gap) + "px";
+  postitWidget.style.top = clampPostit(top, gap, window.innerHeight - rect.height - gap) + "px";
+  postitWidget.style.right = "auto";
+  postitWidget.style.bottom = "auto";
 }
 
 function applyPostitLayout(layout){
@@ -1000,7 +1018,63 @@ document.getElementById("postitCollapseBtn").addEventListener("click", function(
   setPostitCollapsed(true);
 });
 
-postitOpenBtn.addEventListener("click", function(){
+let postitOpenWasDragged = false;
+postitOpenBtn.addEventListener("pointerdown", function(event){
+  if(event.button !== 0) return;
+  const rect = postitWidget.getBoundingClientRect();
+  const startX = event.clientX;
+  const startY = event.clientY;
+  const startLeft = rect.left;
+  const startTop = rect.top;
+  const gap = window.innerWidth <= 620 ? 10 : 18;
+  let moved = false;
+  postitOpenWasDragged = false;
+  postitOpenBtn.setPointerCapture(event.pointerId);
+
+  function move(moveEvent){
+    const offsetX = moveEvent.clientX - startX;
+    const offsetY = moveEvent.clientY - startY;
+    if(!moved && Math.hypot(offsetX, offsetY) < 4) return;
+    if(!moved){
+      moved = true;
+      postitOpenBtn.classList.add("is-dragging");
+      postitWidget.style.left = startLeft + "px";
+      postitWidget.style.top = startTop + "px";
+      postitWidget.style.right = "auto";
+      postitWidget.style.bottom = "auto";
+    }
+    const maxLeft = window.innerWidth - rect.width - gap;
+    const maxTop = window.innerHeight - rect.height - gap;
+    postitWidget.style.left = clampPostit(startLeft + offsetX, gap, maxLeft) + "px";
+    postitWidget.style.top = clampPostit(startTop + offsetY, gap, maxTop) + "px";
+  }
+
+  function end(endEvent){
+    postitOpenBtn.classList.remove("is-dragging");
+    try{ postitOpenBtn.releasePointerCapture(endEvent.pointerId); }catch(e){}
+    postitOpenBtn.removeEventListener("pointermove", move);
+    postitOpenBtn.removeEventListener("pointerup", end);
+    postitOpenBtn.removeEventListener("pointercancel", end);
+    if(!moved) return;
+    postitOpenWasDragged = true;
+    const next = Object.assign({}, postitLayout || {});
+    const movedRect = postitWidget.getBoundingClientRect();
+    next.left = Math.round(movedRect.left);
+    next.top = Math.round(movedRect.top);
+    storePostitLayout(next);
+  }
+
+  postitOpenBtn.addEventListener("pointermove", move);
+  postitOpenBtn.addEventListener("pointerup", end);
+  postitOpenBtn.addEventListener("pointercancel", end);
+});
+
+postitOpenBtn.addEventListener("click", function(event){
+  if(postitOpenWasDragged){
+    postitOpenWasDragged = false;
+    event.preventDefault();
+    return;
+  }
   setPostitCollapsed(false);
 });
 
@@ -1071,8 +1145,9 @@ setPostitCollapsed(postitCollapsed, false);
 renderPostits();
 if(postitLayout && !postitCollapsed) applyPostitLayout(postitLayout);
 window.addEventListener("resize", function(){
-  if(postitLayout && !postitWidget.classList.contains("is-collapsed")){
-    applyPostitLayout(postitLayout);
+  if(postitLayout){
+    if(postitWidget.classList.contains("is-collapsed")) applyCollapsedPostitPosition(postitLayout);
+    else applyPostitLayout(postitLayout);
   }
 });
 window.addEventListener("beforeunload", savePostits);
