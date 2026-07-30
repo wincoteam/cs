@@ -2,6 +2,34 @@ const fs = require("fs");
 const vm = require("vm");
 
 const indexPath = "index.html.html";
+const CS_ADDITIONAL_PRESET = [
+  {category:"제품증상",question:"[에어건] 충전 중 사용해도 될까요?",answer:"사용은 가능하지만 제품 고장의 원인이 될 수 있어, 충전을 완료한 후 사용해 주시기를 권장드립니다."},
+  {category:"제품증상",question:"[에어건] 작동 시 발열이 발생하는데 불량인가요?",answer:"모터 제품 특성상 작동 중 발열이 발생할 수 있으며 일반적인 발열은 정상입니다.\n\n다만 손에 쥐기 어려울 정도로 뜨거운 경우에는 사용을 중단하고 제품을 회수하여 확인해야 합니다."},
+  {category:"제품증상",question:"[에어건] 작동 중 출력이 저하되는데 불량인가요?",answer:"모터 과부하를 방지하기 위해 모터 보호 기능이 자동으로 작동하면 출력이 낮아지거나 전원이 종료될 수 있습니다.\n\n제품과 모터를 보호하기 위한 정상 작동이므로 잠시 식힌 후 다시 사용해 주세요."},
+  {category:"제품증상",question:"[에어건] 최고 풍속으로 몇 분 사용할 수 있나요?",answer:"고속 단계 사용 시간은 약 20~30분입니다.\n\n다만 제품 과열 방지를 위해 연속 작동 제한이 약 5분으로 설정되어 있으므로, 중간에 충분히 식힌 후 다시 사용해 주세요."},
+  {category:"제품증상",question:"[에어건] 노즐 장착 시 뒤쪽이나 충전 단자 구멍에서도 바람이 나와요.",answer:"노즐 장착 시 바람이 노즐 면에 닿아 역풍이 발생하면서 뒤쪽이나 충전 단자 주변으로 바람이 새어 나올 수 있습니다.\n\n이때 모터 과부하 방지를 위한 보호 기능이 작동해 출력이 낮아질 수 있으며, 해당 현상은 정상입니다."},
+  {category:"제품증상",question:"[에어건] 항공기에 반입할 수 있나요?",answer:"항공사마다 배터리 제품 반입 규정이 다르므로 이용하실 항공사에 직접 확인해 주셔야 정확한 안내를 받을 수 있습니다."},
+  {category:"제품증상",question:"[에어건] 자충매트에 사용할 수 있나요?",answer:"자충매트는 공기 주입 성능이 충분하지 않을 수 있어 에어건보다 전용 에어펌프 사용을 권장드립니다."},
+  {category:"제품증상",question:"[에어건] 에어텐트에 바람을 넣을 수 있나요?",answer:"에어텐트는 공기 주입 성능이 충분하지 않을 수 있어 에어건보다 전용 에어펌프 사용을 권장드립니다."},
+  {category:"제품증상",question:"[에어건] 튜브에 사용할 수 있나요?",answer:"사용 가능합니다. 좁은 노즐을 장착하고, 이중 마개 방식의 튜브는 주입구 부분을 살짝 누른 상태에서 공기를 넣어 주세요.\n\n튜브 입구가 매우 좁으면 공기 주입이 어려울 수 있습니다.\n\n좁은 노즐 사용 시 모터 보호 기능으로 1분 미만에 출력이 낮아질 수 있으므로, 잠시 쉬었다가 재작동해 주세요."},
+  {category:"제품증상",question:"[에어건] 최대 출력은 몇 W인가요?",answer:"저속은 5W, 고속은 70W입니다."},
+  {category:"제품증상",question:"[에어건] 최대 PSI는 얼마인가요?",answer:"압력값(PSI)은 별도로 측정된 값이 없어 안내가 어렵습니다."},
+  {category:"제품증상",question:"[에어건] WBM-1000 1세대와 PRO의 차이는 무엇인가요?",answer:"에어건 PRO(GEPRO-101)는 기존 에어건 WBM-1000 1세대의 상위 모델입니다.\n\n• 작동 방식: 버튼 방식 / 레버 방식(PRO)\n• 회전 속도: 85,000rpm / 101,000rpm(PRO)\n• 배터리 용량: 900mAh / 1,100mAh(PRO)"},
+  {category:"제품증상",question:"[에어건] 5V/2A 충전기를 사용해도 되나요?",answer:"배터리 보호를 위해 5V/1A 충전을 권장드립니다.\n\n높은 출력의 충전기를 사용하면 정상적으로 충전되지 않거나 배터리에 무리가 갈 수 있어 권장하지 않습니다."},
+  {category:"제품증상",question:"[에어건] 좁은 노즐이 정중앙에 맞지 않고 비스듬히 장착돼요.",answer:"제품의 노즐 입구는 의도적으로 정중앙에 맞지 않게 설계되어 있습니다.\n\n노즐이 정중앙에 위치하면 공기 주입이 원활하지 않을 수 있어 비스듬히 옆면으로 장착되도록 제작된 정상 구조입니다."},
+  {category:"제품증상",question:"[에어건] 파우치를 구매하면 블랙 색상으로 오나요?",answer:"기존 블랙 파우치에서 카모 무늬의 6종 노즐 보관용 파우치로 변경되었습니다."},
+  {category:"제품증상",question:"[에어건] 제품 내부에 머리카락이나 얇은 실이 들어갔어요.",answer:"머리카락이나 얇은 실이 흡입구로 들어가면 제품 고장의 원인이 될 수 있으며, 원칙적으로 유상 A/S 대상입니다.\n\n예외적으로 이번 건에 한해 무상 처리를 안내하는 경우에는 추후 같은 증상 발생 시 유상 처리된다는 점을 함께 안내해 주세요.\n\nA/S가 지연되는 경우에는 외관에 약간의 흠집이 있으나 새 배터리가 장착된 정상 작동 리퍼 상품 교체를 제안할 수 있습니다. 고객이 동의하면 리퍼 상품임을 명확히 안내한 뒤 선불 발송 절차를 진행하고, 동의하지 않으면 수리 후 발송으로 진행합니다."},
+  {category:"제품증상",question:"[에어건] 전원이 안 켜지거나 충전·작동이 되지 않아요.",answer:"구매 기간을 확인한 후 교환 또는 리퍼 교체로 안내해 주세요.\n\n확인이 필요한 증상\n• 전원이 들어오지 않음\n• 충전선 연결 시 LED가 켜지지 않음\n• 작동 직후 멈춤\n• 팬이 돌다가 멈춤\n• 탄 냄새가 남"},
+  {category:"제품증상",question:"[에어몬스터 터보] 케이스는 어떻게 착용하나요?",answer:"터보 케이스 착용 가이드 링크입니다.\n\n페이지를 중간 정도까지 내리면 젤리 케이스 착용 영상을 확인할 수 있습니다.\nhttps://brand.naver.com/winco/shoppingstory/detail?id=5001523983&page=1"},
+  {category:"제품증상",question:"[스트레치랜턴] 작동 시 발열이 있는데 정상인가요?",answer:"색온도에 따라 50℃ 이상까지 발열이 발생할 수 있습니다. 다른 랜턴 제품에서도 발생하는 제품 특성상 정상적인 현상입니다."},
+  {category:"제품증상",question:"[스트레치랜턴] 다리를 접은 상태에서도 철판에 붙일 수 있나요?",answer:"자석은 다리 세 면에 장착되어 있으므로 다리를 펼친 후 철판에 부착해 주세요."},
+  {category:"제품증상",question:"[스트레치랜턴] 충전하면서 사용할 수 있나요?",answer:"네, 충전 중에도 사용할 수 있습니다."},
+  {category:"제품증상",question:"[스트레치랜턴] 배터리 종류는 무엇인가요?",answer:"리튬 배터리입니다."},
+  {category:"제품증상",question:"[스트레치랜턴] 다리를 펼쳐도 고정되지 않고 다시 접히는데 정상인가요?",answer:"다리 부분은 편리하게 펴고 접을 수 있도록 고정되지 않는 구조로 제작되었습니다.\n\n손으로 들어 올리거나 제품을 뒤집으면 다리가 접히는 현상은 정상입니다."},
+  {category:"제품증상",question:"[스트레치랜턴] 하단부 지름은 얼마인가요?",answer:"하단부 지름은 6.5cm입니다."},
+  {category:"제품증상",question:"[스트레치랜턴] 헤드를 바닷물에 담가도 되나요?",answer:"바닷물과 민물에서 모두 사용할 수 있습니다. 다만 램프 홀더는 IPX7 방수 등급으로 설계되어 있으므로 장시간 물에 담가 사용하지 마세요.\n\n사용 후에는 깨끗한 물로 염분을 제거하고 완전히 말려 보관해 주세요."},
+  {category:"제품증상",question:"[스트레치랜턴] 영하의 날씨에서도 작동하나요?",answer:"권장 작동 온도는 10℃~40℃입니다.\n\n배터리 제품 특성상 추운 겨울이나 영하 환경에서는 정상 작동하더라도 성능과 사용 시간이 줄어들 수 있습니다."}
+];
 const polishStyle = `<!-- winco-global-polish -->
 <style id="winco-global-polish">
   :root{color-scheme:light;accent-color:#0a6b56}
@@ -51,6 +79,49 @@ function applyPolish(source, moduleId = "") {
   const modulePolish = moduleId === "cs" ? `\n${csEditorPolish}` : "";
   return clean.replace("</head>", `${polishStyle}${modulePolish}\n</head>`);
 }
+
+function mergeCsPresets(source) {
+  source = source.replace(/\s*const CS_REQUIRED_PRESET = \[[\s\S]*?\]; \/\*__WINCO_REQUIRED_PRESET__\*\//, "");
+  const presetPattern = /const CS_PRESET = (\[[\s\S]*?\]); \/\*__WINCO_PRESET__\*\//;
+  const presetMatch = source.match(presetPattern);
+  if (!presetMatch) throw new Error("CS_PRESET not found");
+  const current = evaluateExpression(presetMatch[1]);
+  const additions = new Map(CS_ADDITIONAL_PRESET.map(row => [row.question, row]));
+  const merged = current.filter(row => !additions.has(row.question)).concat(CS_ADDITIONAL_PRESET);
+  source = source.replace(
+    presetPattern,
+    `const CS_PRESET = ${JSON.stringify(merged)}; /*__WINCO_PRESET__*/\n        const CS_REQUIRED_PRESET = ${JSON.stringify(CS_ADDITIONAL_PRESET)}; /*__WINCO_REQUIRED_PRESET__*/`
+  );
+
+  const loadPattern = /const CS_BASE = Array\.isArray\(CS_PRESET\)[\s\S]*?let activeCategory = '전체';/;
+  const replacement = `const CS_BASE = Array.isArray(CS_PRESET) ? CS_PRESET : defaultFaqs;
+        let faqs = JSON.parse(JSON.stringify(CS_BASE));
+        (function(){
+          try{
+            var saved = localStorage.getItem(CS_KEY);
+            if(saved){
+              var data = JSON.parse(saved);
+              if(Array.isArray(data)){
+                faqs = data;
+                var known = new Set(faqs.map(function(row){ return row && row.question; }));
+                var changed = false;
+                CS_REQUIRED_PRESET.forEach(function(row){
+                  if(!known.has(row.question)){
+                    faqs.push(JSON.parse(JSON.stringify(row)));
+                    known.add(row.question);
+                    changed = true;
+                  }
+                });
+                if(changed) localStorage.setItem(CS_KEY, JSON.stringify(faqs));
+              }
+            }
+          }catch(e){}
+        })();
+        let activeCategory = '전체';`;
+  if (!loadPattern.test(source)) throw new Error("CS saved-data loader not found");
+  return source.replace(loadPattern, replacement);
+}
+
 let html = fs.readFileSync(indexPath, "utf8");
 const pattern = /<script type="application\/json" id="mod-data">([\s\S]*?)<\/script>/;
 const match = html.match(pattern);
@@ -58,7 +129,9 @@ if (!match) throw new Error("mod-data not found");
 
 const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts"].includes(item.id));
 for (const module of modules) {
-  const polished = applyPolish(Buffer.from(module.b64, "base64").toString("utf8"), module.id);
+  let decoded = Buffer.from(module.b64, "base64").toString("utf8");
+  if (module.id === "cs") decoded = mergeCsPresets(decoded);
+  const polished = applyPolish(decoded, module.id);
   module.b64 = Buffer.from(polished, "utf8").toString("base64");
 }
 const source = applyPolish(fs.readFileSync("faq-module.html", "utf8"), "faq");
