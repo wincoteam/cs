@@ -418,9 +418,11 @@
   .postit-note-head:hover{filter:saturate(1.05);box-shadow:inset 0 1px rgba(255,255,255,.65),0 2px 6px rgba(56,62,52,.05);}
   .postit-note-title{min-width:0;flex:1;border:0;outline:0;background:transparent;padding:7px 10px;color:var(--note-ink);font:inherit;font-size:12.5px;font-weight:850;letter-spacing:-.01em;}
   .postit-note-title::placeholder{color:color-mix(in srgb,var(--note-ink) 62%,#fff);font-weight:700;}
-  .postit-note-toggle,.postit-delete{display:grid;width:27px;height:27px;flex:0 0 auto;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--note-ink);font:inherit;cursor:pointer;opacity:.72;}
+  .postit-note-drag,.postit-note-toggle,.postit-delete{display:grid;width:27px;height:27px;flex:0 0 auto;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--note-ink);font:inherit;opacity:.72;}
+  .postit-note-drag{width:25px;margin-left:3px;font-size:15px;cursor:grab;touch-action:none;opacity:.45;}
+  .postit-note-drag:active{cursor:grabbing;}
   .postit-note-toggle{font-size:14px;font-weight:900;}
-  .postit-note-toggle:hover,.postit-delete:hover{background:rgba(255,255,255,.72);opacity:1;}
+  .postit-note-drag:hover,.postit-note-toggle:hover,.postit-delete:hover{background:rgba(255,255,255,.72);opacity:1;}
   .postit-delete{margin:0 3px 0 1px;color:#8e654f;font-size:17px;}
   .postit-delete:hover{color:#a33a32;}
   .postit-text{display:block;width:100%;height:auto;min-height:54px;flex:1 1 auto;resize:none;border:0;outline:0;background:transparent;padding:10px 13px 15px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;}
@@ -433,6 +435,7 @@
   .postit-note.is-folded{height:auto!important;min-height:0;box-shadow:0 3px 9px rgba(52,61,55,.055);}
   .postit-note.is-folded .postit-text,.postit-note.is-folded .postit-note-grip{display:none;}
   .postit-note.is-folded .postit-note-head{margin-bottom:8px;}
+  .postit-note.is-reordering{z-index:5;opacity:.78;transform:scale(.985);box-shadow:0 12px 28px rgba(42,54,47,.18);}
   .postit-foot{flex:0 0 auto;padding:0 29px 10px 13px;color:#9b8b61;font-size:10.5px;text-align:right;}
   .postit-resize{position:absolute;right:5px;bottom:5px;width:22px;height:22px;border:0;background:transparent;color:#9c824b;font:inherit;font-size:16px;line-height:1;cursor:nwse-resize;touch-action:none;}
   .postit-resize::after{content:"◢";display:block;transform:scale(.85);transform-origin:center;}
@@ -793,6 +796,7 @@ function renderPostits(focusId){
     postitNotes.forEach(function(note){
       const card = document.createElement("div");
       card.className = "postit-note";
+      card.dataset.noteCard = note.id;
       if(note.collapsed) card.classList.add("is-folded");
       if(Number.isFinite(note.height)){
         card.style.height = clampPostit(note.height, 92, POSTIT_NOTE_MAX_HEIGHT) + "px";
@@ -801,6 +805,14 @@ function renderPostits(focusId){
       const noteHead = document.createElement("div");
       noteHead.className = "postit-note-head";
       noteHead.title = "더블클릭하여 메모 접기·펼치기";
+
+      const drag = document.createElement("button");
+      drag.className = "postit-note-drag";
+      drag.type = "button";
+      drag.textContent = "⠿";
+      drag.title = "잡고 위아래로 순서 변경";
+      drag.setAttribute("aria-label", "메모 순서 변경. 드래그하거나 방향키를 사용하세요");
+      drag.dataset.dragNote = note.id;
 
       const title = document.createElement("input");
       title.className = "postit-note-title";
@@ -850,6 +862,7 @@ function renderPostits(focusId){
       bottomGrip.setAttribute("aria-label", "메모 아래쪽 높이 조절");
       bottomGrip.title = "위아래로 드래그하여 높이 조절";
 
+      noteHead.appendChild(drag);
       noteHead.appendChild(title);
       noteHead.appendChild(toggle);
       noteHead.appendChild(remove);
@@ -1190,6 +1203,78 @@ postitList.addEventListener("pointerdown", function(event){
   grip.addEventListener("pointermove", resizeNote);
   grip.addEventListener("pointerup", endNoteResize);
   grip.addEventListener("pointercancel", endNoteResize);
+});
+
+function savePostitOrderFromCards(){
+  const notesById = new Map(postitNotes.map(function(note){ return [note.id, note]; }));
+  const ordered = Array.from(postitList.querySelectorAll("[data-note-card]")).map(function(card){
+    return notesById.get(card.dataset.noteCard);
+  }).filter(Boolean);
+  if(ordered.length === postitNotes.length) postitNotes = ordered;
+  savePostits();
+}
+
+postitList.addEventListener("pointerdown", function(event){
+  const handle = event.target.closest("[data-drag-note]");
+  if(!handle || event.button !== 0) return;
+  const card = handle.closest("[data-note-card]");
+  if(!card) return;
+  event.preventDefault();
+  const startY = event.clientY;
+  let reordering = false;
+  handle.setPointerCapture(event.pointerId);
+
+  function move(moveEvent){
+    if(!reordering && Math.abs(moveEvent.clientY - startY) < 4) return;
+    if(!reordering){
+      reordering = true;
+      card.classList.add("is-reordering");
+    }
+
+    const listRect = postitList.getBoundingClientRect();
+    if(moveEvent.clientY < listRect.top + 34) postitList.scrollTop -= 12;
+    else if(moveEvent.clientY > listRect.bottom - 34) postitList.scrollTop += 12;
+
+    const otherCards = Array.from(postitList.querySelectorAll("[data-note-card]")).filter(function(item){
+      return item !== card;
+    });
+    const before = otherCards.find(function(item){
+      const rect = item.getBoundingClientRect();
+      return moveEvent.clientY < rect.top + rect.height / 2;
+    });
+    if(before) postitList.insertBefore(card, before);
+    else postitList.appendChild(card);
+  }
+
+  function end(endEvent){
+    card.classList.remove("is-reordering");
+    try{ handle.releasePointerCapture(endEvent.pointerId); }catch(e){}
+    handle.removeEventListener("pointermove", move);
+    handle.removeEventListener("pointerup", end);
+    handle.removeEventListener("pointercancel", end);
+    if(reordering) savePostitOrderFromCards();
+  }
+
+  handle.addEventListener("pointermove", move);
+  handle.addEventListener("pointerup", end);
+  handle.addEventListener("pointercancel", end);
+});
+
+postitList.addEventListener("keydown", function(event){
+  const handle = event.target.closest("[data-drag-note]");
+  if(!handle || (event.key !== "ArrowUp" && event.key !== "ArrowDown")) return;
+  const card = handle.closest("[data-note-card]");
+  if(!card) return;
+  const cards = Array.from(postitList.querySelectorAll("[data-note-card]"));
+  const currentIndex = cards.indexOf(card);
+  const nextIndex = event.key === "ArrowUp" ? currentIndex - 1 : currentIndex + 1;
+  if(nextIndex < 0 || nextIndex >= cards.length) return;
+  event.preventDefault();
+  if(event.key === "ArrowUp") postitList.insertBefore(card, cards[nextIndex]);
+  else postitList.insertBefore(cards[nextIndex], card);
+  savePostitOrderFromCards();
+  card.scrollIntoView({block:"nearest"});
+  handle.focus();
 });
 
 postitList.addEventListener("input", function(event){
