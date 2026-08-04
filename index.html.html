@@ -679,6 +679,7 @@ const viewer    = document.getElementById("viewer");
 const POSTIT_KEY = "winco_postit_notes_v1";
 const POSTIT_COLLAPSE_KEY = "winco_postit_collapsed_v1";
 const POSTIT_LAYOUT_KEY = "winco_postit_layout_v1";
+const POSTIT_NOTE_MAX_HEIGHT = 1200;
 const postitWidget = document.getElementById("postitWidget");
 const postitPanel = document.getElementById("postitPanel");
 const postitHead = postitPanel.querySelector(".postit-head");
@@ -736,6 +737,30 @@ function queuePostitSave(){
   postitSaveTimer = setTimeout(savePostits, 300);
 }
 
+function growPostitToContent(field, note, card){
+  if(!field || !note || !card) return false;
+  const currentHeight = card.getBoundingClientRect().height;
+  const inlineHeight = field.style.height;
+  field.style.height = "0px";
+  const contentHeight = Math.ceil(field.scrollHeight + 2);
+  field.style.height = inlineHeight;
+  const nextHeight = clampPostit(contentHeight, 92, POSTIT_NOTE_MAX_HEIGHT);
+  if(nextHeight <= currentHeight + 1) return false;
+  card.style.height = nextHeight + "px";
+  note.height = Math.round(nextHeight);
+  return true;
+}
+
+function growAllPostits(){
+  let changed = false;
+  postitList.querySelectorAll("[data-note-id]").forEach(function(field){
+    const note = postitNotes.find(function(item){ return item.id === field.dataset.noteId; });
+    const card = field.closest(".postit-note");
+    if(growPostitToContent(field, note, card)) changed = true;
+  });
+  if(changed) queuePostitSave();
+}
+
 function renderPostits(focusId){
   postitList.innerHTML = "";
   if(postitNotes.length === 0){
@@ -748,7 +773,7 @@ function renderPostits(focusId){
       const card = document.createElement("div");
       card.className = "postit-note";
       if(Number.isFinite(note.height)){
-        card.style.height = clampPostit(note.height, 92, 520) + "px";
+        card.style.height = clampPostit(note.height, 92, POSTIT_NOTE_MAX_HEIGHT) + "px";
       }
 
       const field = document.createElement("textarea");
@@ -787,6 +812,7 @@ function renderPostits(focusId){
       card.appendChild(topGrip);
       card.appendChild(bottomGrip);
       postitList.appendChild(card);
+      growPostitToContent(field, note, card);
     });
   }
   updatePostitCount();
@@ -871,6 +897,7 @@ function applyPostitLayout(layout){
     postitWidget.style.bottom = "auto";
   }
   setPostitSizeButton(!!layout.large);
+  requestAnimationFrame(growAllPostits);
 }
 
 function storePostitLayout(layout){
@@ -1097,7 +1124,7 @@ postitList.addEventListener("pointerdown", function(event){
     const height = clampPostit(
       edge === "top" ? startHeight - deltaY : startHeight + deltaY,
       92,
-      520
+      POSTIT_NOTE_MAX_HEIGHT
     );
     card.style.height = height + "px";
     note.height = Math.round(height);
@@ -1125,6 +1152,7 @@ postitList.addEventListener("input", function(event){
   const note = postitNotes.find(function(item){ return item.id === field.dataset.noteId; });
   if(!note) return;
   note.text = field.value;
+  growPostitToContent(field, note, field.closest(".postit-note"));
   queuePostitSave();
 });
 
