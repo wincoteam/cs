@@ -411,16 +411,17 @@
   .postit-list{display:flex;max-height:min(52vh,470px);flex:1 1 auto;min-height:0;flex-direction:column;gap:9px;overflow:auto;padding:12px;}
   .postit-widget.has-custom-size .postit-list{max-height:none;}
   .postit-empty{padding:25px 14px;border:1px dashed #dfcf9f;border-radius:12px;color:#8b805f;font-size:12.5px;text-align:center;}
-  .postit-note{position:relative;display:flex;flex:0 0 auto;min-height:92px;flex-direction:column;border:1px solid rgba(139,107,25,.16);border-radius:12px;background:#fff2ae;box-shadow:0 5px 13px rgba(82,67,29,.07);}
-  .postit-note:nth-child(3n+2){border-color:rgba(46,115,76,.13);background:#e8f5e9;}
-  .postit-note:nth-child(3n){border-color:rgba(55,96,141,.13);background:#eaf2fb;}
-  .postit-note-head{display:flex;flex:0 0 auto;align-items:center;min-height:30px;margin:8px 8px 0;border-radius:8px;background:#d8cbed;overflow:hidden;}
-  .postit-note-title{min-width:0;flex:1;border:0;outline:0;background:transparent;padding:6px 9px;color:#4b4162;font:inherit;font-size:12px;font-weight:800;}
-  .postit-note-title::placeholder{color:#786e91;font-weight:700;}
-  .postit-note-toggle,.postit-delete{display:grid;width:28px;height:28px;flex:0 0 auto;place-items:center;border:0;background:rgba(255,255,255,.48);color:#6e6383;font:inherit;cursor:pointer;}
-  .postit-note-toggle{font-size:15px;font-weight:900;}
-  .postit-note-toggle:hover,.postit-delete:hover{background:#fff;}
-  .postit-delete{margin-left:2px;border-radius:0 7px 7px 0;color:#8e7654;font-size:17px;}
+  .postit-note{--note-bg:#fff4bd;--note-bg-soft:#fff9dc;--note-border:#ead283;--note-head:#f4df91;--note-head-soft:#faedbc;--note-ink:#66531d;position:relative;display:flex;flex:0 0 auto;min-height:92px;flex-direction:column;border:1px solid var(--note-border);border-radius:13px;background:linear-gradient(155deg,var(--note-bg),var(--note-bg-soft));box-shadow:0 5px 14px rgba(82,67,29,.07);}
+  .postit-note:nth-child(3n+2){--note-bg:#eaf6ec;--note-bg-soft:#f5fbf6;--note-border:#c9e4d0;--note-head:#d4ead9;--note-head-soft:#e4f2e7;--note-ink:#315e42;}
+  .postit-note:nth-child(3n){--note-bg:#edf4fb;--note-bg-soft:#f7fbff;--note-border:#cfddec;--note-head:#d8e6f4;--note-head-soft:#e7f0f8;--note-ink:#3c5974;}
+  .postit-note-head{display:flex;flex:0 0 auto;align-items:center;min-height:32px;margin:8px 8px 0;border:1px solid color-mix(in srgb,var(--note-border) 78%,#fff);border-radius:9px;background:linear-gradient(90deg,var(--note-head),var(--note-head-soft));box-shadow:inset 0 1px rgba(255,255,255,.5);overflow:hidden;transition:filter .15s ease,box-shadow .15s ease;}
+  .postit-note-head:hover{filter:saturate(1.05);box-shadow:inset 0 1px rgba(255,255,255,.65),0 2px 6px rgba(56,62,52,.05);}
+  .postit-note-title{min-width:0;flex:1;border:0;outline:0;background:transparent;padding:7px 10px;color:var(--note-ink);font:inherit;font-size:12.5px;font-weight:850;letter-spacing:-.01em;}
+  .postit-note-title::placeholder{color:color-mix(in srgb,var(--note-ink) 62%,#fff);font-weight:700;}
+  .postit-note-toggle,.postit-delete{display:grid;width:27px;height:27px;flex:0 0 auto;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--note-ink);font:inherit;cursor:pointer;opacity:.72;}
+  .postit-note-toggle{font-size:14px;font-weight:900;}
+  .postit-note-toggle:hover,.postit-delete:hover{background:rgba(255,255,255,.72);opacity:1;}
+  .postit-delete{margin:0 3px 0 1px;color:#8e654f;font-size:17px;}
   .postit-delete:hover{color:#a33a32;}
   .postit-text{display:block;width:100%;height:auto;min-height:54px;flex:1 1 auto;resize:none;border:0;outline:0;background:transparent;padding:10px 13px 15px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;}
   .postit-text::placeholder{color:#9a8e69;}
@@ -429,7 +430,7 @@
   .postit-note-grip:hover::after{background:rgba(77,58,17,.52);}
   .postit-note-grip.top{top:0;}
   .postit-note-grip.bottom{bottom:0;}
-  .postit-note.is-folded{height:auto!important;min-height:0;}
+  .postit-note.is-folded{height:auto!important;min-height:0;box-shadow:0 3px 9px rgba(52,61,55,.055);}
   .postit-note.is-folded .postit-text,.postit-note.is-folded .postit-note-grip{display:none;}
   .postit-note.is-folded .postit-note-head{margin-bottom:8px;}
   .postit-foot{flex:0 0 auto;padding:0 29px 10px 13px;color:#9b8b61;font-size:10.5px;text-align:right;}
@@ -799,6 +800,7 @@ function renderPostits(focusId){
 
       const noteHead = document.createElement("div");
       noteHead.className = "postit-note-head";
+      noteHead.title = "더블클릭하여 메모 접기·펼치기";
 
       const title = document.createElement("input");
       title.className = "postit-note-title";
@@ -1208,6 +1210,15 @@ postitList.addEventListener("input", function(event){
     fitPostitToContent(field, note, field.closest(".postit-note"), true);
     queuePostitSave();
   }
+});
+
+postitList.addEventListener("dblclick", function(event){
+  const head = event.target.closest(".postit-note-head");
+  if(!head || event.target.closest("button")) return;
+  const toggle = head.querySelector("[data-toggle-note]");
+  if(!toggle) return;
+  event.preventDefault();
+  toggle.click();
 });
 
 postitList.addEventListener("click", function(event){
