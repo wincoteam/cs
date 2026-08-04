@@ -411,18 +411,27 @@
   .postit-list{display:flex;max-height:min(52vh,470px);flex:1 1 auto;min-height:0;flex-direction:column;gap:9px;overflow:auto;padding:12px;}
   .postit-widget.has-custom-size .postit-list{max-height:none;}
   .postit-empty{padding:25px 14px;border:1px dashed #dfcf9f;border-radius:12px;color:#8b805f;font-size:12.5px;text-align:center;}
-  .postit-note{position:relative;flex:0 0 auto;min-height:92px;border:1px solid rgba(139,107,25,.16);border-radius:12px;background:#fff2ae;box-shadow:0 5px 13px rgba(82,67,29,.07);}
+  .postit-note{position:relative;display:flex;flex:0 0 auto;min-height:92px;flex-direction:column;border:1px solid rgba(139,107,25,.16);border-radius:12px;background:#fff2ae;box-shadow:0 5px 13px rgba(82,67,29,.07);}
   .postit-note:nth-child(3n+2){border-color:rgba(46,115,76,.13);background:#e8f5e9;}
   .postit-note:nth-child(3n){border-color:rgba(55,96,141,.13);background:#eaf2fb;}
-  .postit-text{display:block;width:100%;height:100%;min-height:90px;resize:none;border:0;outline:0;background:transparent;padding:15px 40px 15px 13px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;}
+  .postit-note-head{display:flex;flex:0 0 auto;align-items:center;min-height:30px;margin:8px 8px 0;border-radius:8px;background:#d8cbed;overflow:hidden;}
+  .postit-note-title{min-width:0;flex:1;border:0;outline:0;background:transparent;padding:6px 9px;color:#4b4162;font:inherit;font-size:12px;font-weight:800;}
+  .postit-note-title::placeholder{color:#786e91;font-weight:700;}
+  .postit-note-toggle,.postit-delete{display:grid;width:28px;height:28px;flex:0 0 auto;place-items:center;border:0;background:rgba(255,255,255,.48);color:#6e6383;font:inherit;cursor:pointer;}
+  .postit-note-toggle{font-size:15px;font-weight:900;}
+  .postit-note-toggle:hover,.postit-delete:hover{background:#fff;}
+  .postit-delete{margin-left:2px;border-radius:0 7px 7px 0;color:#8e7654;font-size:17px;}
+  .postit-delete:hover{color:#a33a32;}
+  .postit-text{display:block;width:100%;height:auto;min-height:54px;flex:1 1 auto;resize:none;border:0;outline:0;background:transparent;padding:10px 13px 15px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;}
   .postit-text::placeholder{color:#9a8e69;}
   .postit-note-grip{position:absolute;left:50%;z-index:3;width:48px;height:12px;transform:translateX(-50%);border:0;background:transparent;cursor:ns-resize;touch-action:none;}
   .postit-note-grip::after{content:"";display:block;width:28px;height:3px;margin:auto;border-radius:99px;background:rgba(100,79,29,.22);}
   .postit-note-grip:hover::after{background:rgba(77,58,17,.52);}
   .postit-note-grip.top{top:0;}
   .postit-note-grip.bottom{bottom:0;}
-  .postit-delete{position:absolute;top:7px;right:7px;width:27px;height:27px;border:0;border-radius:8px;background:rgba(255,255,255,.62);color:#8e7654;font:inherit;font-size:17px;cursor:pointer;}
-  .postit-delete:hover{background:#fff;color:#a33a32;}
+  .postit-note.is-folded{height:auto!important;min-height:0;}
+  .postit-note.is-folded .postit-text,.postit-note.is-folded .postit-note-grip{display:none;}
+  .postit-note.is-folded .postit-note-head{margin-bottom:8px;}
   .postit-foot{flex:0 0 auto;padding:0 29px 10px 13px;color:#9b8b61;font-size:10.5px;text-align:right;}
   .postit-resize{position:absolute;right:5px;bottom:5px;width:22px;height:22px;border:0;background:transparent;color:#9c824b;font:inherit;font-size:16px;line-height:1;cursor:nwse-resize;touch-action:none;}
   .postit-resize::after{content:"◢";display:block;transform:scale(.85);transform-origin:center;}
@@ -700,6 +709,11 @@ try{
   if(Array.isArray(parsedPostits)){
     postitNotes = parsedPostits.filter(function(note){
       return note && typeof note.id === "string" && typeof note.text === "string";
+    }).map(function(note){
+      return Object.assign({}, note, {
+        title:typeof note.title === "string" ? note.title : "",
+        collapsed:note.collapsed === true
+      });
     });
   }
 }catch(e){}
@@ -737,15 +751,21 @@ function queuePostitSave(){
   postitSaveTimer = setTimeout(savePostits, 300);
 }
 
-function growPostitToContent(field, note, card){
-  if(!field || !note || !card) return false;
+function fitPostitToContent(field, note, card, allowShrink){
+  if(!field || !note || !card || note.collapsed || card.classList.contains("is-folded")) return false;
   const currentHeight = card.getBoundingClientRect().height;
+  const head = card.querySelector(".postit-note-head");
   const inlineHeight = field.style.height;
+  const inlineFlex = field.style.flex;
+  field.style.flex = "0 0 auto";
   field.style.height = "0px";
-  const contentHeight = Math.ceil(field.scrollHeight + 2);
+  const contentHeight = Math.max(54, Math.ceil(field.scrollHeight));
   field.style.height = inlineHeight;
-  const nextHeight = clampPostit(contentHeight, 92, POSTIT_NOTE_MAX_HEIGHT);
-  if(nextHeight <= currentHeight + 1) return false;
+  field.style.flex = inlineFlex;
+  const headBottom = head ? head.offsetTop + head.offsetHeight : 0;
+  const nextHeight = clampPostit(headBottom + contentHeight + 2, 92, POSTIT_NOTE_MAX_HEIGHT);
+  if(!allowShrink && nextHeight <= currentHeight + 1) return false;
+  if(Math.abs(nextHeight - currentHeight) <= 1) return false;
   card.style.height = nextHeight + "px";
   note.height = Math.round(nextHeight);
   return true;
@@ -753,10 +773,10 @@ function growPostitToContent(field, note, card){
 
 function growAllPostits(){
   let changed = false;
-  postitList.querySelectorAll("[data-note-id]").forEach(function(field){
+  postitList.querySelectorAll(".postit-text[data-note-id]").forEach(function(field){
     const note = postitNotes.find(function(item){ return item.id === field.dataset.noteId; });
     const card = field.closest(".postit-note");
-    if(growPostitToContent(field, note, card)) changed = true;
+    if(fitPostitToContent(field, note, card, false)) changed = true;
   });
   if(changed) queuePostitSave();
 }
@@ -772,9 +792,30 @@ function renderPostits(focusId){
     postitNotes.forEach(function(note){
       const card = document.createElement("div");
       card.className = "postit-note";
+      if(note.collapsed) card.classList.add("is-folded");
       if(Number.isFinite(note.height)){
         card.style.height = clampPostit(note.height, 92, POSTIT_NOTE_MAX_HEIGHT) + "px";
       }
+
+      const noteHead = document.createElement("div");
+      noteHead.className = "postit-note-head";
+
+      const title = document.createElement("input");
+      title.className = "postit-note-title";
+      title.type = "text";
+      title.value = note.title || "";
+      title.placeholder = "소제목 입력…";
+      title.setAttribute("aria-label", "메모 소제목");
+      title.dataset.noteTitle = note.id;
+
+      const toggle = document.createElement("button");
+      toggle.className = "postit-note-toggle";
+      toggle.type = "button";
+      toggle.textContent = note.collapsed ? "▸" : "▾";
+      toggle.title = note.collapsed ? "메모 펼치기" : "메모 접기";
+      toggle.setAttribute("aria-label", toggle.title);
+      toggle.setAttribute("aria-expanded", String(!note.collapsed));
+      toggle.dataset.toggleNote = note.id;
 
       const field = document.createElement("textarea");
       field.className = "postit-text";
@@ -807,17 +848,20 @@ function renderPostits(focusId){
       bottomGrip.setAttribute("aria-label", "메모 아래쪽 높이 조절");
       bottomGrip.title = "위아래로 드래그하여 높이 조절";
 
+      noteHead.appendChild(title);
+      noteHead.appendChild(toggle);
+      noteHead.appendChild(remove);
+      card.appendChild(noteHead);
       card.appendChild(field);
-      card.appendChild(remove);
       card.appendChild(topGrip);
       card.appendChild(bottomGrip);
       postitList.appendChild(card);
-      growPostitToContent(field, note, card);
+      fitPostitToContent(field, note, card, false);
     });
   }
   updatePostitCount();
   if(focusId){
-    const target = postitList.querySelector('[data-note-id="'+focusId+'"]');
+    const target = postitList.querySelector('.postit-text[data-note-id="'+focusId+'"]');
     if(target){
       target.focus();
       target.scrollIntoView({block:"nearest"});
@@ -1033,7 +1077,7 @@ postitResize.addEventListener("pointerdown", function(event){
 });
 
 document.getElementById("postitAddBtn").addEventListener("click", function(){
-  const note = {id:postitId(), text:"", height:110};
+  const note = {id:postitId(), title:"", text:"", collapsed:false, height:110};
   postitNotes.unshift(note);
   setPostitCollapsed(false);
   savePostits();
@@ -1147,21 +1191,50 @@ postitList.addEventListener("pointerdown", function(event){
 });
 
 postitList.addEventListener("input", function(event){
-  const field = event.target.closest("[data-note-id]");
-  if(!field) return;
-  const note = postitNotes.find(function(item){ return item.id === field.dataset.noteId; });
-  if(!note) return;
-  note.text = field.value;
-  growPostitToContent(field, note, field.closest(".postit-note"));
-  queuePostitSave();
+  const title = event.target.closest("[data-note-title]");
+  if(title){
+    const note = postitNotes.find(function(item){ return item.id === title.dataset.noteTitle; });
+    if(!note) return;
+    note.title = title.value;
+    queuePostitSave();
+    return;
+  }
+
+  const field = event.target.closest(".postit-text[data-note-id]");
+  if(field){
+    const note = postitNotes.find(function(item){ return item.id === field.dataset.noteId; });
+    if(!note) return;
+    note.text = field.value;
+    fitPostitToContent(field, note, field.closest(".postit-note"), true);
+    queuePostitSave();
+  }
 });
 
 postitList.addEventListener("click", function(event){
+  const toggle = event.target.closest("[data-toggle-note]");
+  if(toggle){
+    const note = postitNotes.find(function(item){ return item.id === toggle.dataset.toggleNote; });
+    const card = toggle.closest(".postit-note");
+    if(!note || !card) return;
+    note.collapsed = !note.collapsed;
+    card.classList.toggle("is-folded", note.collapsed);
+    toggle.textContent = note.collapsed ? "▸" : "▾";
+    toggle.title = note.collapsed ? "메모 펼치기" : "메모 접기";
+    toggle.setAttribute("aria-label", toggle.title);
+    toggle.setAttribute("aria-expanded", String(!note.collapsed));
+    savePostits();
+    if(!note.collapsed){
+      const field = card.querySelector(".postit-text[data-note-id]");
+      requestAnimationFrame(function(){ fitPostitToContent(field, note, card, false); });
+    }
+    return;
+  }
+
   const button = event.target.closest("[data-delete-note]");
   if(!button) return;
   const index = postitNotes.findIndex(function(item){ return item.id === button.dataset.deleteNote; });
   if(index < 0) return;
-  if(postitNotes[index].text.trim() && !confirm("이 메모를 삭제할까요?")) return;
+  if((postitNotes[index].title || postitNotes[index].text.trim()) && !confirm("이 메모를 삭제할까요?")) return;
   postitNotes.splice(index,1);
   savePostits();
   renderPostits();
