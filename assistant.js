@@ -18,6 +18,7 @@
     product: "상품 목록",
     parts: "부품 구매",
     vendor: "거래처·배송비"
+    ,clipboard: "복사 보관함"
   };
   let previousQuery = "";
   let previousResult = null;
@@ -132,6 +133,7 @@
     const savedParts = savedObject("winco_parts_db_v1");
     const savedVendors = savedObject("winco_vendor_db_v1");
     const savedNotes = savedRows("winco_postit_notes_v1");
+    const savedClipboard = savedRows("winco_clipboard_v1");
 
     if(savedCs){
       rows = rows.filter(function(item){ return item.module !== "cs"; });
@@ -253,6 +255,21 @@
         });
       });
     }
+    if(savedClipboard){
+      rows = rows.filter(function(item){ return item.module !== "clipboard"; });
+      savedClipboard.forEach(function(item,index){
+        if(!item || !String(item.content || "").trim()) return;
+        rows.push({
+          id:`saved-clipboard-${index}`,
+          kind:"clipboard",
+          title:String(item.title || `복사 보관함 ${index + 1}`),
+          answer:String(item.content).trim(),
+          module:"clipboard",
+          category:item.kind || "복사 보관함",
+          keywords:`${item.kind || ""} 자주 사용 복사 보관함 즐겨찾기`
+        });
+      });
+    }
     knowledge = rows.map(prepare);
   }
 
@@ -356,6 +373,40 @@
       .sort(function(a,b){ return b.score-a.score; })
       .slice(0,8);
   }
+
+  window.wincoUnifiedSearch = function(query,limit){
+    const normalizedQuery = normalize(query);
+    const compactQuery = semanticCompact(normalizedQuery);
+    if(!compactQuery) return [];
+    refreshKnowledge();
+    const queryTokens = tokens(normalizedQuery).map(semanticCompact).filter(Boolean);
+    const seen = new Set();
+    return knowledge
+      .map(function(item){
+        let score = scoreItem(item,normalizedQuery);
+        const title = semanticCompact(item.title);
+        const keywords = semanticCompact(item.keywords+" "+item.category);
+        const answer = semanticCompact(item.answer);
+        if(title.includes(compactQuery)) score += 80;
+        else if(keywords.includes(compactQuery)) score += 38;
+        else if(answer.includes(compactQuery)) score += 22;
+        queryTokens.forEach(function(token){
+          if(title.includes(token)) score += 20;
+          else if(keywords.includes(token)) score += 11;
+          else if(answer.includes(token)) score += 6;
+        });
+        return Object.assign({},item,{score:score});
+      })
+      .filter(function(item){
+        if(item.score < 6) return false;
+        const key = compact(item.title)+"|"+compact(item.answer);
+        if(seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort(function(a,b){ return b.score-a.score; })
+      .slice(0,Math.max(1,Number(limit)||40));
+  };
 
   const priceAliases = [
     ["에어몬스터 프로 New",[

@@ -226,6 +226,31 @@
     margin:0;
   }
 
+  .unified-search{margin-top:18px;padding-top:18px;border-top:1px solid #e0e8e4;}
+  .unified-search[hidden]{display:none;}
+  .unified-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:12px;}
+  .unified-title{margin:0;font-size:18px;font-weight:900;letter-spacing:-.025em;}
+  .unified-title strong{color:var(--teal);}
+  .unified-summary{margin:3px 0 0;color:#74817b;font-size:12px;font-weight:650;}
+  .unified-close{min-height:34px;padding:0 11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#65726c;font:inherit;font-size:12px;font-weight:800;cursor:pointer;}
+  .unified-filters{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding:1px 1px 4px;scrollbar-width:none;}
+  .unified-filters::-webkit-scrollbar{display:none;}
+  .unified-filter{flex:none;min-height:32px;padding:0 11px;border:1px solid #d9e3de;border-radius:999px;background:#fff;color:#65736d;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;}
+  .unified-filter.is-active{border-color:var(--teal);background:var(--teal);color:#fff;}
+  .unified-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:min(52vh,570px);overflow:auto;padding:1px 4px 5px 1px;}
+  .unified-result{position:relative;min-width:0;padding:14px 14px 13px;border:1px solid #dfe7e3;border-radius:14px;background:rgba(255,255,255,.94);box-shadow:0 6px 18px rgba(25,48,40,.045);}
+  .unified-result:first-child{border-color:#b9d6cb;box-shadow:0 9px 24px rgba(25,90,70,.08);}
+  .unified-result-top{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .unified-source{flex:none;padding:3px 7px;border-radius:999px;background:#eaf4f0;color:var(--teal);font-size:10px;font-weight:850;}
+  .unified-category{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#85908b;font-size:10.5px;font-weight:700;}
+  .unified-result h3{margin:0;font-size:14.5px;font-weight:900;letter-spacing:-.018em;line-height:1.45;}
+  .unified-result mark{padding:0 1px;border-radius:2px;background:#fff0a8;color:inherit;}
+  .unified-answer{display:-webkit-box;min-height:42px;margin:7px 0 11px;overflow:hidden;color:#5d6a64;font-size:12px;line-height:1.65;white-space:pre-line;-webkit-box-orient:vertical;-webkit-line-clamp:2;}
+  .unified-actions{display:flex;align-items:center;gap:6px;}
+  .unified-action{min-height:31px;padding:0 9px;border:1px solid #d6e1dc;border-radius:8px;background:#fff;color:#52615a;font:inherit;font-size:10.5px;font-weight:850;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;}
+  .unified-action.primary{border-color:#c7ddd5;background:#edf6f2;color:var(--teal);}
+  .unified-empty{grid-column:1/-1;padding:38px 16px;border:1px dashed #cad8d2;border-radius:14px;background:rgba(255,255,255,.64);color:#68766f;text-align:center;font-size:12.5px;}
+
   .search-wrap{max-width:680px;}
 
   .tool-search{
@@ -476,6 +501,7 @@
     .tool-section.cs .grid{grid-template-columns:repeat(2,1fr);}
     .cs-group .grid,.cs-group.two .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
     .card{min-height:138px;}
+    .unified-results{grid-template-columns:1fr;}
   }
 
   @media (max-width:620px){
@@ -491,6 +517,8 @@
     .hero .toolbar{margin-bottom:0;}
     .hero-meta{gap:10px;flex-wrap:wrap;margin-bottom:17px;}
     .tool-search{min-height:52px;}
+    .unified-head{align-items:flex-start;}
+    .unified-results{max-height:none;}
     .tool-section{padding:18px 14px;border-radius:20px;}
     .cs-group{padding:14px 12px;border-radius:16px;}
     .cs-group-head{align-items:flex-start;flex-wrap:wrap;margin-bottom:11px;}
@@ -526,11 +554,19 @@
 
       <div class="toolbar" role="search">
         <div class="search-wrap">
-          <input class="tool-search" id="toolSearch" type="search" placeholder="도구 이름이나 업무로 검색" aria-label="업무 도구 검색" autocomplete="off">
+          <input class="tool-search" id="toolSearch" type="search" placeholder="전체 업무 자료 검색 (예: 충전불량, 보상판매 가격, A/S 주소)" aria-label="전체 업무 자료 통합검색" autocomplete="off">
           <button class="search-clear" id="searchClear" type="button" aria-label="검색어 지우기">×</button>
         </div>
         <span class="shortcut">단축키 / 로 검색</span>
       </div>
+      <section class="unified-search" id="unifiedSearch" aria-label="전체 자료 통합검색" hidden>
+        <div class="unified-head">
+          <div><h2 class="unified-title"><strong id="unifiedQuery"></strong> 통합검색</h2><p class="unified-summary" id="unifiedSummary"></p></div>
+          <button class="unified-close" id="unifiedClose" type="button">검색 닫기</button>
+        </div>
+        <div class="unified-filters" id="unifiedFilters" aria-label="검색 결과 출처"></div>
+        <div class="unified-results" id="unifiedResults" aria-live="polite"></div>
+      </section>
       </section>
 
       <section class="tool-section order" style="--section-ac:#b7791f" aria-labelledby="orderTitle">
@@ -1515,6 +1551,17 @@ let current = null;   // 지금 열려 있는 모듈 id (없으면 null)
 const toolSearch = document.getElementById("toolSearch");
 const searchClear = document.getElementById("searchClear");
 const emptySearch = document.getElementById("emptySearch");
+const unifiedSearch = document.getElementById("unifiedSearch");
+const unifiedQuery = document.getElementById("unifiedQuery");
+const unifiedSummary = document.getElementById("unifiedSummary");
+const unifiedFilters = document.getElementById("unifiedFilters");
+const unifiedResults = document.getElementById("unifiedResults");
+let unifiedMatches = [];
+let unifiedActiveModule = "all";
+const unifiedModuleNames = {
+  cs:"CS 매뉴얼",faq:"제품 FAQ",product:"상품",parts:"부품",vendor:"거래처·배송비",
+  trade:"보상·협의구매",contacts:"주소·링크",clipboard:"복사 보관함",notes:"포스트잇"
+};
 
 function markRecent(id){
   document.querySelectorAll(".card").forEach(function(card){
@@ -1523,30 +1570,101 @@ function markRecent(id){
 }
 try{ markRecent(localStorage.getItem("winco_recent_tool")); }catch(e){}
 
-function filterTools(){
-  const q = (toolSearch.value || "").trim().toLocaleLowerCase("ko");
-  let total = 0;
-  document.querySelectorAll(".tool-section").forEach(function(section){
-    let visible = 0;
-    section.querySelectorAll(".card").forEach(function(card){
-      const hit = !q || card.textContent.toLocaleLowerCase("ko").indexOf(q) >= 0;
-      card.hidden = !hit;
-      if(hit) visible++;
-    });
-    section.querySelectorAll(".cs-group").forEach(function(group){
-      group.hidden = !Array.from(group.querySelectorAll(".card")).some(function(card){ return !card.hidden; });
-    });
-    section.hidden = visible === 0;
-    const count = section.querySelector(".section-count");
-    if(count) count.textContent = visible;
-    total += visible;
+function escapeUnified(value){
+  return String(value == null ? "" : value).replace(/[&<>"']/g,function(char){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char];
   });
-  searchClear.classList.toggle("show", !!q);
-  emptySearch.classList.toggle("show", total === 0);
+}
+
+function highlightUnified(value,query){
+  let html = escapeUnified(value);
+  const words = [...new Set(String(query || "").trim().split(/\s+/).filter(function(word){ return word.length > 1; }))]
+    .sort(function(a,b){ return b.length-a.length; });
+  words.forEach(function(word){
+    const safe = escapeUnified(word).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    if(!safe) return;
+    html = html.replace(new RegExp("("+safe+")","gi"),"<mark>$1</mark>");
+  });
+  return html;
+}
+
+function unifiedModuleKey(item){ return item.module || "notes"; }
+
+function renderUnifiedResults(){
+  const query = toolSearch.value.trim();
+  const counts = {};
+  unifiedMatches.forEach(function(item){
+    const key = unifiedModuleKey(item);
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  const order = ["cs","faq","product","parts","vendor","trade","contacts","clipboard","notes"];
+  const filters = [{key:"all",label:"전체",count:unifiedMatches.length}].concat(order.filter(function(key){ return counts[key]; }).map(function(key){
+    return {key:key,label:unifiedModuleNames[key] || key,count:counts[key]};
+  }));
+  if(unifiedActiveModule !== "all" && !counts[unifiedActiveModule]) unifiedActiveModule = "all";
+  unifiedFilters.innerHTML = filters.map(function(filter){
+    return '<button class="unified-filter '+(filter.key===unifiedActiveModule?'is-active':'')+'" type="button" data-unified-filter="'+escapeUnified(filter.key)+'">'+escapeUnified(filter.label)+' '+filter.count+'</button>';
+  }).join("");
+
+  const visible = unifiedMatches.filter(function(item){ return unifiedActiveModule === "all" || unifiedModuleKey(item) === unifiedActiveModule; }).slice(0,30);
+  unifiedQuery.textContent = '“'+query+'”';
+  unifiedSummary.textContent = unifiedMatches.length ? "저장된 전체 업무 자료에서 관련도순으로 찾았습니다." : "저장된 자료에서 일치하는 내용을 찾지 못했습니다.";
+  if(!visible.length){
+    unifiedResults.innerHTML = '<div class="unified-empty"><strong>검색 결과가 없습니다.</strong><br>제품명, 증상 또는 업무 단어를 조금 다르게 입력해 보세요.</div>';
+    return;
+  }
+  unifiedResults.innerHTML = visible.map(function(item,index){
+    const key = unifiedModuleKey(item);
+    const url = item.url ? '<button class="unified-action" type="button" data-search-action="url" data-search-value="'+escapeUnified(item.url)+'">링크 열기 ↗</button>' : '';
+    const moduleButton = item.module && byId[item.module] ? '<button class="unified-action primary" type="button" data-search-action="module" data-search-value="'+escapeUnified(item.module)+'">관련 도구 열기</button>' : '';
+    return '<article class="unified-result" data-result-index="'+index+'">'+
+      '<div class="unified-result-top"><span class="unified-source">'+escapeUnified(unifiedModuleNames[key] || "업무 자료")+'</span><span class="unified-category">'+escapeUnified(item.category || "")+'</span></div>'+
+      '<h3>'+highlightUnified(item.title,query)+'</h3><div class="unified-answer">'+highlightUnified(item.answer,query)+'</div>'+
+      '<div class="unified-actions"><button class="unified-action" type="button" data-search-action="copy" data-search-value="'+escapeUnified(item.answer)+'">내용 복사</button>'+moduleButton+url+'</div></article>';
+  }).join("");
+}
+
+function filterTools(){
+  const q = (toolSearch.value || "").trim();
+  const searching = !!q;
+  searchClear.classList.toggle("show",searching);
+  unifiedSearch.hidden = !searching;
+  emptySearch.classList.remove("show");
+  document.querySelectorAll(".tool-section").forEach(function(section){
+    section.hidden = searching;
+    section.querySelectorAll(".card,.cs-group").forEach(function(node){ node.hidden = false; });
+    const count = section.querySelector(".section-count");
+    if(count) count.textContent = section.querySelectorAll(".card").length;
+  });
+  if(!searching){ unifiedMatches=[]; unifiedActiveModule="all"; unifiedResults.innerHTML=""; return; }
+  unifiedActiveModule="all";
+  if(typeof window.wincoUnifiedSearch === "function") unifiedMatches = window.wincoUnifiedSearch(q,60);
+  else unifiedMatches = [];
+  renderUnifiedResults();
 }
 
 toolSearch.addEventListener("input", filterTools);
 searchClear.addEventListener("click", function(){ toolSearch.value=""; filterTools(); toolSearch.focus(); });
+document.getElementById("unifiedClose").addEventListener("click",function(){ toolSearch.value="";filterTools();toolSearch.focus(); });
+unifiedFilters.addEventListener("click",function(event){
+  const button = event.target.closest("[data-unified-filter]");
+  if(!button) return;
+  unifiedActiveModule = button.dataset.unifiedFilter;
+  renderUnifiedResults();
+});
+unifiedResults.addEventListener("click",async function(event){
+  const button = event.target.closest("[data-search-action]");
+  if(!button) return;
+  const action = button.dataset.searchAction;
+  const value = button.dataset.searchValue || "";
+  if(action === "module") openModule(value,true);
+  else if(action === "url") window.open(value,"_blank","noopener");
+  else if(action === "copy"){
+    try{ await navigator.clipboard.writeText(value); }
+    catch(error){ const area=document.createElement("textarea");area.value=value;document.body.appendChild(area);area.select();document.execCommand("copy");area.remove(); }
+    const original=button.textContent;button.textContent="복사됨 ✓";setTimeout(function(){button.textContent=original;},1200);
+  }
+});
 
 /* 모듈 열기. push=true 면 주소에 #모듈 을 남긴다. */
 function openModule(id, push){
