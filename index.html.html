@@ -1558,6 +1558,8 @@ const unifiedFilters = document.getElementById("unifiedFilters");
 const unifiedResults = document.getElementById("unifiedResults");
 let unifiedMatches = [];
 let unifiedActiveModule = "all";
+let unifiedSearchActive = false;
+let unifiedSearchFrame = 0;
 const unifiedModuleNames = {
   cs:"CS 매뉴얼",faq:"제품 FAQ",product:"상품",parts:"부품",vendor:"거래처·배송비",
   trade:"보상·협의구매",contacts:"주소·링크",clipboard:"복사 보관함",notes:"포스트잇"
@@ -1590,6 +1592,18 @@ function highlightUnified(value,query){
 
 function unifiedModuleKey(item){ return item.module || "notes"; }
 
+function unifiedSnippet(value,query){
+  const text = String(value || "").replace(/\s+/g," ").trim();
+  if(text.length <= 300) return text;
+  const words = String(query || "").toLocaleLowerCase("ko").split(/\s+/).filter(function(word){ return word.length > 1; });
+  const lower = text.toLocaleLowerCase("ko");
+  let hit = -1;
+  words.some(function(word){ hit = lower.indexOf(word); return hit >= 0; });
+  const start = Math.max(0,(hit < 0 ? 0 : hit)-90);
+  const snippet = text.slice(start,start+300);
+  return (start ? "…" : "")+snippet+(start+300 < text.length ? "…" : "");
+}
+
 function renderUnifiedResults(){
   const query = toolSearch.value.trim();
   const counts = {};
@@ -1606,7 +1620,7 @@ function renderUnifiedResults(){
     return '<button class="unified-filter '+(filter.key===unifiedActiveModule?'is-active':'')+'" type="button" data-unified-filter="'+escapeUnified(filter.key)+'">'+escapeUnified(filter.label)+' '+filter.count+'</button>';
   }).join("");
 
-  const visible = unifiedMatches.filter(function(item){ return unifiedActiveModule === "all" || unifiedModuleKey(item) === unifiedActiveModule; }).slice(0,30);
+  const visible = unifiedMatches.filter(function(item){ return unifiedActiveModule === "all" || unifiedModuleKey(item) === unifiedActiveModule; }).slice(0,18);
   unifiedQuery.textContent = '“'+query+'”';
   unifiedSummary.textContent = unifiedMatches.length ? "저장된 전체 업무 자료에서 관련도순으로 찾았습니다." : "저장된 자료에서 일치하는 내용을 찾지 못했습니다.";
   if(!visible.length){
@@ -1619,7 +1633,7 @@ function renderUnifiedResults(){
     const moduleButton = item.module && byId[item.module] ? '<button class="unified-action primary" type="button" data-search-action="module" data-search-value="'+escapeUnified(item.module)+'">관련 도구 열기</button>' : '';
     return '<article class="unified-result" data-result-index="'+index+'">'+
       '<div class="unified-result-top"><span class="unified-source">'+escapeUnified(unifiedModuleNames[key] || "업무 자료")+'</span><span class="unified-category">'+escapeUnified(item.category || "")+'</span></div>'+
-      '<h3>'+highlightUnified(item.title,query)+'</h3><div class="unified-answer">'+highlightUnified(item.answer,query)+'</div>'+
+      '<h3>'+highlightUnified(item.title,query)+'</h3><div class="unified-answer">'+highlightUnified(unifiedSnippet(item.answer,query),query)+'</div>'+
       '<div class="unified-actions"><button class="unified-action" type="button" data-search-action="copy" data-search-value="'+escapeUnified(item.answer)+'">내용 복사</button>'+moduleButton+url+'</div></article>';
   }).join("");
 }
@@ -1627,6 +1641,8 @@ function renderUnifiedResults(){
 function filterTools(){
   const q = (toolSearch.value || "").trim();
   const searching = !!q;
+  const enteringSearch = searching && !unifiedSearchActive;
+  unifiedSearchActive = searching;
   searchClear.classList.toggle("show",searching);
   unifiedSearch.hidden = !searching;
   emptySearch.classList.remove("show");
@@ -1637,13 +1653,17 @@ function filterTools(){
     if(count) count.textContent = section.querySelectorAll(".card").length;
   });
   if(!searching){ unifiedMatches=[]; unifiedActiveModule="all"; unifiedResults.innerHTML=""; return; }
+  if(enteringSearch && typeof window.wincoRefreshUnifiedSearch === "function") window.wincoRefreshUnifiedSearch();
   unifiedActiveModule="all";
-  if(typeof window.wincoUnifiedSearch === "function") unifiedMatches = window.wincoUnifiedSearch(q,60);
+  if(typeof window.wincoUnifiedSearch === "function") unifiedMatches = window.wincoUnifiedSearch(q,40);
   else unifiedMatches = [];
   renderUnifiedResults();
 }
 
-toolSearch.addEventListener("input", filterTools);
+toolSearch.addEventListener("input",function(){
+  cancelAnimationFrame(unifiedSearchFrame);
+  unifiedSearchFrame = requestAnimationFrame(filterTools);
+});
 searchClear.addEventListener("click", function(){ toolSearch.value=""; filterTools(); toolSearch.focus(); });
 document.getElementById("unifiedClose").addEventListener("click",function(){ toolSearch.value="";filterTools();toolSearch.focus(); });
 unifiedFilters.addEventListener("click",function(event){

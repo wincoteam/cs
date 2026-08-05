@@ -101,6 +101,9 @@
       _titleCompact:compact(title),
       _keywords:keywords,
       _answer:answer,
+      _semanticTitle:semanticCompact(item.title),
+      _semanticKeywords:semanticCompact(item.keywords+" "+item.category),
+      _semanticAnswer:semanticCompact(item.answer),
       _all:`${title} ${keywords} ${answer}`
     });
   }
@@ -374,27 +377,43 @@
       .slice(0,8);
   }
 
+  window.wincoRefreshUnifiedSearch = refreshKnowledge;
   window.wincoUnifiedSearch = function(query,limit){
     const normalizedQuery = normalize(query);
     const compactQuery = semanticCompact(normalizedQuery);
     if(!compactQuery) return [];
-    refreshKnowledge();
     const queryTokens = tokens(normalizedQuery).map(semanticCompact).filter(Boolean);
+    const priceIntent = hasAny(normalizedQuery,["얼마","가격","금액","비용","보상가"]);
+    const addressIntent = hasAny(normalizedQuery,["주소","어디로","보내","발송","택배","반납"]);
+    const linkIntent = hasAny(normalizedQuery,["링크","페이지","사이트","홈페이지","접수"]);
+    const repairIntent = hasAny(normalizedQuery,["as","에이에스","수리","고장","불량","작동안","안돼","안되"]);
+    const tradeIntent = hasAny(normalizedQuery,["보상","보상판매","기기반납"]);
+    const chargeFailure = hasAny(normalizedQuery,["충전","배터리","전원"]) && hasAny(normalizedQuery,["불량","안돼","안됨","안되","되지않","고장","문제","작동안"]);
+    const activeSymptoms = symptomRules.filter(function(rule){ return hasAny(normalizedQuery,rule.query); });
     const seen = new Set();
     return knowledge
       .map(function(item){
-        let score = scoreItem(item,normalizedQuery);
-        const title = semanticCompact(item.title);
-        const keywords = semanticCompact(item.keywords+" "+item.category);
-        const answer = semanticCompact(item.answer);
-        if(title.includes(compactQuery)) score += 80;
-        else if(keywords.includes(compactQuery)) score += 38;
-        else if(answer.includes(compactQuery)) score += 22;
+        const title = item._semanticTitle;
+        const keywords = item._semanticKeywords;
+        const answer = item._semanticAnswer;
+        let score = 0;
+        if(title === compactQuery) score += 220;
+        if(title.includes(compactQuery)) score += 112;
+        else if(keywords.includes(compactQuery)) score += 54;
+        else if(answer.includes(compactQuery)) score += 28;
         queryTokens.forEach(function(token){
-          if(title.includes(token)) score += 20;
-          else if(keywords.includes(token)) score += 11;
-          else if(answer.includes(token)) score += 6;
+          if(title.includes(token)) score += token.length >= 4 ? 28 : 18;
+          else if(keywords.includes(token)) score += token.length >= 4 ? 16 : 10;
+          else if(answer.includes(token)) score += token.length >= 4 ? 8 : 4;
         });
+        score += dice(compactQuery,title)*40;
+        if(priceIntent && item.kind === "price") score += tradeIntent ? 64 : 12;
+        if(addressIntent && item.kind === "address") score += 58;
+        if(linkIntent && item.kind === "link") score += 38;
+        if(repairIntent && ["faq","guide","manual"].includes(item.kind)) score += 14;
+        if(tradeIntent && item.module === "trade") score += 38;
+        if(chargeFailure && hasAny(item.title,["충전","배터리","전원","작동"])) score += 68;
+        activeSymptoms.forEach(function(rule){ if(hasAny(item.title,rule.title)) score += rule.boost || 90; });
         return Object.assign({},item,{score:score});
       })
       .filter(function(item){
