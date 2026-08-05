@@ -375,6 +375,26 @@
     background:#f1f8f5;
   }
 
+  .cs-groups{display:flex;flex-direction:column;gap:18px;}
+  .cs-group{
+    --group-ac:#7b8782;
+    --group-soft:#f2f5f4;
+    padding:17px;
+    border:1px solid color-mix(in srgb,var(--group-ac) 28%,#dfe6e3);
+    border-top:3px solid var(--group-ac);
+    border-radius:18px;
+    background:linear-gradient(135deg,color-mix(in srgb,var(--group-soft) 74%,#fff),#fff 48%);
+  }
+  .cs-group.guide{--group-ac:#c94f49;--group-soft:#fff1f0;}
+  .cs-group.quick{--group-ac:#c18a20;--group-soft:#fff8e6;}
+  .cs-group-head{display:flex;align-items:center;gap:10px;margin:0 2px 13px;}
+  .cs-group-mark{width:9px;height:9px;flex:none;border-radius:3px;background:var(--group-ac);box-shadow:0 0 0 5px color-mix(in srgb,var(--group-ac) 12%,transparent);}
+  .cs-group-title{margin:0;color:color-mix(in srgb,var(--group-ac) 82%,#17231e);font-size:15px;font-weight:900;letter-spacing:-.02em;}
+  .cs-group-copy{color:#7a8681;font-size:11.5px;font-weight:650;}
+  .cs-group .grid{gap:12px;}
+  .cs-group.two .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .cs-group .card{background:rgba(255,255,255,.92);}
+
   .home-foot{
     margin-top:24px;
     color:#8a9891;
@@ -454,6 +474,7 @@
     .hero{padding:24px;}
     .tool-section.cs .card:last-child{grid-column:auto;}
     .tool-section.cs .grid{grid-template-columns:repeat(2,1fr);}
+    .cs-group .grid,.cs-group.two .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
     .card{min-height:138px;}
   }
 
@@ -471,6 +492,9 @@
     .hero-meta{gap:10px;flex-wrap:wrap;margin-bottom:17px;}
     .tool-search{min-height:52px;}
     .tool-section{padding:18px 14px;border-radius:20px;}
+    .cs-group{padding:14px 12px;border-radius:16px;}
+    .cs-group-head{align-items:flex-start;flex-wrap:wrap;margin-bottom:11px;}
+    .cs-group-copy{width:100%;padding-left:19px;}
     .section-head{margin-bottom:14px;}
     .section-title{font-size:18px;}
     .card{padding:17px 16px;border-radius:16px;}
@@ -479,6 +503,7 @@
     .postit-widget{right:10px;bottom:10px;width:calc(100vw - 20px);}
     .postit-list{max-height:42vh;}
     .grid,.tool-section.cs .grid{grid-template-columns:1fr;}
+    .cs-group .grid,.cs-group.two .grid{grid-template-columns:1fr;}
   }
 </style>
   <link rel="stylesheet" href="assistant.css">
@@ -542,6 +567,9 @@
           <div><h2 class="section-title" id="csTitle">CS <span class="section-count">7</span></h2></div>
           <p class="section-copy">고객 안내, 응대 매뉴얼, 상품, 발송지와 업무 링크를 찾습니다</p>
         </div>
+        <div class="cs-groups">
+      <section class="cs-group products" aria-labelledby="csProductsTitle">
+        <div class="cs-group-head"><span class="cs-group-mark" aria-hidden="true"></span><h3 class="cs-group-title" id="csProductsTitle">상품·가격</h3><span class="cs-group-copy">구매 안내, 상품 조회와 보상판매 금액</span></div>
         <div class="grid">
       <button class="card" data-mod="parts" style="--ac:#0e6e58">
         <span class="recent">최근 사용</span>
@@ -550,16 +578,6 @@
           <span class="c-tag">안내문 생성</span>
           <span class="c-name">협의구매 단가표</span>
           <span class="c-desc">부품을 담고 수량을 정하면 고객 안내문이 자동으로 만들어집니다.</span>
-        </span>
-        <span class="c-go" aria-hidden="true">열기 →</span>
-      </button>
-      <button class="card" data-mod="cs" style="--ac:#11998e">
-        <span class="recent">최근 사용</span>
-        <span class="chip" aria-hidden="true">📖</span>
-        <span class="c-body">
-          <span class="c-tag">응대 검색</span>
-          <span class="c-name">CS 매뉴얼 가이드</span>
-          <span class="c-desc">응대 문구를 검색해서 바로 복사합니다. 엑셀로 매뉴얼을 교체할 수 있어요.</span>
         </span>
         <span class="c-go" aria-hidden="true">열기 →</span>
       </button>
@@ -573,16 +591,6 @@
         </span>
         <span class="c-go" aria-hidden="true">열기 →</span>
       </button>
-      <button class="card" data-mod="faq" style="--ac:#25856f">
-        <span class="recent">최근 사용</span>
-        <span class="chip" aria-hidden="true">🍀</span>
-        <span class="c-body">
-          <span class="c-tag">제품별 FAQ</span>
-          <span class="c-name">WINCO FAQ</span>
-          <span class="c-desc">에어건·청소기·캠핑용품 등 제품별 사용법과 FAQ를 검색합니다.</span>
-        </span>
-        <span class="c-go" aria-hidden="true">열기 →</span>
-      </button>
       <button class="card" data-mod="trade" style="--ac:#0a6b56">
         <span class="recent">최근 사용</span>
         <span class="chip" aria-hidden="true">♻️</span>
@@ -593,6 +601,38 @@
         </span>
         <span class="c-go" aria-hidden="true">열기 →</span>
       </button>
+        </div>
+      </section>
+
+      <section class="cs-group guide two" aria-labelledby="csGuideTitle">
+        <div class="cs-group-head"><span class="cs-group-mark" aria-hidden="true"></span><h3 class="cs-group-title" id="csGuideTitle">상담·매뉴얼</h3><span class="cs-group-copy">고객 응대 문구와 제품별 자주 묻는 질문</span></div>
+        <div class="grid">
+      <button class="card" data-mod="cs" style="--ac:#11998e">
+        <span class="recent">최근 사용</span>
+        <span class="chip" aria-hidden="true">📖</span>
+        <span class="c-body">
+          <span class="c-tag">응대 검색</span>
+          <span class="c-name">CS 매뉴얼 가이드</span>
+          <span class="c-desc">응대 문구를 검색해서 바로 복사합니다. 엑셀로 매뉴얼을 교체할 수 있어요.</span>
+        </span>
+        <span class="c-go" aria-hidden="true">열기 →</span>
+      </button>
+      <button class="card" data-mod="faq" style="--ac:#25856f">
+        <span class="recent">최근 사용</span>
+        <span class="chip" aria-hidden="true">🍀</span>
+        <span class="c-body">
+          <span class="c-tag">제품별 FAQ</span>
+          <span class="c-name">WINCO FAQ</span>
+          <span class="c-desc">에어건·청소기·캠핑용품 등 제품별 사용법과 FAQ를 검색합니다.</span>
+        </span>
+        <span class="c-go" aria-hidden="true">열기 →</span>
+      </button>
+        </div>
+      </section>
+
+      <section class="cs-group quick two" aria-labelledby="csQuickTitle">
+        <div class="cs-group-head"><span class="cs-group-mark" aria-hidden="true"></span><h3 class="cs-group-title" id="csQuickTitle">주소·빠른 복사</h3><span class="cs-group-copy">발송지, 업무 링크와 자주 쓰는 문구</span></div>
+        <div class="grid">
       <button class="card" data-mod="contacts" style="--ac:#176b57">
         <span class="recent">최근 사용</span>
         <span class="chip" aria-hidden="true">📍</span>
@@ -613,6 +653,8 @@
         </span>
         <span class="c-go" aria-hidden="true">열기 →</span>
       </button>
+        </div>
+      </section>
         </div>
       </section>
       <div class="empty-search" id="emptySearch">검색 결과가 없습니다. 다른 단어로 찾아보세요.</div>
@@ -1490,6 +1532,9 @@ function filterTools(){
       const hit = !q || card.textContent.toLocaleLowerCase("ko").indexOf(q) >= 0;
       card.hidden = !hit;
       if(hit) visible++;
+    });
+    section.querySelectorAll(".cs-group").forEach(function(group){
+      group.hidden = !Array.from(group.querySelectorAll(".card")).some(function(card){ return !card.hidden; });
     });
     section.hidden = visible === 0;
     const count = section.querySelector(".section-count");
