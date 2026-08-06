@@ -456,9 +456,9 @@
   .postit-list{display:flex;max-height:min(52vh,470px);flex:1 1 auto;min-height:0;flex-direction:column;gap:9px;overflow:auto;padding:12px;}
   .postit-widget.has-custom-size .postit-list{max-height:none;}
   .postit-empty{padding:25px 14px;border:1px dashed #dfcf9f;border-radius:12px;color:#8b805f;font-size:12.5px;text-align:center;}
-  .postit-note{--note-bg:#fff4bd;--note-bg-soft:#fff9dc;--note-border:#ead283;--note-head:#f4df91;--note-head-soft:#faedbc;--note-ink:#66531d;position:relative;display:flex;flex:0 0 auto;min-height:92px;flex-direction:column;border:1px solid var(--note-border);border-radius:13px;background:linear-gradient(155deg,var(--note-bg),var(--note-bg-soft));box-shadow:0 5px 14px rgba(82,67,29,.07);}
-  .postit-note:nth-child(3n+2){--note-bg:#eaf6ec;--note-bg-soft:#f5fbf6;--note-border:#c9e4d0;--note-head:#d4ead9;--note-head-soft:#e4f2e7;--note-ink:#315e42;}
-  .postit-note:nth-child(3n){--note-bg:#edf4fb;--note-bg-soft:#f7fbff;--note-border:#cfddec;--note-head:#d8e6f4;--note-head-soft:#e7f0f8;--note-ink:#3c5974;}
+  .postit-note{--note-bg:#fff4bd;--note-bg-soft:#fff9dc;--note-border:#ead283;--note-head:#f4df91;--note-head-soft:#faedbc;--note-ink:#66531d;position:relative;display:flex;flex:0 0 auto;min-height:128px;flex-direction:column;border:1px solid var(--note-border);border-radius:13px;background:linear-gradient(155deg,var(--note-bg),var(--note-bg-soft));box-shadow:0 5px 14px rgba(82,67,29,.07);}
+  .postit-note[data-note-theme="green"]{--note-bg:#eaf6ec;--note-bg-soft:#f5fbf6;--note-border:#c9e4d0;--note-head:#d4ead9;--note-head-soft:#e4f2e7;--note-ink:#315e42;}
+  .postit-note[data-note-theme="blue"]{--note-bg:#edf4fb;--note-bg-soft:#f7fbff;--note-border:#cfddec;--note-head:#d8e6f4;--note-head-soft:#e7f0f8;--note-ink:#3c5974;}
   .postit-note-head{display:flex;flex:0 0 auto;align-items:center;min-height:32px;margin:8px 8px 0;border:1px solid color-mix(in srgb,var(--note-border) 78%,#fff);border-radius:9px;background:linear-gradient(90deg,var(--note-head),var(--note-head-soft));box-shadow:inset 0 1px rgba(255,255,255,.5);overflow:hidden;transition:filter .15s ease,box-shadow .15s ease;}
   .postit-note-head:hover{filter:saturate(1.05);box-shadow:inset 0 1px rgba(255,255,255,.65),0 2px 6px rgba(56,62,52,.05);}
   .postit-note-title{min-width:0;flex:1;border:0;outline:0;background:transparent;padding:7px 10px;color:var(--note-ink);font:inherit;font-size:12.5px;font-weight:850;letter-spacing:-.01em;}
@@ -470,15 +470,23 @@
   .postit-note-drag:hover,.postit-note-toggle:hover,.postit-delete:hover{background:rgba(255,255,255,.72);opacity:1;}
   .postit-delete{margin:0 3px 0 1px;color:#8e654f;font-size:17px;}
   .postit-delete:hover{color:#a33a32;}
-  .postit-text{display:block;width:100%;height:auto;min-height:54px;flex:1 1 auto;resize:none;border:0;outline:0;background:transparent;padding:10px 13px 15px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;}
-  .postit-text::placeholder{color:#9a8e69;}
+  .postit-format{display:flex;flex:0 0 auto;align-items:center;gap:5px;margin:7px 10px 0;padding:4px 6px;border:1px solid color-mix(in srgb,var(--note-border) 72%,#fff);border-radius:9px;background:rgba(255,255,255,.58);}
+  .postit-format-label{margin-right:2px;color:color-mix(in srgb,var(--note-ink) 65%,#fff);font-size:10px;font-weight:800;}
+  .postit-format-button{display:grid;width:25px;height:25px;place-items:center;border:1px solid color-mix(in srgb,var(--note-border) 80%,#fff);border-radius:7px;background:rgba(255,255,255,.78);color:#3e3a2e;font:inherit;font-size:12px;cursor:pointer;}
+  .postit-format-button:hover{border-color:var(--note-border);background:#fff;box-shadow:0 2px 5px rgba(49,56,51,.08);}
+  .postit-format-button.bold{font-weight:950;}
+  .postit-format-color{width:17px;height:17px;border:2px solid rgba(255,255,255,.9);border-radius:99px;background:var(--format-color);box-shadow:0 0 0 1px rgba(55,61,57,.16);}
+  .postit-format-color:hover{transform:scale(1.1);box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 3px var(--format-color);}
+  .postit-text{display:block;width:100%;height:auto;min-height:54px;flex:1 1 auto;overflow:auto;border:0;outline:0;background:transparent;padding:9px 13px 15px;color:#3e3a2e;font:inherit;font-size:13.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;}
+  .postit-text:empty::before{content:attr(data-placeholder);color:#9a8e69;pointer-events:none;}
+  .postit-text:focus{background:rgba(255,255,255,.14);}
   .postit-note-grip{position:absolute;left:50%;z-index:3;width:48px;height:12px;transform:translateX(-50%);border:0;background:transparent;cursor:ns-resize;touch-action:none;}
   .postit-note-grip::after{content:"";display:block;width:28px;height:3px;margin:auto;border-radius:99px;background:rgba(100,79,29,.22);}
   .postit-note-grip:hover::after{background:rgba(77,58,17,.52);}
   .postit-note-grip.top{top:0;}
   .postit-note-grip.bottom{bottom:0;}
   .postit-note.is-folded{height:auto!important;min-height:0;box-shadow:0 3px 9px rgba(52,61,55,.055);}
-  .postit-note.is-folded .postit-text,.postit-note.is-folded .postit-note-grip{display:none;}
+  .postit-note.is-folded .postit-format,.postit-note.is-folded .postit-text,.postit-note.is-folded .postit-note-grip{display:none;}
   .postit-note.is-folded .postit-note-head{margin-bottom:8px;}
   .postit-note.is-reordering{z-index:1;opacity:.2;transform:scale(.985);box-shadow:none;}
   .postit-drag-ghost{position:fixed!important;z-index:9999!important;margin:0!important;pointer-events:none!important;opacity:.94;transform:rotate(-1deg) scale(1.025);transform-origin:center;box-shadow:0 24px 48px rgba(35,47,40,.28),0 8px 18px rgba(35,47,40,.18)!important;filter:saturate(1.04);}
@@ -783,6 +791,8 @@ const viewer    = document.getElementById("viewer");
 const POSTIT_KEY = "winco_postit_notes_v1";
 const POSTIT_COLLAPSE_KEY = "winco_postit_collapsed_v1";
 const POSTIT_LAYOUT_KEY = "winco_postit_layout_v1";
+const POSTIT_THEMES = ["yellow", "green", "blue"];
+const POSTIT_NOTE_MIN_HEIGHT = 128;
 const POSTIT_NOTE_MAX_HEIGHT = 1200;
 const postitWidget = document.getElementById("postitWidget");
 const postitPanel = document.getElementById("postitPanel");
@@ -798,16 +808,52 @@ let postitNotes = [];
 let postitSaveTimer = null;
 let postitLayout = null;
 
+function postitPlainToHtml(text){
+  const holder = document.createElement("div");
+  holder.textContent = String(text || "");
+  return holder.innerHTML.replace(/\r?\n/g, "<br>");
+}
+
+function sanitizePostitHtml(html){
+  const template = document.createElement("template");
+  template.innerHTML = String(html || "");
+  const allowedTags = new Set(["B", "STRONG", "BR", "DIV", "P", "SPAN", "FONT"]);
+  Array.from(template.content.querySelectorAll("*")).forEach(function(node){
+    if(!allowedTags.has(node.tagName)){
+      node.replaceWith.apply(node, Array.from(node.childNodes));
+      return;
+    }
+    Array.from(node.attributes).forEach(function(attribute){
+      const isSafeFontColor = node.tagName === "FONT" && attribute.name.toLowerCase() === "color" &&
+        /^(#[0-9a-f]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\))$/i.test(attribute.value);
+      if(!isSafeFontColor) node.removeAttribute(attribute.name);
+    });
+  });
+  return template.innerHTML;
+}
+
+function postitEditorText(field){
+  return (field.innerText || field.textContent || "").replace(/\u00a0/g, " ").replace(/\n$/, "");
+}
+
+function syncPostitEditor(field, note){
+  note.html = sanitizePostitHtml(field.innerHTML);
+  note.text = postitEditorText(field);
+}
+
 try{
   const savedPostits = localStorage.getItem(POSTIT_KEY);
   const parsedPostits = savedPostits === null ? [] : JSON.parse(savedPostits);
   if(Array.isArray(parsedPostits)){
     postitNotes = parsedPostits.filter(function(note){
       return note && typeof note.id === "string" && typeof note.text === "string";
-    }).map(function(note){
+    }).map(function(note, index){
       return Object.assign({}, note, {
         title:typeof note.title === "string" ? note.title : "",
-        collapsed:note.collapsed === true
+        html:typeof note.html === "string" ? sanitizePostitHtml(note.html) : postitPlainToHtml(note.text),
+        theme:POSTIT_THEMES.includes(note.theme) ? note.theme : POSTIT_THEMES[index % POSTIT_THEMES.length],
+        collapsed:note.collapsed === true,
+        height:Number.isFinite(Number(note.height)) ? Number(note.height) : POSTIT_NOTE_MIN_HEIGHT
       });
     });
   }
@@ -849,7 +895,6 @@ function queuePostitSave(){
 function fitPostitToContent(field, note, card, allowShrink){
   if(!field || !note || !card || note.collapsed || card.classList.contains("is-folded")) return false;
   const currentHeight = card.getBoundingClientRect().height;
-  const head = card.querySelector(".postit-note-head");
   const inlineHeight = field.style.height;
   const inlineFlex = field.style.flex;
   field.style.flex = "0 0 auto";
@@ -857,8 +902,8 @@ function fitPostitToContent(field, note, card, allowShrink){
   const contentHeight = Math.max(54, Math.ceil(field.scrollHeight));
   field.style.height = inlineHeight;
   field.style.flex = inlineFlex;
-  const headBottom = head ? head.offsetTop + head.offsetHeight : 0;
-  const nextHeight = clampPostit(headBottom + contentHeight + 2, 92, POSTIT_NOTE_MAX_HEIGHT);
+  const contentTop = field.offsetTop;
+  const nextHeight = clampPostit(contentTop + contentHeight + 2, POSTIT_NOTE_MIN_HEIGHT, POSTIT_NOTE_MAX_HEIGHT);
   if(!allowShrink && nextHeight <= currentHeight + 1) return false;
   if(Math.abs(nextHeight - currentHeight) <= 1) return false;
   card.style.height = nextHeight + "px";
@@ -888,9 +933,10 @@ function renderPostits(focusId){
       const card = document.createElement("div");
       card.className = "postit-note";
       card.dataset.noteCard = note.id;
+      card.dataset.noteTheme = POSTIT_THEMES.includes(note.theme) ? note.theme : "yellow";
       if(note.collapsed) card.classList.add("is-folded");
       if(Number.isFinite(note.height)){
-        card.style.height = clampPostit(note.height, 92, POSTIT_NOTE_MAX_HEIGHT) + "px";
+        card.style.height = clampPostit(note.height, POSTIT_NOTE_MIN_HEIGHT, POSTIT_NOTE_MAX_HEIGHT) + "px";
       }
 
       const noteHead = document.createElement("div");
@@ -922,10 +968,23 @@ function renderPostits(focusId){
       toggle.setAttribute("aria-expanded", String(!note.collapsed));
       toggle.dataset.toggleNote = note.id;
 
-      const field = document.createElement("textarea");
+      const formatBar = document.createElement("div");
+      formatBar.className = "postit-format";
+      formatBar.setAttribute("aria-label", "메모 글자 서식");
+      formatBar.innerHTML = '<span class="postit-format-label">글자</span>' +
+        '<button class="postit-format-button bold" type="button" data-format-command="bold" title="선택한 글자를 굵게" aria-label="선택한 글자를 굵게">B</button>' +
+        '<button class="postit-format-button postit-format-color" type="button" data-format-command="foreColor" data-format-value="#3e3a2e" style="--format-color:#3e3a2e" title="기본 글자색" aria-label="기본 글자색"></button>' +
+        '<button class="postit-format-button postit-format-color" type="button" data-format-command="foreColor" data-format-value="#c43d3d" style="--format-color:#c43d3d" title="빨간 글자색" aria-label="빨간 글자색"></button>' +
+        '<button class="postit-format-button postit-format-color" type="button" data-format-command="foreColor" data-format-value="#2563a7" style="--format-color:#2563a7" title="파란 글자색" aria-label="파란 글자색"></button>' +
+        '<button class="postit-format-button postit-format-color" type="button" data-format-command="foreColor" data-format-value="#18785c" style="--format-color:#18785c" title="초록 글자색" aria-label="초록 글자색"></button>' +
+        '<button class="postit-format-button postit-format-color" type="button" data-format-command="foreColor" data-format-value="#7650a8" style="--format-color:#7650a8" title="보라 글자색" aria-label="보라 글자색"></button>';
+
+      const field = document.createElement("div");
       field.className = "postit-text";
-      field.value = note.text;
-      field.placeholder = "메모를 입력하세요…";
+      field.contentEditable = "true";
+      field.spellcheck = true;
+      field.innerHTML = sanitizePostitHtml(note.html || postitPlainToHtml(note.text));
+      field.dataset.placeholder = "메모를 입력하세요…";
       field.setAttribute("aria-label", "업무 메모");
       field.dataset.noteId = note.id;
 
@@ -958,6 +1017,7 @@ function renderPostits(focusId){
       noteHead.appendChild(toggle);
       noteHead.appendChild(remove);
       card.appendChild(noteHead);
+      card.appendChild(formatBar);
       card.appendChild(field);
       card.appendChild(topGrip);
       card.appendChild(bottomGrip);
@@ -1183,7 +1243,7 @@ postitResize.addEventListener("pointerdown", function(event){
 });
 
 document.getElementById("postitAddBtn").addEventListener("click", function(){
-  const note = {id:postitId(), title:"", text:"", collapsed:false, height:110};
+  const note = {id:postitId(), title:"", text:"", html:"", theme:POSTIT_THEMES[postitNotes.length % POSTIT_THEMES.length], collapsed:false, height:POSTIT_NOTE_MIN_HEIGHT};
   postitNotes.unshift(note);
   setPostitCollapsed(false);
   savePostits();
@@ -1273,7 +1333,7 @@ postitList.addEventListener("pointerdown", function(event){
     const deltaY = moveEvent.clientY - startY;
     const height = clampPostit(
       edge === "top" ? startHeight - deltaY : startHeight + deltaY,
-      92,
+      POSTIT_NOTE_MIN_HEIGHT,
       POSTIT_NOTE_MAX_HEIGHT
     );
     card.style.height = height + "px";
@@ -1335,8 +1395,8 @@ postitList.addEventListener("pointerdown", function(event){
     dragGhost.classList.add("postit-drag-ghost");
     dragGhost.removeAttribute("data-note-card");
 
-    const sourceFields = card.querySelectorAll("input, textarea");
-    const ghostFields = dragGhost.querySelectorAll("input, textarea");
+    const sourceFields = card.querySelectorAll("input");
+    const ghostFields = dragGhost.querySelectorAll("input");
     sourceFields.forEach(function(field, index){
       if(ghostFields[index]) ghostFields[index].value = field.value;
     });
@@ -1424,10 +1484,22 @@ postitList.addEventListener("input", function(event){
   if(field){
     const note = postitNotes.find(function(item){ return item.id === field.dataset.noteId; });
     if(!note) return;
-    note.text = field.value;
+    syncPostitEditor(field, note);
     fitPostitToContent(field, note, field.closest(".postit-note"), true);
     queuePostitSave();
   }
+});
+
+postitList.addEventListener("paste", function(event){
+  const field = event.target.closest(".postit-text[data-note-id]");
+  if(!field) return;
+  event.preventDefault();
+  const plainText = (event.clipboardData || window.clipboardData).getData("text/plain");
+  document.execCommand("insertText", false, plainText);
+});
+
+postitList.addEventListener("pointerdown", function(event){
+  if(event.target.closest("[data-format-command]")) event.preventDefault();
 });
 
 postitList.addEventListener("dblclick", function(event){
@@ -1440,6 +1512,20 @@ postitList.addEventListener("dblclick", function(event){
 });
 
 postitList.addEventListener("click", function(event){
+  const formatButton = event.target.closest("[data-format-command]");
+  if(formatButton){
+    const card = formatButton.closest(".postit-note");
+    const field = card && card.querySelector(".postit-text[data-note-id]");
+    const note = field && postitNotes.find(function(item){ return item.id === field.dataset.noteId; });
+    if(!field || !note) return;
+    document.execCommand(formatButton.dataset.formatCommand, false, formatButton.dataset.formatValue || null);
+    syncPostitEditor(field, note);
+    fitPostitToContent(field, note, card, true);
+    queuePostitSave();
+    field.focus();
+    return;
+  }
+
   const toggle = event.target.closest("[data-toggle-note]");
   if(toggle){
     const note = postitNotes.find(function(item){ return item.id === toggle.dataset.toggleNote; });
