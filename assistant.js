@@ -24,6 +24,7 @@
   let previousResult = null;
   let pendingIntent = "";
   let pendingQuery = "";
+  const AI_ENDPOINT = "/api/ask";
 
   const groups = [
     ["as","a/s","에이에스","수리","고장","점검","서비스","서비스센터"],
@@ -659,7 +660,7 @@
       const subject = productName ? `${productName} 제품은 ` : "";
       text = `고객님께는 이렇게 안내하시면 됩니다.\n\n안녕하세요, 고객님. ${subject}${top.item.answer}`;
     }
-    return {item:top.item,text:text};
+    return {item:top.item,text:text,rows:results};
   }
 
   function scrollBottom(){
@@ -755,6 +756,52 @@
     scrollBottom();
   }
 
+  function addThinking(){
+    const row = document.createElement("div");
+    row.className = "assistant-row bot assistant-thinking";
+    const bubble = document.createElement("div");
+    bubble.className = "assistant-bubble assistant-direct";
+    bubble.textContent = "생각 중…";
+    row.appendChild(bubble);
+    messages.appendChild(row);
+    scrollBottom();
+    return row;
+  }
+
+  function buildAiContext(primaryItem, extraRows){
+    const seen = new Set();
+    const list = [];
+    if(primaryItem){
+      list.push(primaryItem);
+      seen.add(primaryItem.id);
+    }
+    (extraRows || []).forEach(function(row){
+      const item = row && row.item ? row.item : row;
+      if(!item || seen.has(item.id)) return;
+      seen.add(item.id);
+      list.push(item);
+    });
+    return list.slice(0,5).map(function(item){
+      return {title:item.title, answer:item.answer, category:item.category};
+    });
+  }
+
+  async function askAI(query, contextItems){
+    try{
+      const response = await fetch(AI_ENDPOINT,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({query:query, context:contextItems})
+      });
+      if(!response.ok) return null;
+      const result = await response.json();
+      const answer = result && typeof result.answer === "string" ? result.answer.trim() : "";
+      return answer || null;
+    }catch(error){
+      return null;
+    }
+  }
+
   function submit(raw){
     const query = String(raw || "").trim();
     if(!query) return;
@@ -783,7 +830,18 @@
       pendingIntent = resolved.pending;
       pendingQuery = resolved.pendingQuery || fullQuery;
     }
-    addBotAnswer(resolved.text,resolved.item);
+
+    if(!resolved.item){
+      addBotAnswer(resolved.text,resolved.item);
+      return;
+    }
+
+    const thinkingRow = addThinking();
+    const contextItems = buildAiContext(resolved.item, resolved.rows);
+    askAI(query, contextItems).then(function(aiText){
+      thinkingRow.remove();
+      addBotAnswer(aiText || resolved.text, resolved.item);
+    });
   }
 
   function setOpen(opened){
