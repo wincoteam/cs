@@ -48,6 +48,8 @@ h1{margin:5px 0 4px;font-size:30px;line-height:1.2;letter-spacing:-.045em}
 .content{height:66px;margin:12px 0 14px;padding:10px 11px;overflow:hidden;border-radius:11px;background:#f6f8f7;color:#47564f;font-size:12.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .item-foot{display:flex;align-items:center;gap:7px}
 .copy{flex:1;height:37px;border:1px solid var(--accent);border-radius:10px;background:var(--accent);color:#fff;font-size:12.5px;font-weight:850}
+.edit-direct{height:37px;padding:0 12px;border:1px solid #c9d8d2;border-radius:10px;background:#fff;color:#52635c;font-size:12px;font-weight:850}
+.edit-direct:hover{border-color:var(--accent);color:var(--accent);background:#f7fbf9}
 .open-link{height:37px;padding:0 12px;border:1px solid #c9d8d2;border-radius:10px;background:#fff;color:var(--accent);font-size:12px;font-weight:850;text-decoration:none;display:flex;align-items:center}
 .usage{color:#89938f;font-size:10.5px;white-space:nowrap}
 .menu{position:relative}
@@ -90,7 +92,7 @@ dialog::backdrop{background:rgba(22,37,32,.38);backdrop-filter:blur(3px)}
 
   <section class="toolbar" aria-label="검색 및 추가">
     <div class="search"><input id="searchInput" type="search" placeholder="제목이나 내용 검색" autocomplete="off" aria-label="보관함 검색"><button class="clear" id="clearSearch" type="button" aria-label="검색어 지우기">×</button></div>
-    <button class="primary" id="addButton" type="button">+ 새 항목 추가</button>
+    <button class="primary" id="addButton" type="button">＋ 항목 추가</button>
   </section>
 
   <nav class="tabs" id="tabs" aria-label="보관함 분류">
@@ -102,6 +104,7 @@ dialog::backdrop{background:rgba(22,37,32,.38);backdrop-filter:blur(3px)}
     <button class="tab" type="button" data-filter="주소">주소</button>
     <button class="tab" type="button" data-filter="계좌">계좌</button>
     <button class="tab" type="button" data-filter="링크">링크</button>
+    <button class="tab" type="button" data-filter="연락처">연락처</button>
     <button class="tab" type="button" data-filter="기타">기타</button>
   </nav>
 
@@ -114,7 +117,7 @@ dialog::backdrop{background:rgba(22,37,32,.38);backdrop-filter:blur(3px)}
   <form id="itemForm" method="dialog">
     <div class="dialog-head"><strong id="dialogTitle">새 항목 추가</strong><button class="dialog-close" type="button" id="dialogClose" aria-label="닫기">×</button></div>
     <div class="form">
-      <div class="field"><label for="kindInput">종류</label><select id="kindInput"><option>답변</option><option>주소</option><option>계좌</option><option>링크</option><option>기타</option></select></div>
+      <div class="field"><label for="kindInput">종류</label><select id="kindInput"><option>답변</option><option>주소</option><option>계좌</option><option>링크</option><option>연락처</option><option>기타</option></select></div>
       <div class="field"><label for="titleInput">제목</label><input id="titleInput" maxlength="80" placeholder="예: 반품 안내" required></div>
       <div class="field wide"><label for="contentInput">복사할 내용</label><textarea id="contentInput" placeholder="고객에게 보낼 답변, 주소, 계좌번호 또는 링크를 입력하세요." required></textarea></div>
       <label class="favorite-check"><input id="favoriteInput" type="checkbox">개인 즐겨찾기에 추가</label>
@@ -127,6 +130,7 @@ dialog::backdrop{background:rgba(22,37,32,.38);backdrop-filter:blur(3px)}
 <script>
 const STORAGE_KEY="winco_clipboard_v1";
 const HISTORY_KEY="winco_clipboard_history_v1";
+const SCHEMA_KEY="winco_clipboard_schema_v2";
 const DEFAULT_ITEMS=[
   {id:"default-warehouse",kind:"주소",title:"인천 창고 · 보상판매 반납",content:"이름 : 윈코 보상판매센터 / 물류센터\n주소 : 인천시 검단구 오류동 1544-3번지 은산해운창고",favorite:true,count:0,copiedAt:0},
   {id:"default-as",kind:"주소",title:"고빅스 · 제품 검수 및 A/S",content:"이름 : 윈코 A/S 센터\n주소 : 서울 양천구 오목로17길 8 1층\n전화번호 : 010-5929-2438",favorite:true,count:0,copiedAt:0},
@@ -134,7 +138,8 @@ const DEFAULT_ITEMS=[
   {id:"default-talk",kind:"링크",title:"네이버 톡톡",content:"https://talk.naver.com/ct/wc3l0s?frm=psf",favorite:false,count:0,copiedAt:0},
   {id:"default-care",kind:"링크",title:"A/S 접수",content:"https://careplz.kr/",favorite:true,count:0,copiedAt:0},
   {id:"default-care-guide",kind:"링크",title:"A/S 접수방법",content:"https://wincoservice.notion.site/WINCO-A-S-2c74f43a7c128084893afb6a941883e5?pvs=73",favorite:false,count:0,copiedAt:0},
-  {id:"default-faq",kind:"링크",title:"WINCO FAQ",content:"https://wincoservice.notion.site/WINCO-FAQ-21c4f43a7c128072a213f32d59c69144?source=copy_link",favorite:false,count:0,copiedAt:0}
+  {id:"default-faq",kind:"링크",title:"WINCO FAQ",content:"https://wincoservice.notion.site/WINCO-FAQ-21c4f43a7c128072a213f32d59c69144?source=copy_link",favorite:false,count:0,copiedAt:0},
+  {id:"default-roborock-center",kind:"연락처",title:"로보락 고객센터",content:"로보락 고객센터 대표번호 : 1577-8911",favorite:true,count:0,copiedAt:0}
 ];
 let items=loadItems();
 let activeFilter="all";
@@ -151,8 +156,18 @@ function makeId(){return "copy-"+Date.now().toString(36)+Math.random().toString(
 function loadItems(){
   try{
     const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if(Array.isArray(saved)) return saved.filter(item=>item&&item.id&&item.title&&item.content).map(item=>({kind:"기타",favorite:false,count:0,copiedAt:0,...item}));
+    if(Array.isArray(saved)){
+      const normalized=saved.filter(item=>item&&item.id&&item.title&&item.content).map(item=>({kind:"기타",favorite:false,count:0,copiedAt:0,...item}));
+      if(localStorage.getItem(SCHEMA_KEY)!=="2"){
+        const roborock=DEFAULT_ITEMS.find(item=>item.id==="default-roborock-center");
+        if(roborock&&!normalized.some(item=>item.id===roborock.id)) normalized.push(clone(roborock));
+        localStorage.setItem(SCHEMA_KEY,"2");
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(normalized));
+      }
+      return normalized;
+    }
   }catch(e){}
+  try{localStorage.setItem(SCHEMA_KEY,"2")}catch(e){}
   return clone(DEFAULT_ITEMS);
 }
 function saveItems(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items))}catch(e){showToast("저장 공간을 확인해 주세요")}}
@@ -197,7 +212,7 @@ function render(){
       <button class="star ${item.favorite?"on":""}" type="button" ${item.history?"data-save-history":"data-star"} aria-label="${item.history?"즐겨찾기에 저장":item.favorite?"즐겨찾기 해제":"즐겨찾기 추가"}" title="${item.history?"즐겨찾기에 저장":"즐겨찾기"}">${item.favorite?"★":"☆"}</button>
       ${item.history?"":`<div class="menu"><button class="more" type="button" data-menu aria-label="항목 메뉴">•••</button><div class="menu-pop"><button type="button" data-edit>수정</button><button class="delete" type="button" data-delete>삭제</button></div></div>`}</div>
       <div class="content">${escapeHtml(item.content)}</div>
-      <div class="item-foot"><button class="copy" type="button" data-copy>복사</button>${url?`<a class="open-link" href="${escapeHtml(url)}" target="_blank" rel="noopener">링크 열기 ↗</a>`:""}<span class="usage">${item.count?item.count+"회 사용":"미사용"}</span></div>
+      <div class="item-foot"><button class="copy" type="button" data-copy>복사</button>${item.history?"":`<button class="edit-direct" type="button" data-edit>수정</button>`}${url?`<a class="open-link" href="${escapeHtml(url)}" target="_blank" rel="noopener">링크 열기 ↗</a>`:""}<span class="usage">${item.count?item.count+"회 사용":"미사용"}</span></div>
     </article>`;
   }).join("");
 }

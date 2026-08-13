@@ -409,6 +409,12 @@ function buildAssistantKnowledge() {
       category: "업무 링크",
       keywords: "faq 자주묻는질문 노션 제품 사용법 링크",
       url: "https://wincoservice.notion.site/WINCO-FAQ-21c4f43a7c128072a213f32d59c69144?source=copy_link"
+    },
+    {
+      title: "로보락 고객센터",
+      answer: "로보락 고객센터 대표번호는 1577-8911입니다.",
+      category: "고객센터 연락처",
+      keywords: "로보락 고객센터 대표번호 전화번호 연락처 상담 문의 1577 8911"
     }
   ].forEach(item => add({...item, kind: item.url ? "link" : "address", module: "contacts"}));
 
