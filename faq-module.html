@@ -53,6 +53,8 @@ h1{margin:5px 0 7px;font-size:32px;letter-spacing:-.045em}
 .qa{margin-top:7px;border:1px solid #e2e9e6;border-radius:11px;background:#fff}
 .qa>summary{display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:780}
 .qa>summary::before{content:"Q";display:grid;flex:0 0 auto;width:22px;height:22px;place-items:center;border-radius:7px;background:var(--soft);color:var(--green);font-size:11px;font-weight:900}
+.qa>summary::after{content:"+";display:grid;width:24px;height:24px;flex:0 0 auto;margin-left:auto;place-items:center;border-radius:7px;color:#718079;font-size:16px;font-weight:700}
+.qa[open]>summary::after{content:"−";background:#edf5f2;color:var(--green)}
 .qa[open]>summary{border-bottom:1px solid #edf2ef;background:#fbfdfc}
 .answer{padding:10px 12px 12px;color:#4b5853;font-size:12.7px}
 .answer-content{overflow:hidden;border:1px solid #e8eeeb;border-radius:10px;background:#fbfcfb}

@@ -65,6 +65,8 @@
 .assistant-input:focus{border-color:#2b7b65;background:#fff;box-shadow:0 0 0 3px rgba(43,123,101,.12)}
 .assistant-send{display:grid;width:43px;height:43px;place-items:center;border:0;border-radius:12px;background:#1f6d58;color:#fff;font:inherit;font-size:17px;font-weight:900;cursor:pointer}
 .assistant-send:hover{background:#185845}
+.assistant-send:disabled{cursor:wait;background:#8aaaa0;opacity:.8}
+.assistant-send:disabled:hover{background:#8aaaa0}
 .assistant-note{padding:0 14px 10px;background:#fff;color:#8a9792;font-size:9.5px;text-align:center}
 @media(max-width:620px){
   .assistant-widget{left:10px;bottom:10px;width:calc(100vw - 20px)}

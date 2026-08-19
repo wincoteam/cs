@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  const query = typeof (body && body.query) === "string" ? body.query.trim() : "";
+  const query = typeof (body && body.query) === "string" ? body.query.trim().slice(0, 600) : "";
   const context = Array.isArray(body && body.context) ? body.context : [];
 
   if (!query) {
@@ -52,9 +52,15 @@ module.exports = async (req, res) => {
 
   const userPrompt = "[내부 자료]\n" + contextText + "\n\n[직원 질문]\n" + query;
 
+  let providerTimeout = null;
   try {
+    const controller = new AbortController();
+    providerTimeout = setTimeout(function () {
+      controller.abort();
+    }, 14000);
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
+      signal: controller.signal,
       headers: {
         "content-type": "application/json",
         "x-api-key": apiKey,
@@ -86,5 +92,7 @@ module.exports = async (req, res) => {
       error: "Unexpected server error",
       detail: String((error && error.message) || error)
     });
+  } finally {
+    if (providerTimeout) clearTimeout(providerTimeout);
   }
 };

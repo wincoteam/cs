@@ -24,6 +24,7 @@
   let previousResult = null;
   let pendingIntent = "";
   let pendingQuery = "";
+  let isAnswering = false;
   const AI_ENDPOINT = "/api/ask";
 
   const groups = [
@@ -787,11 +788,14 @@
   }
 
   async function askAI(query, contextItems){
+    const controller = new AbortController();
+    const timeout = setTimeout(function(){ controller.abort(); },12000);
     try{
       const response = await fetch(AI_ENDPOINT,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({query:query, context:contextItems})
+        body:JSON.stringify({query:query, context:contextItems}),
+        signal:controller.signal
       });
       if(!response.ok) return null;
       const result = await response.json();
@@ -799,10 +803,20 @@
       return answer || null;
     }catch(error){
       return null;
+    }finally{
+      clearTimeout(timeout);
     }
   }
 
+  function setAnswering(answering){
+    isAnswering = answering;
+    send.disabled = answering;
+    send.setAttribute("aria-label",answering ? "답변을 작성하는 중" : "질문 보내기");
+    messages.setAttribute("aria-busy",String(answering));
+  }
+
   function submit(raw){
+    if(isAnswering) return;
     const query = String(raw || "").trim();
     if(!query) return;
     addUser(query);
@@ -838,9 +852,13 @@
 
     const thinkingRow = addThinking();
     const contextItems = buildAiContext(resolved.item, resolved.rows);
+    setAnswering(true);
     askAI(query, contextItems).then(function(aiText){
       thinkingRow.remove();
       addBotAnswer(aiText || resolved.text, resolved.item);
+    }).finally(function(){
+      setAnswering(false);
+      if(widget.classList.contains("is-open")) input.focus();
     });
   }
 
