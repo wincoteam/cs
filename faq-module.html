@@ -44,8 +44,10 @@ h1{margin:5px 0 7px;font-size:32px;letter-spacing:-.045em}
 .section>summary::after{content:"+";color:#819089;font-size:17px}
 .section[open]>summary::after{content:"−"}
 .section-body{padding:0 14px 13px;color:#42504a;font-size:13px;white-space:pre-line}
-.line{position:relative;margin:7px 0;padding-left:13px}
-.line::before{content:"";position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:#93a59d}
+.line{margin:5px 0;padding-left:13px;color:#52605a}
+.subline{position:relative;margin:11px 0 5px;padding-left:13px;color:#26342e;font-weight:780}
+.subline:first-child{margin-top:5px}
+.subline::before{content:"";position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:#7d998e}
 .notice{margin:7px 0;padding:10px 12px;border-radius:9px;background:#eef6f3;color:#315d50}
 .faq-title{margin:18px 2px 9px;font-size:14px;font-weight:900}
 .qa{margin-top:7px;border:1px solid #e2e9e6;border-radius:11px;background:#fff}
@@ -1257,6 +1259,13 @@ let category="air";
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function norm(v){return String(v||"").toLocaleLowerCase("ko").replace(/\s+/g," ")}
 function marked(v,q){const safe=esc(v);if(!q)return safe;const pos=norm(v).indexOf(q);if(pos<0)return safe;return safe}
+function isSectionSubhead(line){
+  const text=String(line||"").trim();
+  if(!text||/[.!?。]$/.test(text))return false;
+  if(/^(?:✅|❌|⚠️|📌|▶|◆|▲|■|\[)/.test(text))return true;
+  if(/^[A-Z0-9][A-Z0-9 .+&()\/-]{0,28}$/.test(text))return true;
+  return text.length<=42&&/(?:기능|보호|감지|지원|증정|설계|조절|탑재|호환|주입|배출|팽창력|높이|소재|휴대성|성능|디테일|용량|코팅|처리|뚜껑|코드|방법|모드|단계|방식|구조)$/.test(text);
+}
 function render(){
   const q=norm(query.value.trim());
   clearBtn.classList.toggle("show",!!q);
@@ -1268,7 +1277,7 @@ function render(){
         <div class="sections">${p.sections.map((s,i)=>`
           <details class="section" ${q&&norm(s.flat().join(" ")).includes(q)?"open":""}>
             <summary>${esc(s[0])}</summary>
-            <div class="section-body">${s[1].map((line,j)=>`<div class="${j===s[1].length-1&&line.startsWith("※")?"notice":"line"}">${esc(line)}</div>`).join("")}</div>
+            <div class="section-body">${s[1].map((line,j)=>`<div class="${j===s[1].length-1&&line.startsWith("※")?"notice":isSectionSubhead(line)?"subline":"line"}">${esc(line)}</div>`).join("")}</div>
           </details>`).join("")}
         </div>
         ${p.faqs.length?`<div class="faq-title">📖 자주 묻는 질문</div>
