@@ -1,5 +1,6 @@
 const fs = require("fs");
 const vm = require("vm");
+const enhanceVendorQuantityCalculator = require("./enhance-vendor.cjs");
 
 const indexPath = "index.html.html";
 const CS_ADDITIONAL_PRESET = [
@@ -168,6 +169,7 @@ const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts", "clipbo
 for (const module of modules) {
   let decoded = Buffer.from(module.b64, "base64").toString("utf8");
   if (module.id === "cs") decoded = mergeCsPresets(decoded);
+  if (module.id === "vendor") decoded = enhanceVendorQuantityCalculator(decoded);
   const polished = applyPolish(decoded, module.id);
   module.b64 = Buffer.from(polished, "utf8").toString("base64");
 }
