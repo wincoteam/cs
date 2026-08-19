@@ -79,6 +79,9 @@ const copyHistoryScript = `<!-- winco-copy-history -->
   if(window.__wincoCopyTracking) return;
   window.__wincoCopyTracking = true;
   var KEY = "winco_clipboard_history_v1";
+  function notify(entry){
+    try{ if(window.parent && window.parent !== window) window.parent.postMessage({wincoActivity:true,entry:entry},"*"); }catch(e){}
+  }
   window.wincoRecordCopy = function(text){
     text = String(text == null ? "" : text).trim();
     if(!text) return;
@@ -88,6 +91,7 @@ const copyHistoryScript = `<!-- winco-copy-history -->
       rows = rows.filter(function(row){ return row && row.content !== text; });
       rows.unshift({id:"history-"+Date.now().toString(36),title:document.title || "업무 도구",content:text,copiedAt:Date.now()});
       localStorage.setItem(KEY, JSON.stringify(rows.slice(0,30)));
+      notify({type:"copy",title:document.title || "업무 도구",detail:text});
     }catch(e){}
   };
   try{
@@ -106,6 +110,19 @@ const copyHistoryScript = `<!-- winco-copy-history -->
       if(!text && window.getSelection) text = String(window.getSelection());
       window.wincoRecordCopy(text);
     },0);
+  });
+  document.addEventListener("click", function(event){
+    var summary = event.target.closest && event.target.closest("details > summary");
+    if(summary){
+      setTimeout(function(){
+        if(summary.parentElement && summary.parentElement.open){
+          notify({type:"detail",title:String(summary.innerText || summary.textContent || "상세 내용").trim().slice(0,120),detail:document.title || "업무 자료"});
+        }
+      },0);
+      return;
+    }
+    var link = event.target.closest && event.target.closest("a[href]");
+    if(link) notify({type:"link",title:String(link.innerText || link.textContent || "링크 열기").trim().slice(0,120),detail:document.title || "업무 자료",url:link.href});
   });
 })();
 </script>`;

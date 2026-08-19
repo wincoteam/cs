@@ -820,6 +820,9 @@
     const query = String(raw || "").trim();
     if(!query) return;
     addUser(query);
+    if(typeof window.wincoRecordActivity === "function"){
+      window.wincoRecordActivity({type:"assistant",title:"업무 도우미 질문",detail:query});
+    }
     input.value = "";
     input.style.height = "";
 
@@ -893,6 +896,7 @@
       setOpen(false);
       window.openModule(button.dataset.value,true);
     }else if(button.dataset.action === "url"){
+      if(typeof window.wincoRecordActivity === "function") window.wincoRecordActivity({type:"link",title:"도우미 안내 링크 열기",detail:button.dataset.value,url:button.dataset.value});
       window.open(button.dataset.value,"_blank","noopener");
     }else if(button.dataset.action === "copy"){
       try{
@@ -908,6 +912,7 @@
         document.execCommand("copy");
         area.remove();
       }
+      if(typeof window.wincoRecordActivity === "function") window.wincoRecordActivity({type:"copy",title:"도우미 답변 복사",detail:button.dataset.value});
     }
   });
   document.addEventListener("keydown",function(event){
