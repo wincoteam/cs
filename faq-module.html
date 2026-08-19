@@ -1276,17 +1276,27 @@ function isSectionSubhead(line){
   if(/^[A-Z0-9][A-Z0-9 .+&()\/-]{0,28}$/.test(text))return true;
   return text.length<=42&&/(?:기능|보호|감지|지원|증정|설계|조절|탑재|호환|주입|배출|팽창력|높이|소재|휴대성|성능|디테일|용량|코팅|처리|뚜껑|코드|방법|모드|단계|방식|구조)$/.test(text);
 }
+function isFaqQuestionLine(line){
+  const text=String(line||"").trim();
+  if(!text)return false;
+  if(/[?？]\s*$/.test(text))return true;
+  if(text.length>90||/^(?:→|↳|[-•※]|네[,. ]|단[,. ]|다만[,. ]|제품 |사용 |정상 |권장 )/.test(text))return false;
+  return /(?:안\s?돼요|안되요|안되나요|되지\s?않아요|되지\s?않나요|들어오지\s?않아요|나오지\s?않아요|켜지지\s?않아요|꺼져요|멈춰요|뜨거워요|약해요|새요|탄내가\s?나요|소리가\s?나요|불량인가요|정상인가요|가능한가요|되는\s?건가요|되는건가요)[.!)]*$/.test(text);
+}
 function faqAnswerHtml(value){
   const lines=String(value||"").split(/\r?\n/);
-  const hasNestedQuestions=lines.some(line=>/[?？]\s*$/.test(line.trim()));
+  const firstTextIndex=lines.findIndex(line=>line.trim());
+  const detectedQuestions=lines.reduce((count,line)=>count+(isFaqQuestionLine(line)?1:0),0);
+  const hasNestedQuestions=detectedQuestions>0;
   if(!hasNestedQuestions){
     return `<div class="answer-row response"><span class="answer-badge">A</span><span class="answer-text">${esc(value)}</span></div>`;
   }
   let waitingForAnswer=false;
-  return lines.map(line=>{
+  return lines.map((line,index)=>{
     const text=line.trim();
     if(!text)return '<div class="answer-row detail"><span class="answer-text">&nbsp;</span></div>';
-    if(/[?？]\s*$/.test(text)){
+    const isQuestion=isFaqQuestionLine(text)||(index===firstTextIndex&&detectedQuestions>0&&lines.slice(index+1).some(isFaqQuestionLine));
+    if(isQuestion){
       waitingForAnswer=true;
       return `<div class="answer-row question"><span class="answer-badge">Q</span><span class="answer-text">${esc(text)}</span></div>`;
     }
