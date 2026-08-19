@@ -53,8 +53,18 @@ h1{margin:5px 0 7px;font-size:32px;letter-spacing:-.045em}
 .qa{margin-top:7px;border:1px solid #e2e9e6;border-radius:11px;background:#fff}
 .qa>summary{display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer;font-size:13px;font-weight:780}
 .qa>summary::before{content:"Q";display:grid;flex:0 0 auto;width:22px;height:22px;place-items:center;border-radius:7px;background:var(--soft);color:var(--green);font-size:11px;font-weight:900}
-.answer{position:relative;padding:0 48px 13px 42px;color:#4b5853;font-size:12.7px;white-space:pre-line}
-.copy{position:absolute;right:10px;top:0;border:1px solid var(--line);border-radius:7px;background:#fff;color:#77837e;padding:4px 7px;font-size:10.5px;font-weight:750;cursor:pointer}
+.qa[open]>summary{border-bottom:1px solid #edf2ef;background:#fbfdfc}
+.answer{padding:10px 12px 12px;color:#4b5853;font-size:12.7px}
+.answer-content{overflow:hidden;border:1px solid #e8eeeb;border-radius:10px;background:#fbfcfb}
+.answer-row{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;line-height:1.62;white-space:pre-line}
+.answer-row+.answer-row{border-top:1px solid #edf1ef}
+.answer-row.detail{padding-top:3px;padding-left:42px;border-top:0;color:#5d6964}
+.answer-badge{display:grid;width:20px;height:20px;flex:0 0 auto;place-items:center;border-radius:6px;font-size:10px;font-weight:900}
+.answer-row.question{background:#f5f9f7;color:#27362f;font-weight:800}
+.answer-row.question .answer-badge{background:#dff0ea;color:var(--green)}
+.answer-row.response .answer-badge{background:#eef1f7;color:#52647c}
+.answer-text{min-width:0;flex:1}
+.copy{display:block;margin:8px 0 0 auto;border:1px solid var(--line);border-radius:7px;background:#fff;color:#77837e;padding:5px 9px;font-size:10.5px;font-weight:750;cursor:pointer}
 .copy:hover{border-color:var(--green);color:var(--green)}
 .original{display:inline-block;margin-top:13px;color:var(--green);font-size:11.5px;font-weight:800;text-decoration:none}
 .empty{display:none;padding:60px 20px;border:1px dashed #ccd8d3;border-radius:16px;background:#fff;color:#7b8882;text-align:center}
@@ -1266,6 +1276,27 @@ function isSectionSubhead(line){
   if(/^[A-Z0-9][A-Z0-9 .+&()\/-]{0,28}$/.test(text))return true;
   return text.length<=42&&/(?:기능|보호|감지|지원|증정|설계|조절|탑재|호환|주입|배출|팽창력|높이|소재|휴대성|성능|디테일|용량|코팅|처리|뚜껑|코드|방법|모드|단계|방식|구조)$/.test(text);
 }
+function faqAnswerHtml(value){
+  const lines=String(value||"").split(/\r?\n/);
+  const hasNestedQuestions=lines.some(line=>/[?？]\s*$/.test(line.trim()));
+  if(!hasNestedQuestions){
+    return `<div class="answer-row response"><span class="answer-badge">A</span><span class="answer-text">${esc(value)}</span></div>`;
+  }
+  let waitingForAnswer=false;
+  return lines.map(line=>{
+    const text=line.trim();
+    if(!text)return '<div class="answer-row detail"><span class="answer-text">&nbsp;</span></div>';
+    if(/[?？]\s*$/.test(text)){
+      waitingForAnswer=true;
+      return `<div class="answer-row question"><span class="answer-badge">Q</span><span class="answer-text">${esc(text)}</span></div>`;
+    }
+    if(waitingForAnswer){
+      waitingForAnswer=false;
+      return `<div class="answer-row response"><span class="answer-badge">A</span><span class="answer-text">${esc(text)}</span></div>`;
+    }
+    return `<div class="answer-row detail"><span class="answer-text">${esc(text)}</span></div>`;
+  }).join("");
+}
 function render(){
   const q=norm(query.value.trim());
   clearBtn.classList.toggle("show",!!q);
@@ -1284,7 +1315,7 @@ function render(){
         ${p.faqs.map(qa=>`
           <details class="qa" ${q&&norm(qa.join(" ")).includes(q)?"open":""}>
             <summary>${esc(qa[0])}</summary>
-            <div class="answer">${esc(qa[1])}<button class="copy" type="button" data-copy="${esc(qa[1])}">복사</button></div>
+            <div class="answer"><div class="answer-content">${faqAnswerHtml(qa[1])}</div><button class="copy" type="button" data-copy="${esc(qa[1])}">답변 복사</button></div>
           </details>`).join("")}`:""}
         <a class="original" href="${p.url}" target="_blank" rel="noopener">이 제품의 Notion 원본 보기 ↗</a>
       </div>
