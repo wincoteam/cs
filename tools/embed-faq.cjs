@@ -33,15 +33,24 @@ const CS_ADDITIONAL_PRESET = [
 ];
 const polishStyle = `<!-- winco-global-polish -->
 <style id="winco-global-polish">
-  :root{color-scheme:light;accent-color:#0a6b56}
+  :root{
+    color-scheme:light;accent-color:#7652a8;
+    --paper:#f6f3fb!important;--bg:#f6f3fb!important;--card:#fff!important;--surface:#fff!important;
+    --ink:#282233!important;--sub:#726b7e!important;--muted:#726b7e!important;--line:#e3deed!important;
+    --teal:#7351a2!important;--teal-soft:#eee7f7!important;--accent:#7351a2!important;--accent-soft:#eee7f7!important;
+    --green:#7351a2!important;--soft:#eee7f7!important;--best:#7351a2!important;--best-soft:#eee7f7!important;
+    --blue:#8865b2!important;--blue-soft:#f0eaf7!important;--gold:#8c66b4!important;--gold-soft:#f3ecf9!important;
+    --shadow:0 12px 32px rgba(66,46,90,.08)!important;
+  }
   html{scrollbar-gutter:stable}
-  body{min-height:100vh}
-  ::selection{background:#cce7dd;color:#12372d}
+  body{min-height:100vh;background:radial-gradient(circle at 7% 0%,rgba(129,93,174,.12),transparent 31%),linear-gradient(145deg,#f8f5fc,#f3eff9)!important;color:#282233}
+  header{border-color:#e3deed!important;background-color:rgba(247,243,251,.92)!important}
+  ::selection{background:#ddcdf0;color:#2e1e42}
   button,a,input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease,background-color .15s ease,transform .15s ease}
   button:active{transform:translateY(1px)}
-  *:focus-visible{outline:3px solid rgba(10,107,86,.22)!important;outline-offset:2px!important}
+  *:focus-visible{outline:3px solid rgba(117,80,162,.25)!important;outline-offset:2px!important}
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#b8c7c1;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#bdafcb;background-clip:padding-box}
   ::-webkit-scrollbar-track{background:transparent}
   @media(max-width:620px){html{scrollbar-gutter:auto}body{background-attachment:fixed}}
 </style>`;
@@ -183,11 +192,13 @@ const match = html.match(pattern);
 if (!match) throw new Error("mod-data not found");
 
 const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts", "clipboard"].includes(item.id));
+const purpleAccents = {order:"#72509e",parts:"#8060ab",vendor:"#8a63b2",cs:"#7d55aa",product:"#976bc0",trade:"#6f4b99"};
 for (const module of modules) {
   let decoded = Buffer.from(module.b64, "base64").toString("utf8");
   if (module.id === "cs") decoded = mergeCsPresets(decoded);
   if (module.id === "vendor") decoded = enhanceVendorQuantityCalculator(decoded);
   const polished = applyPolish(decoded, module.id);
+  module.accent = purpleAccents[module.id] || "#7652a8";
   module.b64 = Buffer.from(polished, "utf8").toString("base64");
 }
 const source = applyPolish(fs.readFileSync("faq-module.html", "utf8"), "faq");
@@ -196,7 +207,7 @@ const faq = {
   name: "WINCO FAQ",
   desc: "에어건·청소기·캠핑용품 등 제품별 사용법과 FAQ를 검색합니다.",
   icon: "🍀",
-  accent: "#25856f",
+  accent: "#9a70bd",
   tag: "제품별 FAQ",
   b64: Buffer.from(source, "utf8").toString("base64")
 };
@@ -206,7 +217,7 @@ const contacts = {
   name: "주소 링크모음",
   desc: "보상판매·검수 발송지를 복사하고 자주 쓰는 CS 페이지를 바로 엽니다.",
   icon: "📍",
-  accent: "#176b57",
+  accent: "#7654a1",
   tag: "주소·링크 모음",
   b64: Buffer.from(contactsSource, "utf8").toString("base64")
 };
@@ -216,7 +227,7 @@ const clipboard = {
   name: "복사 보관함",
   desc: "자주 쓰는 답변·주소·계좌·링크를 저장하고 한 번에 복사합니다.",
   icon: "📋",
-  accent: "#176b57",
+  accent: "#8b65b0",
   tag: "빠른 복사",
   b64: Buffer.from(clipboardSource, "utf8").toString("base64")
 };
