@@ -136,7 +136,7 @@ const DEFAULT_ITEMS=[
   {id:"default-as",kind:"주소",title:"고빅스 · 제품 검수 및 A/S",content:"이름 : 윈코 A/S 센터\n주소 : 서울 양천구 오목로17길 8 1층\n전화번호 : 010-5929-2438",favorite:true,count:0,copiedAt:0},
   {id:"default-office",kind:"주소",title:"윈코 사무실 · 특이사항 검수",content:"이름 : 윈코\n주소 : 서울특별시 금천구 디지털로10길 37, 가산아스크타워 A동 1711~1718호\n전화번호 : 070-4722-9200",favorite:false,count:0,copiedAt:0},
   {id:"default-talk",kind:"링크",title:"네이버 톡톡",content:"https://talk.naver.com/ct/wc3l0s?frm=psf",favorite:false,count:0,copiedAt:0},
-  {id:"default-care",kind:"링크",title:"A/S 접수",content:"https://careplz.kr/",favorite:true,count:0,copiedAt:0},
+  {id:"default-care",kind:"링크",title:"A/S 접수",content:"https://careplz.kr/as-pre/as-5e5242d0",favorite:true,count:0,copiedAt:0},
   {id:"default-care-guide",kind:"링크",title:"A/S 접수방법",content:"https://wincoservice.notion.site/WINCO-A-S-2c74f43a7c128084893afb6a941883e5?pvs=73",favorite:false,count:0,copiedAt:0},
   {id:"default-faq",kind:"링크",title:"WINCO FAQ",content:"https://wincoservice.notion.site/WINCO-FAQ-21c4f43a7c128072a213f32d59c69144?source=copy_link",favorite:false,count:0,copiedAt:0},
   {id:"default-roborock-center",kind:"연락처",title:"로보락 고객센터",content:"로보락 고객센터 대표번호 : 1577-8911",favorite:true,count:0,copiedAt:0}
@@ -158,16 +158,20 @@ function loadItems(){
     const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
     if(Array.isArray(saved)){
       const normalized=saved.filter(item=>item&&item.id&&item.title&&item.content).map(item=>({kind:"기타",favorite:false,count:0,copiedAt:0,...item}));
-      if(localStorage.getItem(SCHEMA_KEY)!=="2"){
+      if(localStorage.getItem(SCHEMA_KEY)!=="3"){
         const roborock=DEFAULT_ITEMS.find(item=>item.id==="default-roborock-center");
         if(roborock&&!normalized.some(item=>item.id===roborock.id)) normalized.push(clone(roborock));
-        localStorage.setItem(SCHEMA_KEY,"2");
+        const care=normalized.find(item=>item.id==="default-care");
+        const defaultCare=DEFAULT_ITEMS.find(item=>item.id==="default-care");
+        if(care) care.content=defaultCare.content;
+        else normalized.push(clone(defaultCare));
+        localStorage.setItem(SCHEMA_KEY,"3");
         localStorage.setItem(STORAGE_KEY,JSON.stringify(normalized));
       }
       return normalized;
     }
   }catch(e){}
-  try{localStorage.setItem(SCHEMA_KEY,"2")}catch(e){}
+  try{localStorage.setItem(SCHEMA_KEY,"3")}catch(e){}
   return clone(DEFAULT_ITEMS);
 }
 function saveItems(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items))}catch(e){showToast("저장 공간을 확인해 주세요")}}

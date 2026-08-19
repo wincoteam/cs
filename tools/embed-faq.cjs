@@ -396,7 +396,7 @@ function buildAssistantKnowledge() {
       answer: "케어플러스 A/S 접수 페이지입니다.",
       category: "업무 링크",
       keywords: "as 에이에스 수리 고장 접수 신청 케어플러스 링크",
-      url: "https://careplz.kr/"
+      url: "https://careplz.kr/as-pre/as-5e5242d0"
     },
     {
       title: "A/S 접수방법",
