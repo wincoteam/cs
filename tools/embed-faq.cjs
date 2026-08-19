@@ -34,23 +34,23 @@ const CS_ADDITIONAL_PRESET = [
 const polishStyle = `<!-- winco-global-polish -->
 <style id="winco-global-polish">
   :root{
-    color-scheme:light;accent-color:#7652a8;
-    --paper:#f6f3fb!important;--bg:#f6f3fb!important;--card:#fff!important;--surface:#fff!important;
-    --ink:#282233!important;--sub:#726b7e!important;--muted:#726b7e!important;--line:#e3deed!important;
-    --teal:#7351a2!important;--teal-soft:#eee7f7!important;--accent:#7351a2!important;--accent-soft:#eee7f7!important;
-    --green:#7351a2!important;--soft:#eee7f7!important;--best:#7351a2!important;--best-soft:#eee7f7!important;
-    --blue:#8865b2!important;--blue-soft:#f0eaf7!important;--gold:#8c66b4!important;--gold-soft:#f3ecf9!important;
-    --shadow:0 12px 32px rgba(66,46,90,.08)!important;
+    color-scheme:light;accent-color:#684493;
+    --paper:#e7dfed!important;--bg:#e7dfed!important;--card:#f4eff6!important;--surface:#f4eff6!important;
+    --ink:#282233!important;--sub:#6d6576!important;--muted:#6d6576!important;--line:#d2c6dc!important;
+    --teal:#684493!important;--teal-soft:#e5daed!important;--accent:#684493!important;--accent-soft:#e5daed!important;
+    --green:#684493!important;--soft:#e5daed!important;--best:#684493!important;--best-soft:#e5daed!important;
+    --blue:#76509e!important;--blue-soft:#e9e0ef!important;--gold:#7950a2!important;--gold-soft:#e9deef!important;
+    --shadow:0 12px 32px rgba(54,37,72,.15)!important;
   }
   html{scrollbar-gutter:stable}
-  body{min-height:100vh;background:radial-gradient(circle at 7% 0%,rgba(129,93,174,.12),transparent 31%),linear-gradient(145deg,#f8f5fc,#f3eff9)!important;color:#282233}
-  header{border-color:#e3deed!important;background-color:rgba(247,243,251,.92)!important}
+  body{min-height:100vh;background:radial-gradient(circle at 7% 0%,rgba(105,70,145,.2),transparent 31%),linear-gradient(145deg,#e9e2ef,#ddd3e6)!important;color:#282233}
+  header{border-color:#d2c6dc!important;background-color:rgba(235,228,240,.94)!important}
   ::selection{background:#ddcdf0;color:#2e1e42}
   button,a,input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease,background-color .15s ease,transform .15s ease}
   button:active{transform:translateY(1px)}
   *:focus-visible{outline:3px solid rgba(117,80,162,.25)!important;outline-offset:2px!important}
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#bdafcb;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#a993ba;background-clip:padding-box}
   ::-webkit-scrollbar-track{background:transparent}
   @media(max-width:620px){html{scrollbar-gutter:auto}body{background-attachment:fixed}}
 </style>`;
