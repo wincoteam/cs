@@ -82,6 +82,39 @@ const csEditorPolish = `<!-- winco-cs-editor-polish -->
     #wcEditList textarea.wc-inp{min-height:170px}
   }
 </style>`;
+const harmonyStyle = `<!-- winco-color-harmony -->
+<style id="winco-color-harmony">
+  :root{
+    --paper:#ded7e3!important;--bg:#ded7e3!important;--card:#eee9f1!important;--surface:#eee9f1!important;
+    --line:#c9bed1!important;--border:#c9bed1!important;--accent-soft:#dfd4e6!important;
+    --teal-soft:#dfd4e6!important;--soft:#dfd4e6!important;--best-soft:#dfd4e6!important;
+    --blue-soft:#e4dce9!important;--gold-soft:#e7ddea!important;--warm:#e8deeb!important;
+  }
+  body{background:radial-gradient(circle at 8% 0%,rgba(105,70,145,.16),transparent 31%),linear-gradient(145deg,#e5dee9,#d9d1df)!important}
+  header,.header,.top{color:var(--ink)!important}
+  .search-section{background:rgba(222,215,227,.94)!important}
+  :is(.search-box,.search input,.search-input,input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select,textarea,.field,.einp,.wc-inp,.acct){
+    border-color:#c5b9ce!important;background:#f1edf3!important;color:var(--ink)!important;
+  }
+  :is(.file-upload-section,.wc-ebar,.wc-erow,.wc-add,.result-card,.result,.cmp,.ecard,.edit-panel,.price-list,.qpanel,.tabs,.list,.product,.section,.qa,.answer-content,.address-card,.link-card,.clipboard-card,.item,dialog){
+    border-color:#c9bed1!important;background:#eee9f1!important;box-shadow:0 10px 28px rgba(54,37,72,.09)!important;
+  }
+  :is(.result-item,.product-field,.content,.purpose,.answer-row,.eedit,.edit-row,.qtycalc,.qtyrows,.qtystep,.bd,.placeholder,.notice,.banner){
+    border-color:#d0c5d7!important;background:#e6dfea!important;color:var(--ink)!important;
+  }
+  :is(.result-name,.product-field.full,.special,.row.best,.enote,.wc-note,.note){
+    border-color:#cbbbd5!important;background:#e4d9e8!important;color:var(--ink)!important;
+  }
+  :is(.btn,.edit-btn,.ebtn,.wc-btn,.chip,.tab,.cat,.source,.copy,.secondary,.open-link,.edit-direct,.qty button,.qtystep button,.to-top){
+    border-color:#c6bacf!important;background:#eee9f1!important;color:#554d5e!important;
+  }
+  :is(.btn.primary,.edit-btn.on,.ebtn.pri,.wc-btn.pri,.chip[aria-pressed="true"],.tab[aria-selected="true"],.cat.on,.cat.active){
+    border-color:#684493!important;background:#684493!important;color:#fff!important;
+  }
+  .result-card:hover,.card:hover,.item:hover,.link-card:hover{border-color:#b39dc6!important;box-shadow:0 14px 30px rgba(54,37,72,.14)!important}
+  .result-item:hover,.product-field:hover,.opt:hover,.opt.hl{background:#ddd2e4!important}
+  .result-label,.flabel,.upload-subtext,.stats,.foot{color:#706778!important}
+</style>`;
 const copyHistoryScript = `<!-- winco-copy-history -->
 <script id="winco-copy-history">
 (function(){
@@ -139,9 +172,10 @@ function applyPolish(source, moduleId = "") {
   const clean = source
     .replace(/\n?<!-- winco-global-polish -->[\s\S]*?<style id="winco-global-polish">[\s\S]*?<\/style>\n?/, "")
     .replace(/\n?<!-- winco-cs-editor-polish -->[\s\S]*?<style id="winco-cs-editor-polish">[\s\S]*?<\/style>\n?/, "")
+    .replace(/\n?<!-- winco-color-harmony -->[\s\S]*?<style id="winco-color-harmony">[\s\S]*?<\/style>\n?/, "")
     .replace(/\n?<!-- winco-copy-history -->[\s\S]*?<script id="winco-copy-history">[\s\S]*?<\/script>\n?/, "");
   const modulePolish = moduleId === "cs" ? `\n${csEditorPolish}` : "";
-  return clean.replace("</head>", `${polishStyle}${modulePolish}\n</head>`).replace("</body>", `${copyHistoryScript}\n</body>`);
+  return clean.replace("</head>", `${polishStyle}${modulePolish}\n${harmonyStyle}\n</head>`).replace("</body>", `${copyHistoryScript}\n</body>`);
 }
 
 function mergeCsPresets(source) {
