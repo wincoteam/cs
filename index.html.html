@@ -544,6 +544,7 @@
 </style>
   <link rel="stylesheet" href="assistant.css">
   <link rel="stylesheet" href="history.css">
+  <link rel="stylesheet" href="tracking.css">
 </head>
 <body class="">
 
@@ -715,6 +716,33 @@
     </div>
     <div class="frame-host" id="frameHost"></div>
   </section>
+
+  <aside class="tracking-widget" id="trackingWidget" aria-label="송장 조회">
+    <button class="tracking-launch" id="trackingLaunch" type="button" aria-controls="trackingPanel" aria-expanded="false">
+      <span class="tracking-launch-icon" aria-hidden="true">🚚</span><span>송장 조회</span><span class="tracking-badge" id="trackingCount">0</span>
+    </button>
+    <section class="tracking-panel" id="trackingPanel" aria-hidden="true">
+      <header class="tracking-head">
+        <div class="tracking-head-copy"><strong class="tracking-title">송장 조회</strong><span class="tracking-subtitle">택배사 선택 후 공식 배송조회로 이동</span></div>
+        <button class="tracking-close" id="trackingClose" type="button" aria-label="송장 조회 닫기">−</button>
+      </header>
+      <div class="tracking-form">
+        <label class="tracking-label" for="trackingNumber">택배사와 송장번호</label>
+        <div class="tracking-row">
+          <select class="tracking-select" id="trackingCarrier" aria-label="택배사 선택">
+            <option value="cj">CJ대한통운</option><option value="hanjin">한진택배</option><option value="lotte">롯데택배</option><option value="logen">로젠택배</option><option value="post">우체국택배</option>
+          </select>
+          <input class="tracking-input tracking-number" id="trackingNumber" type="text" inputmode="numeric" autocomplete="off" placeholder="송장번호 붙여넣기">
+        </div>
+        <label class="tracking-label tracking-memo" for="trackingMemo">고객명·메모 <span aria-hidden="true">(선택)</span></label>
+        <input class="tracking-input" id="trackingMemo" type="text" maxlength="80" autocomplete="off" placeholder="예: 김윈코 / 배터리 교체품">
+        <div class="tracking-hint" id="trackingHint">하이픈·공백은 자동으로 제거됩니다.</div>
+        <div class="tracking-actions"><button class="tracking-submit" id="trackingSubmit" type="button">배송조회 열기 ↗</button><button class="tracking-copy" id="trackingCopy" type="button">번호 복사</button></div>
+      </div>
+      <div class="tracking-recent-head"><strong class="tracking-recent-title">최근 조회</strong><button class="tracking-clear" id="trackingClear" type="button">전체 삭제</button></div>
+      <div class="tracking-list" id="trackingList" aria-live="polite"></div>
+    </section>
+  </aside>
 
   <aside class="history-widget" id="historyWidget" aria-label="업무 히스토리">
     <button class="history-launch" id="historyLaunch" type="button" aria-controls="historyPanel" aria-expanded="false">
@@ -1894,6 +1922,7 @@ syncFromHash();
 
 
 <script src="history.js"></script>
+<script src="tracking.js"></script>
 <script src="assistant-data.js"></script>
 <script src="assistant.js"></script>
 </body></html>

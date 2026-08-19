@@ -869,6 +869,7 @@
     widget.classList.toggle("is-open",opened);
     launch.setAttribute("aria-expanded",String(opened));
     if(opened){
+      document.dispatchEvent(new CustomEvent("winco-popup-open",{detail:"assistant"}));
       refreshKnowledge();
       setTimeout(function(){ input.focus(); scrollBottom(); },30);
     }
@@ -917,5 +918,8 @@
   });
   document.addEventListener("keydown",function(event){
     if(event.key === "Escape" && widget.classList.contains("is-open")) setOpen(false);
+  });
+  document.addEventListener("winco-popup-open",function(event){
+    if(event.detail !== "assistant") setOpen(false);
   });
 })();
