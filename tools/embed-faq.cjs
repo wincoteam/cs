@@ -182,7 +182,7 @@ const pattern = /<script type="application\/json" id="mod-data">([\s\S]*?)<\/scr
 const match = html.match(pattern);
 if (!match) throw new Error("mod-data not found");
 
-const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts", "clipboard"].includes(item.id));
+const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts", "clipboard", "csdaily"].includes(item.id));
 for (const module of modules) {
   let decoded = Buffer.from(module.b64, "base64").toString("utf8");
   if (module.id === "cs") decoded = mergeCsPresets(decoded);
@@ -221,8 +221,21 @@ const clipboard = {
   b64: Buffer.from(clipboardSource, "utf8").toString("base64")
 };
 
+const csDailySource = applyPolish(fs.readFileSync("cs-daily-module.html", "utf8"), "csdaily");
+const csDaily = {
+  id: "csdaily",
+  name: "CS 데일리 체크리스트",
+  desc: "톡톡·문의 게시판·어드민·웹메일·A/S 업무를 빠짐없이 확인합니다.",
+  icon: "✓",
+  accent: "#0a6b56",
+  tag: "오늘 업무",
+  b64: Buffer.from(csDailySource, "utf8").toString("base64")
+};
+
 const insertAt = modules.findIndex(item => item.id === "trade");
 modules.splice(insertAt < 0 ? modules.length : insertAt, 0, faq);
+const firstCsIndex = modules.findIndex(item => item.id === "parts");
+modules.splice(firstCsIndex < 0 ? modules.length : firstCsIndex, 0, csDaily);
 modules.push(clipboard);
 modules.push(contacts);
 
@@ -452,7 +465,7 @@ fs.writeFileSync(indexPath, html, "utf8");
 console.log("Embedded modules:", modules.map(item => item.id).join(", "));
 console.log("Assistant knowledge:", assistantKnowledge.length);
 
-for (const [name, document] of [["faq-module.html", source], ["contacts-module.html", contactsSource], ["clipboard-module.html", clipboardSource], [indexPath, html]]) {
+for (const [name, document] of [["faq-module.html", source], ["contacts-module.html", contactsSource], ["clipboard-module.html", clipboardSource], ["cs-daily-module.html", csDailySource], [indexPath, html]]) {
   const scripts = [...document.matchAll(/<script(?![^>]*application\/json)[^>]*>([\s\S]*?)<\/script>/g)];
   scripts.forEach((script, index) => {
     try {
