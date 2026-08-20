@@ -16,19 +16,20 @@
 body{margin:0;color:var(--ink);background:radial-gradient(circle at 7% 0,rgba(10,107,86,.08),transparent 31%),var(--bg);font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
 button,a{font:inherit}
 .wrap{max-width:900px;margin:0 auto;padding:34px 22px 70px}
-.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px}
+.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}
 .eyebrow{font-size:11px;font-weight:900;letter-spacing:.12em;color:var(--accent)}
 h1{margin:5px 0 5px;font-size:30px;line-height:1.25;letter-spacing:-.045em}
 .lead{margin:0;color:var(--muted);font-size:14px}
-.datebox{flex:none;padding:10px 13px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.78);text-align:right;box-shadow:0 5px 16px rgba(24,48,40,.04)}
-.datebox strong{display:block;font-size:14px}.datebox span{font-size:11.5px;color:var(--muted)}
-.progress-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px 18px;box-shadow:var(--shadow);margin-bottom:18px}
+.datebox{min-width:215px;flex:none;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.82);box-shadow:0 5px 16px rgba(24,48,40,.04)}
+.datebox strong{display:block;font-size:13px}.datebox span{display:block;margin-top:2px;font-size:11px;color:var(--muted)}.date-status{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:9px;padding-top:9px;border-top:1px solid #e8eeeb}.date-status b{font-size:22px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}.date-status em{font-style:normal;color:var(--muted);font-size:11.5px;font-weight:750}
+.route{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px;padding:10px 13px;border:1px solid #d7e5df;border-radius:13px;background:rgba(235,245,241,.72);color:#53635d;font-size:11.5px;font-weight:750}.route strong{color:var(--accent-deep)}.route i{font-style:normal;color:#94a29c}
+.progress-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
 .progress-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.progress-copy{font-size:14px;font-weight:850}.progress-count{margin-left:auto;color:var(--accent);font-size:13px;font-weight:900;font-variant-numeric:tabular-nums}
 .bar{height:9px;margin-top:11px;background:#e7ecea;border-radius:99px;overflow:hidden}.bar span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#2b9b7c);transition:width .25s ease}
 .tools{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}.tool{border:1px solid var(--line);background:#fff;color:#596660;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer}.tool[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);color:var(--accent)}.tool.reset:hover{border-color:#c85f52;color:#b34135}
-.section{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 7px 24px rgba(27,55,46,.045)}
+.section{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 7px 24px rgba(27,55,46,.045);transition:border-color .2s,box-shadow .2s,opacity .2s}.section.all-done{border-color:#b9d8cc;box-shadow:0 8px 25px rgba(10,107,86,.075)}
 .section-head{display:flex;align-items:center;gap:11px;padding:14px 16px;background:#fafcfb;border-bottom:1px solid #e8eeeb}
-.section-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:var(--soft);font-size:16px}.section-title{font-size:15px;font-weight:900;letter-spacing:-.02em}.section-sub{margin-top:1px;color:var(--muted);font-size:11.5px}
+.section-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:var(--soft);font-size:17px}.section-meta{min-width:0}.section-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.step{font-size:9.5px;font-weight:900;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}.section-title{font-size:15px;font-weight:900;letter-spacing:-.02em}.section-sub{margin-top:2px;color:var(--muted);font-size:11.5px}.section-count{padding:3px 7px;border-radius:99px;background:#eef3f1;color:#78847f;font-size:10px;font-weight:850;font-variant-numeric:tabular-nums}.section.all-done .section-count{background:var(--soft);color:var(--accent)}
 .open-link{margin-left:auto;flex:none;text-decoration:none;color:var(--accent);border:1px solid #bad5cc;background:#fff;border-radius:9px;padding:7px 10px;font-size:11.5px;font-weight:850;transition:.15s}.open-link:hover{background:var(--soft);border-color:var(--accent)}
 .tasks{padding:4px 14px}.task{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:flex-start;padding:12px 3px;border-top:1px solid #edf1ef}.task:first-child{border-top:0}.task.is-done .task-title{color:#7d8984;text-decoration:line-through;text-decoration-color:#aeb9b4}.task.is-done .task-desc{color:#9ba5a1}
 .check{appearance:none;-webkit-appearance:none;width:21px;height:21px;margin:1px 0 0;border:2px solid #b8c5bf;border-radius:7px;background:#fff;cursor:pointer;position:relative}.check:checked{background:var(--accent);border-color:var(--accent)}.check:checked:after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}.check:focus-visible{outline:3px solid rgba(10,107,86,.18);outline-offset:2px}
@@ -38,15 +39,17 @@ h1{margin:5px 0 5px;font-size:30px;line-height:1.25;letter-spacing:-.045em}
 .security{margin-top:18px;padding:12px 14px;border-radius:12px;background:#eef2f1;color:#68746f;font-size:11.5px}.security b{color:#3e4c46}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);opacity:0;pointer-events:none;padding:10px 14px;border-radius:99px;background:#173a31;color:#fff;font-size:12px;font-weight:800;box-shadow:0 9px 26px rgba(0,0,0,.16);transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
 body.only-pending .task.is-done{display:none}body.only-pending .section.all-done{display:none}
-@media(max-width:620px){.wrap{padding:24px 13px 50px}.hero{display:block}.datebox{display:inline-block;margin-top:14px;text-align:left}h1{font-size:26px}.progress-count{margin-left:0;width:100%}.section-head{align-items:flex-start}.open-link{padding:6px 8px}.tasks{padding:3px 11px}.task{grid-template-columns:23px minmax(0,1fr)}.mini-copy{grid-column:2;justify-self:start}.security{line-height:1.6}}
+@media(max-width:620px){.wrap{padding:24px 13px 50px}.hero{display:block}.datebox{width:100%;margin-top:14px}h1{font-size:26px}.progress-count{margin-left:0;width:100%}.section-head{align-items:flex-start}.section-icon{width:34px;height:34px}.open-link{padding:6px 8px}.tasks{padding:3px 11px}.task{grid-template-columns:23px minmax(0,1fr)}.mini-copy{grid-column:2;justify-self:start}.security{line-height:1.6}.route{line-height:1.7}}
 </style>
 </head>
 <body>
 <main class="wrap">
   <header class="hero">
-    <div><div class="eyebrow">WINCO DAILY ROUTINE</div><h1>CS 데일리 체크리스트</h1><p class="lead">빠뜨리기 쉬운 채널부터 처리 단계까지, 오늘 업무를 순서대로 확인하세요.</p></div>
-    <div class="datebox"><strong id="today"></strong><span>오늘 진행 상황은 이 기기에 자동 저장됩니다</span></div>
+    <div><div class="eyebrow">WINCO DAILY ROUTINE</div><h1>CS 데일리 체크리스트</h1><p class="lead">문의 확인부터 처리 완료까지, 매일 반복되는 CS 업무를 순서대로 관리하세요.</p></div>
+    <div class="datebox"><strong id="today"></strong><span>오늘 진행 상황은 이 기기에 자동 저장됩니다</span><div class="date-status"><em>남은 업무</em><b id="remainingCount">9</b></div></div>
   </header>
+
+  <div class="route" aria-label="권장 업무 순서"><strong>권장 순서</strong><span>실시간 문의</span><i>→</i><span>게시판</span><i>→</i><span>어드민 처리</span><i>→</i><span>거래처 메일</span><i>→</i><span>A/S 관리</span></div>
 
   <section class="progress-card" aria-label="오늘 진행률">
     <div class="progress-top"><span class="progress-copy" id="progressCopy">오늘 업무를 시작해 주세요</span><span class="progress-count" id="progressCount">0 / 9 완료</span></div>
@@ -55,7 +58,7 @@ body.only-pending .task.is-done{display:none}body.only-pending .section.all-done
   </section>
 
   <section class="section" data-section>
-    <div class="section-head"><span class="section-icon">💬</span><div><div class="section-title">네이버 톡톡</div><div class="section-sub">실시간 문의는 가장 먼저 확인합니다</div></div><a class="open-link" href="https://talk.naver.com/ct/wc3l0s?frm=psf" target="_blank" rel="noopener">톡톡 열기 ↗</a></div>
+    <div class="section-head"><span class="section-icon">💬</span><div class="section-meta"><div class="section-line"><span class="step">STEP 01</span><div class="section-title">네이버 톡톡</div><span class="section-count">0/2</span></div><div class="section-sub">실시간 문의는 가장 먼저 확인합니다</div></div><a class="open-link" href="https://talk.naver.com/ct/wc3l0s?frm=psf" target="_blank" rel="noopener">톡톡 열기 ↗</a></div>
     <div class="tasks">
       <label class="task"><input class="check" type="checkbox" data-id="talk-unread"><span><span class="task-title">신규·미답 문의 확인</span><span class="task-desc">들어온 실시간 문의를 확인하고 단순 문의는 바로 안내합니다.</span></span></label>
       <label class="task"><input class="check" type="checkbox" data-id="talk-issue"><span><span class="task-title">제품 이상·교환·A/S 문의 분류</span><span class="task-desc">증상을 확인한 뒤 교환 또는 A/S 절차에 맞춰 대응합니다.</span></span></label>
@@ -63,7 +66,7 @@ body.only-pending .task.is-done{display:none}body.only-pending .section.all-done
   </section>
 
   <section class="section" data-section>
-    <div class="section-head"><span class="section-icon">🛒</span><div><div class="section-title">네이버 문의 게시판</div><div class="section-sub">주문고객 문의와 상품 Q&amp;A를 함께 확인합니다</div></div><a class="open-link" href="https://sell.smartstore.naver.com/#/home/dashboard" target="_blank" rel="noopener">스마트스토어 ↗</a></div>
+    <div class="section-head"><span class="section-icon">🛒</span><div class="section-meta"><div class="section-line"><span class="step">STEP 02</span><div class="section-title">네이버 문의 게시판</div><span class="section-count">0/2</span></div><div class="section-sub">주문고객 문의와 상품 Q&amp;A를 함께 확인합니다</div></div><a class="open-link" href="https://sell.smartstore.naver.com/#/home/dashboard" target="_blank" rel="noopener">스마트스토어 ↗</a></div>
     <div class="tasks">
       <label class="task"><input class="check" type="checkbox" data-id="naver-order"><span><span class="task-title">주문고객 문의 확인·답변</span><span class="task-desc">주문 상태와 고객 요청을 확인하고 답변합니다.</span></span></label>
       <label class="task"><input class="check" type="checkbox" data-id="naver-qna"><span><span class="task-title">상품 Q&amp;A 확인·답변</span><span class="task-desc">상품별 문의 게시판의 신규 질문과 미답변 건을 확인합니다.</span></span></label>
@@ -71,22 +74,22 @@ body.only-pending .task.is-done{display:none}body.only-pending .section.all-done
   </section>
 
   <section class="section" data-section>
-    <div class="section-head"><span class="section-icon">🧾</span><div><div class="section-title">네이버 어드민 처리</div><div class="section-sub">확인에서 고객 안내까지 마무리합니다</div></div><a class="open-link" href="https://sell.smartstore.naver.com/#/home/dashboard" target="_blank" rel="noopener">어드민 열기 ↗</a></div>
+    <div class="section-head"><span class="section-icon">🧾</span><div class="section-meta"><div class="section-line"><span class="step">STEP 03</span><div class="section-title">네이버 어드민 처리</div><span class="section-count">0/2</span></div><div class="section-sub">클레임 확인에서 고객 안내까지 마무리합니다</div></div><a class="open-link" href="https://sell.smartstore.naver.com/#/home/dashboard" target="_blank" rel="noopener">어드민 열기 ↗</a></div>
     <div class="tasks">
-      <label class="task"><input class="check" type="checkbox" data-id="admin-return"><span><span class="task-title">반품·교환 건 확인 및 처리</span><span class="task-desc">회수 접수와 필요한 어드민 처리를 진행합니다.</span></span></label>
-      <label class="task"><input class="check" type="checkbox" data-id="admin-issue"><span><span class="task-title">불량·반품·교환·오배송 건 처리</span><span class="task-desc">접수 내용과 주문 정보를 확인한 뒤 회수·교환·재발송 등 필요한 어드민 처리를 진행하고 고객에게 안내합니다.</span></span></label>
+      <label class="task"><input class="check" type="checkbox" data-id="admin-return"><span><span class="task-title">불량·반품·교환·오배송 건 확인·분류</span><span class="task-desc">접수 사유와 주문 정보, 고객 요청사항을 확인해 필요한 처리 방법을 정합니다.</span></span></label>
+      <label class="task"><input class="check" type="checkbox" data-id="admin-issue"><span><span class="task-title">회수·교환·재발송 처리 및 고객 안내</span><span class="task-desc">회수 접수와 어드민 처리를 완료하고 진행 내용과 이후 절차를 고객에게 안내합니다.</span></span></label>
     </div>
   </section>
 
   <section class="section" data-section>
-    <div class="section-head"><span class="section-icon">✉️</span><div><div class="section-title">거래처 웹메일</div><div class="section-sub">원룸만들기·쿠팡 등 거래처 CS 메일을 확인합니다</div></div></div>
+    <div class="section-head"><span class="section-icon">✉️</span><div class="section-meta"><div class="section-line"><span class="step">STEP 04</span><div class="section-title">거래처 웹메일</div><span class="section-count">0/1</span></div><div class="section-sub">원룸만들기·쿠팡 등 거래처 CS 메일을 확인합니다</div></div></div>
     <div class="tasks">
       <div class="task"><input class="check" id="webmailCheck" type="checkbox" data-id="webmail"><label for="webmailCheck"><span class="task-title">신규 CS 메일 확인 <span class="priority">[CS]·[교환] 우선</span></span><span class="task-desc">거래처 문의를 확인하고 우선순위가 높은 제목부터 처리합니다.</span><span class="account"><b>계정</b> cs@dicotek.kr · 비밀번호는 사내 보관정보에서 확인</span></label><button class="mini-copy" type="button" data-copy="cs@dicotek.kr">계정 복사</button></div>
     </div>
   </section>
 
   <section class="section" data-section>
-    <div class="section-head"><span class="section-icon">🛠️</span><div><div class="section-title">케어플리즈 A/S 관리</div><div class="section-sub">접수부터 발송까지 진행 현황을 관리합니다</div></div><a class="open-link" href="https://careplz.kr/as-pre/as-5e5242d0" target="_blank" rel="noopener">케어플리즈 ↗</a></div>
+    <div class="section-head"><span class="section-icon">🛠️</span><div class="section-meta"><div class="section-line"><span class="step">STEP 05</span><div class="section-title">케어플리즈 A/S 관리</div><span class="section-count">0/2</span></div><div class="section-sub">접수부터 발송까지 진행 현황을 관리합니다</div></div><a class="open-link" href="https://careplz.kr/as-pre/as-5e5242d0" target="_blank" rel="noopener">케어플리즈 ↗</a></div>
     <div class="tasks">
       <label class="task"><input class="check" type="checkbox" data-id="care-new"><span><span class="task-title">신규 접수·취소 건 확인</span><span class="task-desc">새 접수와 취소 요청을 확인하고 필요한 처리를 진행합니다.</span></span></label>
       <label class="task"><input class="check" type="checkbox" data-id="care-status"><span><span class="task-title">고객별 진행 현황 업데이트</span><span class="task-desc">접수 → 검수 → 수리·교체 → 발송 단계에 맞춰 상태를 변경합니다. 단계별 알림톡이 고객에게 전달됩니다.</span></span></label>
@@ -111,6 +114,7 @@ body.only-pending .task.is-done{display:none}body.only-pending .section.all-done
   checks.forEach(input=>{input.checked=Boolean(state[input.dataset.id])});
 
   const progressCount=document.getElementById("progressCount");
+  const remainingCount=document.getElementById("remainingCount");
   const progressCopy=document.getElementById("progressCopy");
   const barFill=document.getElementById("barFill");
   const pendingBtn=document.getElementById("pendingBtn");
@@ -127,11 +131,15 @@ body.only-pending .task.is-done{display:none}body.only-pending .section.all-done
     checks.forEach(input=>input.closest(".task").classList.toggle("is-done",input.checked));
     document.querySelectorAll("[data-section]").forEach(section=>{
       const own=[...section.querySelectorAll(".check")];
+      const ownDone=own.filter(input=>input.checked).length;
+      const counter=section.querySelector(".section-count");
+      if(counter)counter.textContent=ownDone+"/"+own.length;
       section.classList.toggle("all-done",own.length>0&&own.every(input=>input.checked));
     });
     const done=checks.filter(input=>input.checked).length;
     const percent=Math.round(done/checks.length*100);
     progressCount.textContent=done+" / "+checks.length+" 완료 · "+percent+"%";
+    remainingCount.textContent=String(checks.length-done);
     barFill.style.width=percent+"%";
     progressCopy.textContent=done===checks.length?"오늘 업무를 모두 마쳤습니다":done?"좋아요. 남은 업무도 이어서 확인하세요":"오늘 업무를 시작해 주세요";
     doneBanner.classList.toggle("show",done===checks.length);
