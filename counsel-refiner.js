@@ -119,7 +119,7 @@
     if(tone==="apology"&&!hasApology)output.push("이용에 불편을 드려 죄송합니다.");
     output.push.apply(output,paragraphs);
     if(closings[tone]&&!hasThanks&&!output.some(function(line){return line===closings[tone]}))output.push(closings[tone]);
-    return output.join(" ").replace(/\s+/g," ").trim();
+    return output.join("\n").replace(/\n{2,}/g,"\n").trim();
   }
   return refine;
 });

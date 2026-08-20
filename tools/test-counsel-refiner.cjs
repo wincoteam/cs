@@ -26,7 +26,8 @@ const command = refine("충전이 안 될 경우 A/S 접수해 달라는 식으�
 assert.match(command, /충전이 정상적으로 되지 않는 경우에는/);
 assert.match(command, /A\/S 접수를 부탁드립니다/);
 assert.doesNotMatch(command, /식으로|적어|써줘|말해줘/);
-assert.doesNotMatch(command, /\n/);
+assert.doesNotMatch(command, /\n\n/);
+assert.strictEqual(command.split("\n").length, 3);
 assert.doesNotMatch(command, /드립니다는/);
 
 const apologyCommand = refine("배송 늦어진다고 죄송하게 안내해줘 내일 출고", "friendly");
