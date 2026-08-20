@@ -22,4 +22,14 @@ assert.doesNotMatch(concise, /^안녕하세요/);
 assert.match(concise, /가능합니다/);
 assert.match(concise, /확인이 필요합니다/);
 
+const command = refine("충전이안될경우 a/s접수해주세요 식으로 적어", "friendly");
+assert.match(command, /충전이 정상적으로 되지 않는 경우에는/);
+assert.match(command, /A\/S 접수를 부탁드립니다/);
+assert.doesNotMatch(command, /식으로|적어|써줘|말해줘/);
+
+const apologyCommand = refine("배송 늦어진다고 죄송하게 안내해줘 내일 출고", "friendly");
+assert.match(apologyCommand, /죄송합니다/);
+assert.match(apologyCommand, /내일 출고될 예정입니다/);
+assert.doesNotMatch(apologyCommand, /안내해줘/);
+
 console.log("Counsel refiner checks passed");

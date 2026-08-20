@@ -3,7 +3,7 @@
   if(typeof module!=="undefined"&&module.exports)module.exports=refine;
   if(root)root.wincoRefineReply=refine;
 })(typeof window!=="undefined"?window:null,function(){
-  const closings={friendly:"감사합니다.",concise:"",firm:"감사합니다.",apology:"다시 한번 불편을 드려 죄송합니다."};
+  const closings={friendly:"감사합니다.",concise:"",firm:"감사합니다.",apology:"감사합니다."};
   function cleanSpacing(value){
     return String(value||"")
       .replace(/\r/g,"")
@@ -52,6 +52,33 @@
       .replace(/\b확인\s*필요\b/g,"확인이 필요합니다");
     return text;
   }
+  function interpretCommand(value,tone){
+    let text=value;
+    if(/(?:죄송|사과)(?:하게|를?\s*포함|하는\s*식으로)/.test(text))tone="apology";
+    else if(/(?:짧게|간단하게|간결하게)/.test(text))tone="concise";
+    else if(/(?:명확하게|단호하게)/.test(text))tone="firm";
+    text=text
+      .replace(/(?:부드럽게|친절하게|자연스럽게|정중하게|짧게|간단하게|간결하게|명확하게|단호하게|죄송하게|사과를?\s*포함해서)\s*(?=(?:말|안내|답변|작성|적|써|바꿔|다듬))/g,"")
+      .replace(/\s*(?:이런|그런)?\s*(?:내용|느낌|말투|방식|식)으로\s*(?:적어|써\s*줘|써줘|작성해\s*줘|작성해줘|말해\s*줘|말해줘|안내해\s*줘|안내해줘|답변해\s*줘|답변해줘|바꿔\s*줘|바꿔줘|다듬어\s*줘|다듬어줘)\s*[.!?]*$/g,"")
+      .replace(/\s*(?:적어|써\s*줘|써줘|작성해\s*줘|작성해줘|말해\s*줘|말해줘|답변해\s*줘|답변해줘)\s*[.!?]*$/g,"")
+      .replace(/\s*(?:안내|말|답변|작성)(?:해)?\s*줘\s*/g,". ")
+      .trim();
+    text=text
+      .replace(/충전이?\s*안\s*될\s*경우/g,"충전이 정상적으로 되지 않는 경우에는")
+      .replace(/충전이?안될경우/g,"충전이 정상적으로 되지 않는 경우에는")
+      .replace(/작동이?\s*안\s*될\s*경우/g,"제품이 정상적으로 작동하지 않는 경우에는")
+      .replace(/전원이?\s*안\s*(?:들어올|켜질)\s*경우/g,"전원이 들어오지 않는 경우에는")
+      .replace(/A\/S\s*접수\s*해\s*주세요/g,"A/S 접수를 부탁드립니다")
+      .replace(/A\/S\s*접수\s*해주세요/g,"A/S 접수를 부탁드립니다")
+      .replace(/A\/S\s*접수\s*해\s*달라(?:고)?/g,"A/S 접수를 부탁드립니다")
+      .replace(/A\/S\s*접수(?:를)?\s*해\s*달라고/g,"A/S 접수를 부탁드립니다")
+      .replace(/환불\s*불가하다고/g,"해당 건은 환불이 어려운 점 양해 부탁드립니다")
+      .replace(/환불\s*불가/g,"해당 건은 환불이 어려운 점 양해 부탁드립니다")
+      .replace(/교환\s*가능(?:하다고)?/g,"교환이 가능합니다")
+      .replace(/배송(?:이)?\s*늦어진다고/g,"배송이 지연되고 있습니다")
+      .replace(/내일\s*출고(?=$|[,.!?\s])/g,"내일 출고될 예정입니다");
+    return{text:text,tone:tone};
+  }
   function finishSentence(line){
     let value=line.trim().replace(/^[•·▪◦*-]+\s*/,"");
     if(!value)return"";
@@ -79,6 +106,8 @@
     tone=["friendly","concise","firm","apology"].includes(tone)?tone:"friendly";
     let text=cleanSpacing(normalizeFacts(String(raw||"")));
     if(!text)return"";
+    const command=interpretCommand(text,tone);
+    text=command.text;tone=command.tone;
     text=expandRoughNotes(text);
     let paragraphs=toParagraphs(text);
     paragraphs=paragraphs.filter(function(line){return !/^(고객(?:님)?에게\s*)?(?:이렇게\s*)?(?:답변|안내)(?:해\s*줘|해줘|하면\s*됨|하면됨)\.?$/.test(line)});
