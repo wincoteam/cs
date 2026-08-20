@@ -33,17 +33,96 @@ const CS_ADDITIONAL_PRESET = [
 ];
 const polishStyle = `<!-- winco-global-polish -->
 <style id="winco-global-polish">
-  :root{color-scheme:light;accent-color:#0a6b56}
-  html{scrollbar-gutter:stable}
-  body{min-height:100vh}
+  :root{
+    color-scheme:light;accent-color:#0a6b56;
+    --wc-bg:#f3f6f5;--wc-surface:#fff;--wc-ink:#15221d;--wc-muted:#68756f;--wc-line:#dce5e1;
+    --wc-accent:#0a6b56;--wc-accent-deep:#075443;--wc-soft:#e9f4f0;
+    --wc-shadow-sm:0 5px 16px rgba(24,48,40,.045);--wc-shadow:0 13px 34px rgba(24,48,40,.07);
+  }
+  html{scrollbar-gutter:stable;background:var(--wc-bg)}
+  body[data-winco-module]{min-height:100vh;color:var(--wc-ink);background:radial-gradient(circle at 7% 0,rgba(10,107,86,.075),transparent 30%),var(--wc-bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   ::selection{background:#cce7dd;color:#12372d}
   button,a,input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease,background-color .15s ease,transform .15s ease}
   button:active{transform:translateY(1px)}
   *:focus-visible{outline:3px solid rgba(10,107,86,.22)!important;outline-offset:2px!important}
+  body[data-winco-module] :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){border-color:var(--wc-line);border-radius:11px;background:#fff;color:var(--wc-ink)}
+  body[data-winco-module] :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea):focus{border-color:var(--wc-accent);box-shadow:0 0 0 4px rgba(10,107,86,.10)}
+  body[data-winco-module] :is(input,textarea)::placeholder{color:#9aa5a0}
+  body[data-winco-module] button{font-weight:750}
+  body[data-winco-module] :is(h1,h2,h3,.title,.section-title,.place-name,.faq-title,.c-name){letter-spacing:-.025em}
+
+  /* Shared module shell */
+  body[data-winco-module] :is(.top,.hero,header){border-color:var(--wc-line)}
+  body[data-winco-module] :is(.eyebrow,.meta,.section-sub,.lead,.subtext,.hint){letter-spacing:normal}
+  body[data-winco-module] :is(.bar>span,.bar-fill,.progress-fill){background:linear-gradient(90deg,var(--wc-accent),#2c9a7c)}
+  body[data-winco-module] :is(.wc-ebar,.toolbar,.actions,.acts){gap:8px}
+  body[data-winco-module] :is(.wc-btn,.btn,.tool,.tab,.chip,.open-link){border-radius:10px}
+  body[data-winco-module] :is(.wc-note,.enote,.notice,.callout){border-radius:13px;line-height:1.65}
+
+  /* Order and daily checklist */
+  body[data-winco-module="order"] :is(.rules,.goal,.card,details.ref),
+  body[data-winco-module="csdaily"] :is(.progress-card,.section){border-color:var(--wc-line);border-radius:17px;box-shadow:var(--wc-shadow-sm)}
+  body[data-winco-module="order"] .card:hover,
+  body[data-winco-module="csdaily"] .section:hover{border-color:#c7d9d2;box-shadow:var(--wc-shadow)}
+
+  /* Parts and vendor price tools */
+  body[data-winco-module="parts"] :is(.banner,.ecard,.qpanel,.dock-in),
+  body[data-winco-module="vendor"] :is(.top,.panel,.product-info,.result,.qtycalc){border-color:var(--wc-line);border-radius:17px;box-shadow:var(--wc-shadow-sm)}
+  body[data-winco-module="parts"] .ecard,
+  body[data-winco-module="vendor"] :is(.opt,.qtyrow){transition:background-color .15s,border-color .15s,transform .15s}
+  body[data-winco-module="parts"] .ecard:hover,
+  body[data-winco-module="vendor"] :is(.opt,.qtyrow):hover{border-color:#bfd6cd;background:#fbfdfc}
+  body[data-winco-module="vendor"] .tabs{padding:5px;border:1px solid var(--wc-line);border-radius:14px;background:#fff;box-shadow:var(--wc-shadow-sm)}
+  body[data-winco-module="vendor"] .tab.active{background:var(--wc-accent);color:#fff}
+
+  /* Editable manuals and product search */
+  body[data-winco-module="cs"] .container>header,
+  body[data-winco-module="product"] .container>header{padding-bottom:20px}
+  body[data-winco-module="cs"] :is(.file-upload-section,.search-section,.faq-item,.wc-add),
+  body[data-winco-module="product"] :is(.file-upload-section,.search-section,.result-card,.wc-add){border-color:var(--wc-line);border-radius:17px;box-shadow:var(--wc-shadow-sm)}
+  body[data-winco-module="cs"] .file-upload-section,
+  body[data-winco-module="product"] .file-upload-section{background:linear-gradient(135deg,#fbfdfc,#f2f8f5)}
+  body[data-winco-module="cs"] .faq-question{min-height:58px;padding:15px 17px}
+  body[data-winco-module="cs"] .faq-item[open],
+  body[data-winco-module="product"] .result-card:hover{border-color:#b9d5ca;box-shadow:var(--wc-shadow)}
+  body[data-winco-module="cs"] .answer-inner{padding:17px 19px 19px;line-height:1.72}
+  body[data-winco-module="product"] .result-card{padding:15px}
+  body[data-winco-module="product"] .result-item{border-radius:11px}
+
+  /* FAQ knowledge base */
+  body[data-winco-module="faq"] .hero{border:1px solid var(--wc-line);border-radius:21px;background:linear-gradient(135deg,#fff,#f1f8f5);box-shadow:var(--wc-shadow)}
+  body[data-winco-module="faq"] :is(.product,.answer-row,.detail){border-color:var(--wc-line);border-radius:16px;box-shadow:var(--wc-shadow-sm)}
+  body[data-winco-module="faq"] .product[open]{border-color:#b8d4c9;box-shadow:var(--wc-shadow)}
+  body[data-winco-module="faq"] .product>summary{min-height:66px;padding:15px 17px}
+  body[data-winco-module="faq"] .section-body{line-height:1.72}
+  body[data-winco-module="faq"] .answer-row{overflow:hidden}
+
+  /* Trade prices, clipboard and contacts */
+  body[data-winco-module="trade"] :is(.top,.notice,.edit-panel,.price-list),
+  body[data-winco-module="clipboard"] :is(.top,.toolbar,.item,dialog),
+  body[data-winco-module="contacts"] :is(.top,.address-card,.link-card){border-color:var(--wc-line);border-radius:17px;box-shadow:var(--wc-shadow-sm)}
+  body[data-winco-module="trade"] .row,
+  body[data-winco-module="clipboard"] .item,
+  body[data-winco-module="contacts"] :is(.address-card,.link-card){transition:transform .16s,border-color .16s,box-shadow .16s}
+  body[data-winco-module="trade"] .row:hover,
+  body[data-winco-module="clipboard"] .item:hover,
+  body[data-winco-module="contacts"] :is(.address-card,.link-card):hover{transform:translateY(-2px);border-color:#bfd5cc;box-shadow:var(--wc-shadow)}
+  body[data-winco-module="clipboard"] .search{box-shadow:0 0 0 1px var(--wc-line),var(--wc-shadow-sm)}
+  body[data-winco-module="contacts"] .actions .primary,
+  body[data-winco-module="clipboard"] .primary{background:var(--wc-accent);border-color:var(--wc-accent);color:#fff}
+
+  /* Dense editors stay readable */
+  body[data-winco-module] :is(.wc-erow,.edit-row){border-color:var(--wc-line);border-radius:14px;background:#fff;box-shadow:var(--wc-shadow-sm)}
+  body[data-winco-module] :is(.wc-erow,.edit-row):focus-within{border-color:#aacfc1;box-shadow:0 0 0 4px rgba(10,107,86,.08),var(--wc-shadow-sm)}
   ::-webkit-scrollbar{width:10px;height:10px}
   ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#b8c7c1;background-clip:padding-box}
   ::-webkit-scrollbar-track{background:transparent}
-  @media(max-width:620px){html{scrollbar-gutter:auto}body{background-attachment:fixed}}
+  @media(max-width:620px){
+    html{scrollbar-gutter:auto}body[data-winco-module]{background-attachment:fixed}
+    body[data-winco-module] :is(.top,.hero){border-radius:17px}
+    body[data-winco-module] :is(.wc-ebar,.toolbar,.actions,.acts){gap:6px}
+  }
+  @media(prefers-reduced-motion:reduce){body[data-winco-module] *,body[data-winco-module] *::before,body[data-winco-module] *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>`;
 const csEditorPolish = `<!-- winco-cs-editor-polish -->
 <style id="winco-cs-editor-polish">
@@ -130,9 +209,11 @@ function applyPolish(source, moduleId = "") {
   const clean = source
     .replace(/\n?<!-- winco-global-polish -->[\s\S]*?<style id="winco-global-polish">[\s\S]*?<\/style>\n?/, "")
     .replace(/\n?<!-- winco-cs-editor-polish -->[\s\S]*?<style id="winco-cs-editor-polish">[\s\S]*?<\/style>\n?/, "")
-    .replace(/\n?<!-- winco-copy-history -->[\s\S]*?<script id="winco-copy-history">[\s\S]*?<\/script>\n?/, "");
+    .replace(/\n?<!-- winco-copy-history -->[\s\S]*?<script id="winco-copy-history">[\s\S]*?<\/script>\n?/, "")
+    .replace(/<body\s+data-winco-module="[^"]*"/, "<body");
   const modulePolish = moduleId === "cs" ? `\n${csEditorPolish}` : "";
-  return clean.replace("</head>", `${polishStyle}${modulePolish}\n</head>`).replace("</body>", `${copyHistoryScript}\n</body>`);
+  const identified = clean.replace(/<body(\s|>)/, `<body data-winco-module="${moduleId}"$1`);
+  return identified.replace("</head>", `${polishStyle}${modulePolish}\n</head>`).replace("</body>", `${copyHistoryScript}\n</body>`);
 }
 
 function mergeCsPresets(source) {
