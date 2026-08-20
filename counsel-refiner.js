@@ -70,7 +70,7 @@
       .replace(/전원이?\s*안\s*(?:들어올|켜질)\s*경우/g,"전원이 들어오지 않는 경우에는")
       .replace(/A\/S\s*접수\s*해\s*주세요/g,"A/S 접수를 부탁드립니다")
       .replace(/A\/S\s*접수\s*해주세요/g,"A/S 접수를 부탁드립니다")
-      .replace(/A\/S\s*접수\s*해\s*달라(?:고)?/g,"A/S 접수를 부탁드립니다")
+      .replace(/A\/S\s*접수\s*해\s*달라(?:고|는)?/g,"A/S 접수를 부탁드립니다")
       .replace(/A\/S\s*접수(?:를)?\s*해\s*달라고/g,"A/S 접수를 부탁드립니다")
       .replace(/환불\s*불가하다고/g,"해당 건은 환불이 어려운 점 양해 부탁드립니다")
       .replace(/환불\s*불가/g,"해당 건은 환불이 어려운 점 양해 부탁드립니다")
@@ -119,7 +119,7 @@
     if(tone==="apology"&&!hasApology)output.push("이용에 불편을 드려 죄송합니다.");
     output.push.apply(output,paragraphs);
     if(closings[tone]&&!hasThanks&&!output.some(function(line){return line===closings[tone]}))output.push(closings[tone]);
-    return output.join("\n\n").replace(/\n{3,}/g,"\n\n").trim();
+    return output.join(" ").replace(/\s+/g," ").trim();
   }
   return refine;
 });
