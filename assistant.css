@@ -3,12 +3,24 @@
   width:min(410px,calc(100vw - 28px));font-family:inherit;color:#1d2d28;
 }
 .assistant-launch{
-  display:flex;align-items:center;gap:10px;min-height:50px;padding:0 17px;
-  border:1px solid rgba(21,108,85,.18);border-radius:16px;background:#163c32;color:#fff;
-  box-shadow:0 16px 42px rgba(22,60,50,.24);font:inherit;font-size:13.5px;font-weight:850;cursor:pointer;
+  display:flex;align-items:center;gap:9px;min-height:64px;padding:0;
+  border:0;background:transparent;color:#173a31;font:inherit;cursor:pointer;
 }
-.assistant-launch:hover{background:#1b4c3f;transform:translateY(-2px)}
-.assistant-launch-icon{display:grid;width:28px;height:28px;place-items:center;border-radius:10px;background:rgba(255,255,255,.14);font-size:15px}
+.assistant-launch:hover{transform:translateY(-3px)}
+.assistant-character{position:relative;width:64px;height:64px;flex:none;filter:drop-shadow(0 10px 12px rgba(15,72,57,.2));animation:assistant-float 3s ease-in-out infinite}
+.assistant-antenna{position:absolute;top:0;left:30px;width:4px;height:13px;border-radius:99px;background:#176b57;transform:rotate(-8deg);transform-origin:bottom}
+.assistant-antenna::before{content:"";position:absolute;left:-3px;top:-3px;width:10px;height:10px;border:3px solid #fff;border-radius:50%;background:#f1b84b;box-shadow:0 0 0 1px #b77b19}
+.assistant-face{position:absolute;top:10px;left:4px;width:56px;height:40px;border:2px solid #175f4d;border-radius:17px 17px 15px 15px;background:linear-gradient(145deg,#f9fffc,#dff3eb);box-shadow:inset 0 -5px 10px rgba(26,109,87,.08),0 4px 0 #0d4d3d}
+.assistant-face::before,.assistant-face::after{content:"";position:absolute;top:14px;width:7px;height:14px;border:2px solid #fff;background:#2b7d67;box-shadow:0 1px 3px rgba(12,66,52,.18)}
+.assistant-face::before{left:-8px;border-radius:7px 2px 2px 7px}.assistant-face::after{right:-8px;border-radius:2px 7px 7px 2px}
+.assistant-eye{position:absolute;top:13px;width:7px;height:8px;border-radius:50%;background:#123c32;box-shadow:inset 2px 2px rgba(255,255,255,.35)}
+.assistant-eye.left{left:14px}.assistant-eye.right{right:14px}.assistant-mouth{position:absolute;left:23px;top:25px;width:9px;height:5px;border:2px solid #d97662;border-top:0;border-radius:0 0 8px 8px}
+.assistant-body-mark{position:absolute;left:17px;bottom:0;display:grid;width:31px;height:16px;place-items:center;border:2px solid #fff;border-radius:7px 7px 11px 11px;background:linear-gradient(#27846b,#155d4b);box-shadow:0 3px 0 #0c4638;color:#fff;font-size:9px;font-weight:950;line-height:1}
+.assistant-launch-copy{position:relative;display:flex;min-width:188px;min-height:54px;flex-direction:column;justify-content:center;align-items:flex-start;padding:8px 15px 8px 17px;border:1px solid #c7dbd3;border-radius:17px;background:rgba(255,255,255,.97);box-shadow:0 15px 38px rgba(23,61,51,.18);text-align:left}
+.assistant-launch-copy::before{content:"";position:absolute;left:-7px;top:22px;width:12px;height:12px;border-left:1px solid #c7dbd3;border-bottom:1px solid #c7dbd3;background:#fff;transform:rotate(45deg)}
+.assistant-launch-copy strong{font-size:13.5px;font-weight:900;letter-spacing:-.02em}.assistant-launch-copy small{margin-top:2px;color:#71827b;font-size:10px;font-weight:650}
+.assistant-launch:hover .assistant-launch-copy{border-color:#83b6a5;box-shadow:0 18px 43px rgba(18,74,59,.22)}
+@keyframes assistant-float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1deg)}}
 .assistant-panel{
   display:none;overflow:hidden;border:1px solid #d9e5e0;border-radius:21px;background:#f8fbfa;
   box-shadow:0 26px 75px rgba(24,51,43,.25),0 4px 16px rgba(24,51,43,.08);
@@ -19,7 +31,8 @@
   display:flex;align-items:center;gap:11px;flex:0 0 auto;padding:14px 14px 13px 16px;
   border-bottom:1px solid #deebe6;background:linear-gradient(135deg,#174e40,#216d59);color:#fff;
 }
-.assistant-avatar{display:grid;width:37px;height:37px;place-items:center;border-radius:12px;background:rgba(255,255,255,.14);font-size:19px}
+.assistant-avatar{display:grid;width:39px;height:39px;place-items:center;border:2px solid rgba(255,255,255,.24);border-radius:14px;background:linear-gradient(145deg,#f8fffc,#cfe9df);box-shadow:inset 0 -4px 8px rgba(18,84,66,.12);color:#155c49}
+.assistant-mini-face{font-size:12px;font-weight:950;letter-spacing:1px;transform:translateY(-1px)}
 .assistant-heading{min-width:0;flex:1}
 .assistant-title{display:block;font-size:14.5px;font-weight:900;letter-spacing:-.02em}
 .assistant-status{display:flex;align-items:center;gap:5px;margin-top:2px;color:#cde5dd;font-size:10.5px;font-weight:650}
@@ -31,11 +44,14 @@
   padding:16px 14px 10px;scroll-behavior:smooth;
 }
 .assistant-row{display:flex;align-items:flex-end;gap:7px}
+.assistant-row.bot::before{content:"•‿•";display:grid;width:27px;height:27px;flex:none;place-items:center;border:1px solid #bcd7cd;border-radius:10px;background:linear-gradient(145deg,#fff,#def1ea);color:#17634f;font-size:8px;font-weight:950;letter-spacing:.5px;box-shadow:0 3px 8px rgba(24,73,59,.08)}
+.assistant-row.bot.assistant-thinking::before{content:"···";letter-spacing:1px}
 .assistant-row.user{justify-content:flex-end}
 .assistant-bubble{
   max-width:88%;padding:11px 13px;border:1px solid #dce8e3;border-radius:5px 15px 15px 15px;
   background:#fff;box-shadow:0 4px 13px rgba(24,51,43,.045);font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:keep-all;
 }
+.assistant-row.bot .assistant-bubble{max-width:calc(100% - 34px)}
 .assistant-row.user .assistant-bubble{border-color:#236e59;border-radius:15px 15px 5px 15px;background:#236e59;color:#fff}
 .assistant-result{margin-top:9px;padding:11px;border:1px solid #dbe8e3;border-radius:12px;background:#fbfdfc}
 .assistant-result:first-child{margin-top:0}
@@ -71,10 +87,13 @@
 @media(max-width:620px){
   .assistant-widget{left:10px;bottom:10px;width:calc(100vw - 20px)}
   .assistant-widget.is-open .assistant-panel{height:min(72vh,620px)}
-  .assistant-launch{min-height:47px;padding:0 14px}
+  .assistant-launch{min-height:60px;padding:0}
+  .assistant-character{width:64px;height:64px}
+  .assistant-launch-copy{min-width:176px;min-height:50px;padding:7px 13px 7px 15px}
   .assistant-messages{padding:13px 11px 9px}
   .assistant-bubble{max-width:94%}
 }
 @media(prefers-reduced-motion:reduce){
   .assistant-messages{scroll-behavior:auto}
+  .assistant-character{animation:none}
 }
