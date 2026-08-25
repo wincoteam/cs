@@ -1963,7 +1963,13 @@ window.addEventListener("hashchange", syncFromHash);
 /* ESC 로도 메뉴 복귀 */
 document.addEventListener("keydown", function(e){
   if(e.key === "Escape" && body.classList.contains("in-viewer")) goHome(true);
-  if(e.key === "/" && !body.classList.contains("in-viewer") && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){
+  const keyTarget = e.target instanceof Element ? e.target : document.activeElement;
+  const isWriting = keyTarget && (
+    /INPUT|TEXTAREA|SELECT/.test(keyTarget.tagName) ||
+    keyTarget.isContentEditable ||
+    keyTarget.closest('[contenteditable="true"],[contenteditable=""],.postit-widget,.assistant-widget,.history-widget,.tracking-widget,.counsel-widget,dialog')
+  );
+  if(e.key === "/" && !body.classList.contains("in-viewer") && !isWriting){
     e.preventDefault(); toolSearch.focus();
   }
 });
