@@ -25,7 +25,90 @@
   let pendingIntent = "";
   let pendingQuery = "";
   let isAnswering = false;
+  let savedPosition = null;
+  let suppressLaunchClickUntil = 0;
   const AI_ENDPOINT = "/api/ask";
+  const POSITION_KEY = "winco_assistant_position_v1";
+
+  function readPosition(){
+    try{
+      const value = JSON.parse(localStorage.getItem(POSITION_KEY) || "null");
+      if(value && Number.isFinite(value.left) && Number.isFinite(value.top)) return value;
+    }catch(error){}
+    return null;
+  }
+
+  function clamp(value,min,max){ return Math.min(Math.max(value,min),Math.max(min,max)); }
+
+  function applyLauncherPosition(position){
+    if(!position) return;
+    const width = widget.offsetWidth || 410;
+    const height = launch.offsetHeight || 76;
+    const left = clamp(position.left,8,window.innerWidth-width-8);
+    const top = clamp(position.top,8,window.innerHeight-height-8);
+    widget.style.left = left+"px";
+    widget.style.top = top+"px";
+    widget.style.right = "auto";
+    widget.style.bottom = "auto";
+    savedPosition = {left:left,top:top};
+  }
+
+  function fitPanelToViewport(){
+    if(!savedPosition) return;
+    const panelHeight = Math.min(680,window.innerHeight-36);
+    const left = clamp(savedPosition.left,8,window.innerWidth-widget.offsetWidth-8);
+    const top = clamp(savedPosition.top,8,window.innerHeight-panelHeight-8);
+    widget.style.left = left+"px";
+    widget.style.top = top+"px";
+  }
+
+  function savePosition(){
+    if(!savedPosition) return;
+    try{ localStorage.setItem(POSITION_KEY,JSON.stringify(savedPosition)); }catch(error){}
+  }
+
+  function enableLauncherDrag(){
+    let pointerId = null;
+    let originX = 0;
+    let originY = 0;
+    let originLeft = 0;
+    let originTop = 0;
+    let moved = false;
+
+    launch.addEventListener("pointerdown",function(event){
+      if(widget.classList.contains("is-open") || event.button !== 0) return;
+      const rect = widget.getBoundingClientRect();
+      pointerId = event.pointerId;
+      originX = event.clientX;
+      originY = event.clientY;
+      originLeft = rect.left;
+      originTop = rect.top;
+      moved = false;
+      launch.setPointerCapture(pointerId);
+    });
+    launch.addEventListener("pointermove",function(event){
+      if(pointerId !== event.pointerId) return;
+      const dx = event.clientX-originX;
+      const dy = event.clientY-originY;
+      if(!moved && Math.hypot(dx,dy)<5) return;
+      moved = true;
+      event.preventDefault();
+      launch.classList.add("is-dragging");
+      applyLauncherPosition({left:originLeft+dx,top:originTop+dy});
+    });
+    function finishDrag(event){
+      if(pointerId !== event.pointerId) return;
+      try{ launch.releasePointerCapture(pointerId); }catch(error){}
+      pointerId = null;
+      launch.classList.remove("is-dragging");
+      if(moved){
+        suppressLaunchClickUntil = Date.now()+350;
+        savePosition();
+      }
+    }
+    launch.addEventListener("pointerup",finishDrag);
+    launch.addEventListener("pointercancel",finishDrag);
+  }
 
   const groups = [
     ["as","a/s","에이에스","수리","고장","점검","서비스","서비스센터"],
@@ -869,13 +952,19 @@
     widget.classList.toggle("is-open",opened);
     launch.setAttribute("aria-expanded",String(opened));
     if(opened){
+      fitPanelToViewport();
       document.dispatchEvent(new CustomEvent("winco-popup-open",{detail:"assistant"}));
       refreshKnowledge();
       setTimeout(function(){ input.focus(); scrollBottom(); },30);
+    }else if(savedPosition){
+      requestAnimationFrame(function(){ applyLauncherPosition(savedPosition); });
     }
   }
 
-  launch.addEventListener("click",function(){ setOpen(true); });
+  launch.addEventListener("click",function(event){
+    if(Date.now()<suppressLaunchClickUntil){ event.preventDefault(); return; }
+    setOpen(true);
+  });
   close.addEventListener("click",function(){ setOpen(false); });
   send.addEventListener("click",function(){ submit(input.value); });
   input.addEventListener("input",function(){
@@ -922,4 +1011,13 @@
   document.addEventListener("winco-popup-open",function(event){
     if(event.detail !== "assistant") setOpen(false);
   });
+  savedPosition = readPosition();
+  if(savedPosition) requestAnimationFrame(function(){ applyLauncherPosition(savedPosition); });
+  enableLauncherDrag();
+  if(typeof window.addEventListener === "function"){
+    window.addEventListener("resize",function(){
+      if(widget.classList.contains("is-open")) fitPanelToViewport();
+      else if(savedPosition) applyLauncherPosition(savedPosition);
+    });
+  }
 })();
