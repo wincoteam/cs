@@ -6,6 +6,7 @@
   if (!widget) return;
 
   const launch = document.getElementById("assistantLaunch");
+  const head = document.getElementById("assistantHead");
   const close = document.getElementById("assistantClose");
   const messages = document.getElementById("assistantMessages");
   const input = document.getElementById("assistantInput");
@@ -965,6 +966,24 @@
     if(Date.now()<suppressLaunchClickUntil){ event.preventDefault(); return; }
     setOpen(true);
   });
+  if(head){
+    let lastTouchAt = 0;
+    head.addEventListener("dblclick",function(event){
+      if(event.target.closest("button")) return;
+      setOpen(false);
+    });
+    head.addEventListener("pointerup",function(event){
+      if(event.pointerType !== "touch" || event.target.closest("button")) return;
+      const now = Date.now();
+      if(now-lastTouchAt<350){
+        event.preventDefault();
+        lastTouchAt = 0;
+        setOpen(false);
+      }else{
+        lastTouchAt = now;
+      }
+    });
+  }
   close.addEventListener("click",function(){ setOpen(false); });
   send.addEventListener("click",function(){ submit(input.value); });
   input.addEventListener("input",function(){
