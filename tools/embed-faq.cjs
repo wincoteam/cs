@@ -56,8 +56,12 @@ const polishStyle = `<!-- winco-global-polish -->
   body[data-winco-module] :is(.eyebrow,.meta,.section-sub,.lead,.subtext,.hint){letter-spacing:normal}
   body[data-winco-module] :is(.bar>span,.bar-fill,.progress-fill){background:linear-gradient(90deg,var(--wc-accent),#2c9a7c)}
   body[data-winco-module] :is(.wc-ebar,.toolbar,.actions,.acts){gap:8px}
+  body[data-winco-module] :is(.wc-ebar,.toolbar,.actions,.acts){align-items:center;flex-wrap:wrap}
   body[data-winco-module] :is(.wc-btn,.btn,.tool,.tab,.chip,.open-link){border-radius:10px}
+  body[data-winco-module] :is(button.wc-btn,button.btn,button.tool,button.tab,button.chip,a.open-link){min-height:38px}
   body[data-winco-module] :is(.wc-note,.enote,.notice,.callout){border-radius:13px;line-height:1.65}
+  body[data-winco-module] :is(.wrap,.container){width:100%}
+  body[data-winco-module] :is(.card,.section,.panel,.product,.item,.row){overflow-wrap:anywhere}
 
   /* Order and daily checklist */
   body[data-winco-module="order"] :is(.rules,.goal,.card,details.ref),
@@ -121,6 +125,7 @@ const polishStyle = `<!-- winco-global-polish -->
     html{scrollbar-gutter:auto}body[data-winco-module]{background-attachment:fixed}
     body[data-winco-module] :is(.top,.hero){border-radius:17px}
     body[data-winco-module] :is(.wc-ebar,.toolbar,.actions,.acts){gap:6px}
+    body[data-winco-module] :is(button.wc-btn,button.btn,button.tool,button.tab,button.chip,a.open-link){min-height:40px}
   }
   @media(prefers-reduced-motion:reduce){body[data-winco-module] *,body[data-winco-module] *::before,body[data-winco-module] *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>`;

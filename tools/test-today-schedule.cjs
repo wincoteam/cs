@@ -11,6 +11,8 @@ for (const expected of [
   "wincoCalendarUpdated"
   ,"winco_today_schedule_position_v1"
   ,"head.addEventListener(\"pointermove\""
+  ,"calendarCardStatus"
+  ,"Number(Boolean(a.completed))-Number(Boolean(b.completed))"
 ]) {
   if (!source.includes(expected)) throw new Error(`Today schedule feature missing: ${expected}`);
 }

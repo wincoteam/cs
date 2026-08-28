@@ -10,6 +10,7 @@
   const collapse=document.getElementById("todayScheduleCollapse");
   const dateLabel=document.getElementById("todayScheduleDate");
   const openButton=document.getElementById("todayScheduleOpen");
+  const cardStatus=document.getElementById("calendarCardStatus");
   const head=popup.querySelector(".today-schedule-head");
   let savedPosition=readPosition();
   function readPosition(){try{const value=JSON.parse(localStorage.getItem(POSITION_KEY)||"null");return value&&Number.isFinite(value.left)&&Number.isFinite(value.top)?value:null}catch(e){return null}}
@@ -37,13 +38,14 @@
   dateLabel.textContent=new Intl.DateTimeFormat("ko-KR",{month:"long",day:"numeric",weekday:"long"}).format(new Date());
   function read(){try{const rows=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(rows)?rows:[]}catch(e){return[]}}
   function write(rows){try{localStorage.setItem(KEY,JSON.stringify(rows))}catch(e){}}
-  function todayRows(){return read().filter(row=>row&&row.date===today).sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99")||(a.createdAt||0)-(b.createdAt||0))}
+  function todayRows(){return read().filter(row=>row&&row.date===today).sort((a,b)=>Number(Boolean(a.completed))-Number(Boolean(b.completed))||(a.time||"99:99").localeCompare(b.time||"99:99")||(a.createdAt||0)-(b.createdAt||0))}
   function render(){
     const rows=todayRows();
+    const done=rows.filter(row=>row.completed).length;
+    if(cardStatus){cardStatus.textContent=rows.length?"오늘 "+rows.length+"개 중 "+done+"개 완료":"오늘 일정 없음";cardStatus.classList.toggle("is-complete",Boolean(rows.length)&&done===rows.length)}
     popup.hidden=!rows.length;
     if(!rows.length)return;
     if(savedPosition)requestAnimationFrame(()=>applyPosition(savedPosition));
-    const done=rows.filter(row=>row.completed).length;
     summary.textContent=done===rows.length?"오늘 일정 모두 완료했어요":"오늘 해야 할 업무를 확인하세요";
     progress.textContent=rows.length+"개 중 "+done+"개 완료";
     list.innerHTML="";

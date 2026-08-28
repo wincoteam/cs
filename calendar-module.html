@@ -55,7 +55,7 @@
   }
   function escapeText(value){return String(value||"")}
   function formatSelected(value){const d=fromKey(value);return new Intl.DateTimeFormat("ko-KR",{month:"long",day:"numeric",weekday:"short"}).format(d)}
-  function rowsFor(dateKey){return events.filter(e=>e.date===dateKey).sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99")||a.createdAt-b.createdAt)}
+  function rowsFor(dateKey){return events.filter(e=>e.date===dateKey).sort((a,b)=>Number(Boolean(a.completed))-Number(Boolean(b.completed))||(a.time||"99:99").localeCompare(b.time||"99:99")||a.createdAt-b.createdAt)}
   function renderCalendar(){
     monthTitle.textContent=view.getFullYear()+"년 "+(view.getMonth()+1)+"월";
     grid.innerHTML="";

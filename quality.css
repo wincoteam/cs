@@ -1,0 +1,15 @@
+/* Home-wide alignment and responsive quality pass */
+#home .grid{align-items:stretch}
+#home .card{height:100%}
+#home .c-body{align-self:stretch}
+#home .c-desc{padding-bottom:24px}
+#home .c-go{opacity:.72;transform:none}
+#home .tool-section.schedule .grid{grid-template-columns:1fr}
+#home .tool-section.schedule .card{min-height:132px;border-color:#bdd8ce;background:linear-gradient(110deg,#fff 0%,#fff 62%,#eef8f4 100%);box-shadow:0 12px 28px rgba(10,107,86,.07)}
+#home .tool-section.schedule .c-desc{max-width:66ch;padding-bottom:0}
+.calendar-card-status{display:inline-flex;align-items:center;align-self:flex-start;min-height:27px;margin-top:11px;padding:0 9px;border:1px solid #cfe4dc;border-radius:99px;background:#eef7f3;color:#176a56;font-size:10.5px;font-weight:850}
+.calendar-card-status.is-complete{border-color:#d8e1dd;background:#f2f5f4;color:#76837d}
+#home .cs-group .card{min-height:150px}
+#home .cs-group.daily .card{min-height:132px}
+@media(max-width:800px){#home .card{min-height:142px}}
+@media(max-width:620px){#home .card,#home .cs-group .card{min-height:0}.calendar-card-status{margin-top:9px}#home .c-desc{padding-bottom:0}}

@@ -11,6 +11,7 @@ for (const expected of [
   'winco_calendar_events_v1',
   'className="event-toggle"',
   'completed:toggle.checked',
+  'Number(Boolean(a.completed))-Number(Boolean(b.completed))',
   'events.map(item=>item.id===editingId?row:item)',
   'events.filter(item=>item.id!==editingId)'
 ]) {
