@@ -263,7 +263,7 @@ const pattern = /<script type="application\/json" id="mod-data">([\s\S]*?)<\/scr
 const match = html.match(pattern);
 if (!match) throw new Error("mod-data not found");
 
-const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts", "clipboard", "csdaily"].includes(item.id));
+const modules = JSON.parse(match[1]).filter(item => !["faq", "contacts", "clipboard", "csdaily", "calendar"].includes(item.id));
 for (const module of modules) {
   let decoded = Buffer.from(module.b64, "base64").toString("utf8");
   if (module.id === "cs") decoded = mergeCsPresets(decoded);
@@ -313,6 +313,18 @@ const csDaily = {
   b64: Buffer.from(csDailySource, "utf8").toString("base64")
 };
 
+const calendarSource = applyPolish(fs.readFileSync("calendar-module.html", "utf8"), "calendar");
+const calendar = {
+  id: "calendar",
+  name: "업무 캘린더",
+  desc: "날짜별 일정과 메모를 기록하고 월간 화면에서 한눈에 확인합니다.",
+  icon: "📅",
+  accent: "#0a6b56",
+  tag: "일정·메모",
+  b64: Buffer.from(calendarSource, "utf8").toString("base64")
+};
+
+modules.unshift(calendar);
 const insertAt = modules.findIndex(item => item.id === "trade");
 modules.splice(insertAt < 0 ? modules.length : insertAt, 0, faq);
 const firstCsIndex = modules.findIndex(item => item.id === "parts");
@@ -475,6 +487,15 @@ function buildAssistantKnowledge() {
       });
     }
   }
+
+  add({
+    kind: "tool",
+    title: "업무 캘린더",
+    answer: "날짜를 선택해 업무 일정과 메모를 추가·수정·삭제하고 월간 화면에서 확인할 수 있습니다.",
+    module: "calendar",
+    category: "일정·메모",
+    keywords: "캘린더 달력 일정 스케줄 메모 날짜 업무 계획 등록"
+  });
 
   [
     {

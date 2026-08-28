@@ -19,6 +19,7 @@
     product: "상품 목록",
     parts: "부품 구매",
     vendor: "거래처·배송비"
+    ,calendar: "업무 캘린더"
     ,clipboard: "복사 보관함"
   };
   let previousQuery = "";
