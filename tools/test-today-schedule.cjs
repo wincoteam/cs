@@ -9,8 +9,8 @@ for (const expected of [
   "completed:check.checked",
   'window.openModule("calendar",true)',
   "wincoCalendarUpdated"
-  ,"winco_today_schedule_position_v1"
-  ,"head.addEventListener(\"pointermove\""
+  ,"has-today-schedule"
+  ,"home.classList.toggle"
   ,"calendarCardStatus"
   ,"Number(Boolean(a.completed))-Number(Boolean(b.completed))"
 ]) {
@@ -18,7 +18,7 @@ for (const expected of [
 }
 
 const index = fs.readFileSync("index.html.html", "utf8");
-for (const expected of ["today-schedule.css", 'id="todaySchedule"', "today-schedule.js"]) {
+for (const expected of ["today-schedule.css", 'class="home-layout"', 'id="todaySchedule"', "today-schedule.js"]) {
   if (!index.includes(expected)) throw new Error(`Today schedule asset missing: ${expected}`);
 }
 

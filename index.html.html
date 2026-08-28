@@ -570,6 +570,7 @@
 <body class="">
 
   <main id="home" class="screen">
+    <div class="home-layout">
     <div class="home-wrap">
       <section class="hero" aria-labelledby="homeTitle">
       <div class="brand">
@@ -764,6 +765,20 @@
 
       <p class="home-foot">각 도구의 수정 내용과 체크리스트 진행 상태는 이 기기에 자동 저장됩니다</p>
     </div>
+
+    <aside class="today-schedule" id="todaySchedule" aria-label="오늘 할 일" hidden>
+      <header class="today-schedule-head">
+        <span class="today-schedule-icon" aria-hidden="true">📅</span>
+        <div class="today-schedule-heading"><strong class="today-schedule-title">오늘 할 일</strong><span class="today-schedule-date" id="todayScheduleDate"></span></div>
+        <button class="today-schedule-collapse" id="todayScheduleCollapse" type="button" aria-label="오늘 일정 접기" aria-expanded="true">−</button>
+      </header>
+      <div class="today-schedule-body">
+        <div class="today-schedule-summary"><span id="todayScheduleSummary"></span><strong class="today-schedule-progress" id="todayScheduleProgress"></strong></div>
+        <div class="today-schedule-list" id="todayScheduleList"></div>
+        <button class="today-schedule-open" id="todayScheduleOpen" type="button">업무 캘린더 열기 →</button>
+      </div>
+    </aside>
+    </div>
   </main>
 
   <section id="viewer" class="screen" aria-hidden="true" style="--vac: #0F766E;">
@@ -773,19 +788,6 @@
     </div>
     <div class="frame-host" id="frameHost"></div>
   </section>
-
-  <aside class="today-schedule" id="todaySchedule" aria-label="오늘 할 일" hidden>
-    <header class="today-schedule-head">
-      <span class="today-schedule-icon" aria-hidden="true">📅</span>
-      <div class="today-schedule-heading"><strong class="today-schedule-title">오늘 할 일</strong><span class="today-schedule-date" id="todayScheduleDate"></span></div>
-      <button class="today-schedule-collapse" id="todayScheduleCollapse" type="button" aria-label="오늘 일정 접기" aria-expanded="true">−</button>
-    </header>
-    <div class="today-schedule-body">
-      <div class="today-schedule-summary"><span id="todayScheduleSummary"></span><strong class="today-schedule-progress" id="todayScheduleProgress"></strong></div>
-      <div class="today-schedule-list" id="todayScheduleList"></div>
-      <button class="today-schedule-open" id="todayScheduleOpen" type="button">업무 캘린더 열기 →</button>
-    </div>
-  </aside>
 
   <aside class="counsel-widget" id="counselWidget" aria-label="상담 보조 도구">
     <button class="counsel-launch" id="counselLaunch" type="button" aria-controls="counselPanel" aria-expanded="false"><span class="counsel-launch-icon" aria-hidden="true">✎</span><span>상담 보조 도구</span></button>

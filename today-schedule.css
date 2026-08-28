@@ -1,7 +1,9 @@
-.today-schedule{position:fixed;right:18px;top:18px;z-index:109;width:min(350px,calc(100vw - 28px));overflow:hidden;border:1px solid #cfe0d9;border-radius:18px;background:#fff;color:#1c2b26;box-shadow:0 22px 58px rgba(22,55,45,.2);font-family:inherit}
+.home-layout{width:100%}
+#home.has-today-schedule .home-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;align-items:start;gap:18px;width:min(100%,1500px);margin:0 auto;padding-right:18px}
+#home.has-today-schedule .home-wrap{max-width:none;margin:0;padding-right:0}
+.today-schedule{position:sticky;top:18px;z-index:1;width:100%;margin-top:34px;overflow:hidden;border:1px solid #cfe0d9;border-radius:20px;background:#fff;color:#1c2b26;box-shadow:0 18px 44px rgba(22,55,45,.12);font-family:inherit}
 .today-schedule[hidden],body.in-viewer .today-schedule{display:none}
-.today-schedule-head{display:flex;align-items:center;gap:10px;padding:13px 13px 12px 15px;background:linear-gradient(135deg,#174e40,#216d59);color:#fff;cursor:grab;touch-action:none;user-select:none}
-.today-schedule.is-dragging{box-shadow:0 30px 72px rgba(22,55,45,.3);transform:scale(1.01)}.today-schedule.is-dragging .today-schedule-head{cursor:grabbing;background:linear-gradient(135deg,#123f34,#195c4b)}
+.today-schedule-head{display:flex;align-items:center;gap:10px;padding:13px 13px 12px 15px;background:linear-gradient(135deg,#174e40,#216d59);color:#fff;user-select:none}
 .today-schedule-icon{display:grid;width:36px;height:36px;flex:none;place-items:center;border-radius:11px;background:rgba(255,255,255,.15);font-size:18px}
 .today-schedule-heading{min-width:0;flex:1}.today-schedule-title{display:block;font-size:14px;font-weight:900}.today-schedule-date{display:block;margin-top:1px;color:#cfe6de;font-size:10px;font-weight:650}
 .today-schedule-collapse{display:grid;width:32px;height:32px;place-items:center;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:19px;cursor:pointer}.today-schedule-collapse:hover{background:rgba(255,255,255,.21)}
@@ -12,5 +14,7 @@
 .today-schedule-content{min-width:0}.today-schedule-line{display:flex;align-items:center;gap:7px}.today-schedule-time{flex:none;color:#0a6b56;font-size:9.5px;font-weight:900}.today-schedule-name{min-width:0;overflow:hidden;text-overflow:ellipsis;color:#263831;font-size:12px;font-weight:850;white-space:nowrap}.today-schedule-memo{display:-webkit-box;margin-top:3px;overflow:hidden;color:#6f7d77;font-size:10.5px;line-height:1.45;-webkit-box-orient:vertical;-webkit-line-clamp:2}
 .today-schedule-item.is-done .today-schedule-name,.today-schedule-item.is-done .today-schedule-memo{text-decoration:line-through;color:#98a39e}
 .today-schedule-open{width:calc(100% - 22px);height:39px;margin:0 11px 12px;border:1px solid #0a6b56;border-radius:10px;background:#0a6b56;color:#fff;font:inherit;font-size:11.5px;font-weight:850;cursor:pointer}.today-schedule-open:hover{background:#075443}
-.today-schedule.is-collapsed{width:245px}.today-schedule.is-collapsed .today-schedule-body{display:none}.today-schedule.is-collapsed .today-schedule-collapse{transform:rotate(180deg)}
-@media(max-width:620px){.today-schedule{top:10px;right:10px;width:calc(100vw - 20px)}.today-schedule.is-collapsed{width:230px}.today-schedule-list{max-height:230px}}
+.today-schedule.is-collapsed .today-schedule-body{display:none}.today-schedule.is-collapsed .today-schedule-collapse{transform:rotate(180deg)}
+@media(max-width:1080px){#home.has-today-schedule .home-layout{grid-template-columns:minmax(0,1fr) 290px;gap:12px;padding-right:12px}.today-schedule-summary{align-items:flex-start;flex-direction:column;gap:2px}}
+@media(max-width:820px){#home.has-today-schedule .home-layout{display:block;padding-right:0}.today-schedule{position:relative;top:auto;width:auto;margin:0 14px 32px}.today-schedule-summary{align-items:center;flex-direction:row;gap:10px}}
+@media(max-width:620px){.today-schedule{margin:0 10px 24px}.today-schedule-list{max-height:230px}}

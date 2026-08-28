@@ -1,7 +1,6 @@
 (function(){
   "use strict";
   const KEY="winco_calendar_events_v1";
-  const POSITION_KEY="winco_today_schedule_position_v1";
   const popup=document.getElementById("todaySchedule");
   if(!popup)return;
   const list=document.getElementById("todayScheduleList");
@@ -11,28 +10,7 @@
   const dateLabel=document.getElementById("todayScheduleDate");
   const openButton=document.getElementById("todayScheduleOpen");
   const cardStatus=document.getElementById("calendarCardStatus");
-  const head=popup.querySelector(".today-schedule-head");
-  let savedPosition=readPosition();
-  function readPosition(){try{const value=JSON.parse(localStorage.getItem(POSITION_KEY)||"null");return value&&Number.isFinite(value.left)&&Number.isFinite(value.top)?value:null}catch(e){return null}}
-  function clamp(value,min,max){return Math.min(Math.max(value,min),Math.max(min,max))}
-  function applyPosition(position){
-    if(!position||popup.hidden)return;
-    const rect=popup.getBoundingClientRect(),left=clamp(position.left,8,window.innerWidth-rect.width-8),top=clamp(position.top,8,window.innerHeight-rect.height-8);
-    popup.style.left=left+"px";popup.style.top=top+"px";popup.style.right="auto";savedPosition={left:left,top:top};
-  }
-  function savePosition(){if(!savedPosition)return;try{localStorage.setItem(POSITION_KEY,JSON.stringify(savedPosition))}catch(e){}}
-  function enableDrag(){
-    let pointerId=null,startX=0,startY=0,startLeft=0,startTop=0,moved=false;
-    head.addEventListener("pointerdown",event=>{
-      if(event.button!==0||event.target.closest("button"))return;
-      const rect=popup.getBoundingClientRect();pointerId=event.pointerId;startX=event.clientX;startY=event.clientY;startLeft=rect.left;startTop=rect.top;moved=false;head.setPointerCapture(pointerId);
-    });
-    head.addEventListener("pointermove",event=>{
-      if(event.pointerId!==pointerId)return;const dx=event.clientX-startX,dy=event.clientY-startY;if(!moved&&Math.hypot(dx,dy)<5)return;moved=true;event.preventDefault();popup.classList.add("is-dragging");applyPosition({left:startLeft+dx,top:startTop+dy});
-    });
-    function finish(event){if(event.pointerId!==pointerId)return;try{head.releasePointerCapture(pointerId)}catch(e){}pointerId=null;popup.classList.remove("is-dragging");if(moved)savePosition()}
-    head.addEventListener("pointerup",finish);head.addEventListener("pointercancel",finish);
-  }
+  const home=document.getElementById("home");
   function dateKey(date){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,"0"),String(date.getDate()).padStart(2,"0")].join("-")}
   const today=dateKey(new Date());
   dateLabel.textContent=new Intl.DateTimeFormat("ko-KR",{month:"long",day:"numeric",weekday:"long"}).format(new Date());
@@ -44,8 +22,8 @@
     const done=rows.filter(row=>row.completed).length;
     if(cardStatus){cardStatus.textContent=rows.length?"오늘 "+rows.length+"개 중 "+done+"개 완료":"오늘 일정 없음";cardStatus.classList.toggle("is-complete",Boolean(rows.length)&&done===rows.length)}
     popup.hidden=!rows.length;
+    if(home)home.classList.toggle("has-today-schedule",Boolean(rows.length));
     if(!rows.length)return;
-    if(savedPosition)requestAnimationFrame(()=>applyPosition(savedPosition));
     summary.textContent=done===rows.length?"오늘 일정 모두 완료했어요":"오늘 해야 할 업무를 확인하세요";
     progress.textContent=rows.length+"개 중 "+done+"개 완료";
     list.innerHTML="";
@@ -67,12 +45,10 @@
     const frame=document.querySelector("#frameHost iframe");
     try{if(frame&&frame.contentWindow)frame.contentWindow.postMessage({wincoCalendarUpdated:true},"*")}catch(e){}
   });
-  collapse.addEventListener("click",()=>{const collapsed=popup.classList.toggle("is-collapsed");collapse.setAttribute("aria-expanded",String(!collapsed));if(savedPosition)requestAnimationFrame(()=>applyPosition(savedPosition))});
+  collapse.addEventListener("click",()=>{const collapsed=popup.classList.toggle("is-collapsed");collapse.setAttribute("aria-expanded",String(!collapsed))});
   openButton.addEventListener("click",()=>{if(typeof window.openModule==="function")window.openModule("calendar",true)});
   window.addEventListener("storage",event=>{if(event.key===KEY)render()});
   window.addEventListener("message",event=>{if(event.data&&event.data.wincoCalendarUpdated)render()});
   window.addEventListener("focus",render);
-  window.addEventListener("resize",()=>{if(savedPosition)applyPosition(savedPosition)});
-  enableDrag();
   render();
 })();
