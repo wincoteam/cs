@@ -9,6 +9,8 @@ for (const expected of [
   'id="calendarGrid"',
   'id="eventTitle"',
   'winco_calendar_events_v1',
+  'className="event-toggle"',
+  'completed:toggle.checked',
   'events.map(item=>item.id===editingId?row:item)',
   'events.filter(item=>item.id!==editingId)'
 ]) {

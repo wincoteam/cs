@@ -491,7 +491,7 @@ function buildAssistantKnowledge() {
   add({
     kind: "tool",
     title: "업무 캘린더",
-    answer: "날짜를 선택해 업무 일정과 메모를 추가·수정·삭제하고 월간 화면에서 확인할 수 있습니다.",
+    answer: "날짜를 선택해 업무 일정과 메모를 추가·수정·삭제할 수 있습니다. 완료 체크 시 취소선이 표시되며, 오늘 일정은 메인 화면의 오늘 할 일 팝업에도 자동으로 나타납니다.",
     module: "calendar",
     category: "일정·메모",
     keywords: "캘린더 달력 일정 스케줄 메모 날짜 업무 계획 등록"
