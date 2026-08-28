@@ -70,6 +70,7 @@
 
   function enableLauncherDrag(){
     let pointerId = null;
+    let lastTouchAt = 0;
     let originX = 0;
     let originY = 0;
     let originLeft = 0;
@@ -105,6 +106,15 @@
       if(moved){
         suppressLaunchClickUntil = Date.now()+350;
         savePosition();
+      }else if(event.type === "pointerup" && event.pointerType === "touch"){
+        const now = Date.now();
+        if(now-lastTouchAt<400){
+          suppressLaunchClickUntil = now+500;
+          lastTouchAt = 0;
+          setOpen(true);
+        }else{
+          lastTouchAt = now;
+        }
       }
     }
     launch.addEventListener("pointerup",finishDrag);
@@ -964,6 +974,12 @@
 
   launch.addEventListener("click",function(event){
     if(Date.now()<suppressLaunchClickUntil){ event.preventDefault(); return; }
+    if(event.detail === 0) setOpen(true);
+    else event.preventDefault();
+  });
+  launch.addEventListener("dblclick",function(event){
+    event.preventDefault();
+    if(Date.now()<suppressLaunchClickUntil) return;
     setOpen(true);
   });
   if(head){
