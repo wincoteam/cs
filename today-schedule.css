@@ -1,6 +1,7 @@
 .today-schedule{position:fixed;right:18px;top:18px;z-index:109;width:min(350px,calc(100vw - 28px));overflow:hidden;border:1px solid #cfe0d9;border-radius:18px;background:#fff;color:#1c2b26;box-shadow:0 22px 58px rgba(22,55,45,.2);font-family:inherit}
 .today-schedule[hidden],body.in-viewer .today-schedule{display:none}
-.today-schedule-head{display:flex;align-items:center;gap:10px;padding:13px 13px 12px 15px;background:linear-gradient(135deg,#174e40,#216d59);color:#fff}
+.today-schedule-head{display:flex;align-items:center;gap:10px;padding:13px 13px 12px 15px;background:linear-gradient(135deg,#174e40,#216d59);color:#fff;cursor:grab;touch-action:none;user-select:none}
+.today-schedule.is-dragging{box-shadow:0 30px 72px rgba(22,55,45,.3);transform:scale(1.01)}.today-schedule.is-dragging .today-schedule-head{cursor:grabbing;background:linear-gradient(135deg,#123f34,#195c4b)}
 .today-schedule-icon{display:grid;width:36px;height:36px;flex:none;place-items:center;border-radius:11px;background:rgba(255,255,255,.15);font-size:18px}
 .today-schedule-heading{min-width:0;flex:1}.today-schedule-title{display:block;font-size:14px;font-weight:900}.today-schedule-date{display:block;margin-top:1px;color:#cfe6de;font-size:10px;font-weight:650}
 .today-schedule-collapse{display:grid;width:32px;height:32px;place-items:center;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:19px;cursor:pointer}.today-schedule-collapse:hover{background:rgba(255,255,255,.21)}

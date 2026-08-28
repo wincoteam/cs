@@ -9,6 +9,8 @@ for (const expected of [
   "completed:check.checked",
   'window.openModule("calendar",true)',
   "wincoCalendarUpdated"
+  ,"winco_today_schedule_position_v1"
+  ,"head.addEventListener(\"pointermove\""
 ]) {
   if (!source.includes(expected)) throw new Error(`Today schedule feature missing: ${expected}`);
 }
