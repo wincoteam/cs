@@ -7,7 +7,7 @@ const glass = fs.readFileSync("glass-theme.css", "utf8");
 for (const expected of ["backdrop-filter:blur(22px)", ".card{", ".assistant-panel", ".postit-panel"]) {
   if (!glass.includes(expected)) throw new Error(`Glass theme rule missing: ${expected}`);
 }
-if (!glass.includes("rgba(221,239,232,.48)")) throw new Error("Nested glass surfaces are not softly tinted");
+if (!glass.includes("rgba(255,255,255,.86)")) throw new Error("Inner glass surfaces are not visually separated");
 
 const match = index.match(/<script type="application\/json" id="mod-data">([\s\S]*?)<\/script>/);
 if (!match) throw new Error("mod-data missing");
