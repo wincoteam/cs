@@ -24,12 +24,18 @@ body{
 #home::before{left:-110px;top:29%;width:310px;height:310px;background:rgba(62,149,122,.11)}
 #home::after{right:-90px;bottom:-80px;width:360px;height:360px;background:rgba(192,145,70,.09)}
 
-.hero,.tool-section,.cs-group,.unified-search{
+.hero,.tool-section,.unified-search{
   border-color:var(--glass-line)!important;
   background:linear-gradient(135deg,rgba(255,255,255,.75),rgba(244,250,248,.52))!important;
   box-shadow:var(--glass-shadow)!important;
   -webkit-backdrop-filter:blur(22px) saturate(145%);
   backdrop-filter:blur(22px) saturate(145%);
+}
+.cs-group{
+  border-color:rgba(255,255,255,.64)!important;
+  background:linear-gradient(145deg,rgba(224,240,234,.46),rgba(244,249,247,.30))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.62),0 7px 22px rgba(35,66,56,.045)!important;
+  -webkit-backdrop-filter:blur(13px) saturate(125%);backdrop-filter:blur(13px) saturate(125%);
 }
 .hero::after{border-color:rgba(255,255,255,.28)!important}
 .wordmark,.date,.hero-meta span,.section-count,.calendar-card-status{
@@ -46,7 +52,7 @@ body{
 .card{
   border-color:var(--glass-line)!important;
   border-left-color:var(--ac)!important;
-  background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(244,250,248,.53))!important;
+  background:linear-gradient(145deg,rgba(246,251,249,.64),rgba(221,239,232,.48))!important;
   box-shadow:var(--glass-shadow-soft)!important;
   -webkit-backdrop-filter:blur(17px) saturate(138%);backdrop-filter:blur(17px) saturate(138%);
 }
@@ -56,7 +62,7 @@ body{
   -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
 }
 .unified-result,.empty-search{
-  border-color:var(--glass-line)!important;background:rgba(255,255,255,.58)!important;
+  border-color:var(--glass-line)!important;background:rgba(230,242,237,.55)!important;
   box-shadow:var(--glass-shadow-soft);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
 }
 .vbar{
@@ -82,7 +88,7 @@ body{
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
 }
 .assistant-message,.assistant-card,.history-item,.tracking-item,.detect-card,.counsel-textarea,.tracking-select,.tracking-input{
-  border-color:rgba(255,255,255,.72)!important;background:rgba(255,255,255,.58)!important;
+  border-color:rgba(255,255,255,.68)!important;background:linear-gradient(145deg,rgba(236,246,242,.66),rgba(219,237,230,.48))!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 5px 16px rgba(34,63,54,.055)!important;
   -webkit-backdrop-filter:blur(11px);backdrop-filter:blur(11px);
 }

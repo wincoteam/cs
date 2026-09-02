@@ -132,7 +132,7 @@ const polishStyle = `<!-- winco-global-polish -->
     -webkit-backdrop-filter:blur(21px) saturate(140%);backdrop-filter:blur(21px) saturate(140%);
   }
   body[data-winco-module] :is(.card,.section,.panel,.product,.item,.row,.faq-item,.result-card,.answer-row,.detail,.ecard,.qpanel,.dock-in,.qtycalc,.toolbar){
-    border-color:rgba(255,255,255,.78)!important;background:rgba(255,255,255,.59)!important;
+    border-color:rgba(255,255,255,.74)!important;background:linear-gradient(145deg,rgba(238,247,243,.62),rgba(218,237,229,.43))!important;
     box-shadow:0 9px 25px rgba(32,64,54,.07),inset 0 1px 0 rgba(255,255,255,.72)!important;
     -webkit-backdrop-filter:blur(15px) saturate(135%);backdrop-filter:blur(15px) saturate(135%);
   }
@@ -142,6 +142,10 @@ const polishStyle = `<!-- winco-global-polish -->
     -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   }
   body[data-winco-module] :is(button.wc-btn.pri,button.btn.primary,button.tab.active,.primary){background:var(--wc-accent)!important;border-color:var(--wc-accent)!important;color:#fff!important}
+  body[data-winco-module="order"] .items{background:transparent!important}
+  body[data-winco-module="order"] .item{background:transparent!important;border-color:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+  body[data-winco-module="order"] .row{border:1px solid rgba(255,255,255,.60)!important;border-radius:12px;background:linear-gradient(135deg,rgba(225,241,235,.70),rgba(240,248,245,.46))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.62),0 5px 14px rgba(30,62,51,.04)!important}
+  body[data-winco-module] :is(.section-body,.answer-inner,.agenda,.edit-panel,.result-body){background-color:transparent!important}
   @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){body[data-winco-module] :is(.top,.hero,.card,.section,.panel,.product,.item,.row){background:#f8fbfa!important}}
   ::-webkit-scrollbar{width:10px;height:10px}
   ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#b8c7c1;background-clip:padding-box}
