@@ -17,6 +17,7 @@ for (const id of ["calendar","order","csdaily","parts","vendor","cs","product","
   if (!module) throw new Error(`Module missing: ${id}`);
   const source = Buffer.from(module.b64, "base64").toString("utf8");
   if (!source.includes("/* Glassmorphism system */")) throw new Error(`Glass theme not embedded in ${id}`);
+  if (!source.includes(':is(.wrap,.container)>:is(header,.top,.hero)')) throw new Error(`Rounded module header missing in ${id}`);
 }
 const order = modules.find(item => item.id === "order");
 const orderSource = Buffer.from(order.b64, "base64").toString("utf8");

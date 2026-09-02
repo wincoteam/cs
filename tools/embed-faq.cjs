@@ -131,6 +131,16 @@ const polishStyle = `<!-- winco-global-polish -->
     box-shadow:0 18px 46px rgba(30,62,51,.10),inset 0 1px 0 rgba(255,255,255,.78)!important;
     -webkit-backdrop-filter:blur(21px) saturate(140%);backdrop-filter:blur(21px) saturate(140%);
   }
+  body[data-winco-module] :is(.wrap,.container)>:is(header,.top,.hero){
+    position:relative;overflow:hidden;margin-bottom:18px!important;padding:19px 21px!important;
+    border:1px solid rgba(255,255,255,.78)!important;border-radius:21px!important;
+    background:linear-gradient(135deg,rgba(234,246,241,.72),rgba(211,233,224,.46))!important;
+    box-shadow:0 16px 40px rgba(30,62,51,.09),inset 0 1px 0 rgba(255,255,255,.76)!important;
+    -webkit-backdrop-filter:blur(20px) saturate(138%);backdrop-filter:blur(20px) saturate(138%);
+  }
+  body[data-winco-module] :is(.calendar-head,.day-panel-head,.panel-head,.card-top,.section-head){
+    border-color:rgba(255,255,255,.58)!important;background:linear-gradient(135deg,rgba(224,240,234,.52),rgba(241,248,245,.30))!important;
+  }
   body[data-winco-module] :is(.card,.section,.panel,.product,.item,.row,.faq-item,.result-card,.answer-row,.detail,.ecard,.qpanel,.dock-in,.qtycalc,.toolbar){
     border-color:rgba(255,255,255,.74)!important;background:linear-gradient(145deg,rgba(238,247,243,.62),rgba(218,237,229,.43))!important;
     box-shadow:0 9px 25px rgba(32,64,54,.07),inset 0 1px 0 rgba(255,255,255,.72)!important;
