@@ -119,44 +119,6 @@ const polishStyle = `<!-- winco-global-polish -->
   /* Dense editors stay readable */
   body[data-winco-module] :is(.wc-erow,.edit-row){border-color:var(--wc-line);border-radius:14px;background:#fff;box-shadow:var(--wc-shadow-sm)}
   body[data-winco-module] :is(.wc-erow,.edit-row):focus-within{border-color:#aacfc1;box-shadow:0 0 0 4px rgba(10,107,86,.08),var(--wc-shadow-sm)}
-
-  /* Glassmorphism system */
-  body[data-winco-module]{
-    --wc-bg:#e8edef;--wc-surface:rgba(255,255,255,.78);--wc-line:rgba(255,255,255,.84);
-    background:radial-gradient(circle at 7% 0,rgba(75,139,121,.10),transparent 31%),radial-gradient(circle at 96% 10%,rgba(205,163,91,.08),transparent 27%),linear-gradient(145deg,#e3e9ea,#f1f3f3 48%,#e1e7e8);
-    background-attachment:fixed;
-  }
-  body[data-winco-module] :is(.top,.hero,.rules,.goal,.progress-card,.calendar-card,.day-panel,.file-upload-section,.search-section,.price-list,.notice,.edit-panel,.address-card,.link-card,.wc-ebar){
-    border-color:rgba(255,255,255,.86)!important;background:linear-gradient(145deg,rgba(255,255,255,.74),rgba(235,240,241,.57))!important;
-    box-shadow:0 18px 46px rgba(30,62,51,.10),inset 0 1px 0 rgba(255,255,255,.78)!important;
-    -webkit-backdrop-filter:blur(21px) saturate(140%);backdrop-filter:blur(21px) saturate(140%);
-  }
-  body[data-winco-module] :is(.wrap,.container)>:is(header,.top,.hero){
-    position:relative;overflow:hidden;margin-bottom:18px!important;padding:19px 21px!important;
-    border:1px solid rgba(255,255,255,.78)!important;border-radius:21px!important;
-    background:linear-gradient(135deg,rgba(255,255,255,.76),rgba(232,237,239,.56))!important;
-    box-shadow:0 16px 40px rgba(30,62,51,.09),inset 0 1px 0 rgba(255,255,255,.76)!important;
-    -webkit-backdrop-filter:blur(20px) saturate(138%);backdrop-filter:blur(20px) saturate(138%);
-  }
-  body[data-winco-module] :is(.calendar-head,.day-panel-head,.panel-head,.card-top,.section-head){
-    border-color:rgba(255,255,255,.64)!important;background:linear-gradient(135deg,rgba(244,246,247,.66),rgba(226,232,234,.40))!important;
-  }
-  body[data-winco-module] :is(.card,.section,.panel,.product,.item,.row,.faq-item,.result-card,.answer-row,.detail,.ecard,.qpanel,.dock-in,.qtycalc,.toolbar){
-    border-color:rgba(255,255,255,.82)!important;background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(244,246,247,.68))!important;
-    box-shadow:0 9px 25px rgba(32,64,54,.07),inset 0 1px 0 rgba(255,255,255,.72)!important;
-    -webkit-backdrop-filter:blur(15px) saturate(135%);backdrop-filter:blur(15px) saturate(135%);
-  }
-  body[data-winco-module] :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea,button.wc-btn,button.btn,button.tool,button.tab,button.chip,a.open-link){
-    border-color:rgba(255,255,255,.86)!important;background-color:rgba(255,255,255,.88)!important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.66),0 4px 13px rgba(32,64,54,.045);
-    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-  }
-  body[data-winco-module] :is(button.wc-btn.pri,button.btn.primary,button.tab.active,.primary){background:var(--wc-accent)!important;border-color:var(--wc-accent)!important;color:#fff!important}
-  body[data-winco-module="order"] .items{background:transparent!important}
-  body[data-winco-module="order"] .item{background:transparent!important;border-color:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
-  body[data-winco-module="order"] .row{border:1px solid rgba(255,255,255,.78)!important;border-radius:12px;background:linear-gradient(135deg,rgba(255,255,255,.83),rgba(241,244,245,.68))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.78),0 5px 14px rgba(30,52,51,.04)!important}
-  body[data-winco-module] :is(.section-body,.answer-inner,.agenda,.edit-panel,.result-body){background-color:transparent!important}
-  @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){body[data-winco-module] :is(.top,.hero,.card,.section,.panel,.product,.item,.row){background:#f8fbfa!important}}
   ::-webkit-scrollbar{width:10px;height:10px}
   ::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:99px;background:#b8c7c1;background-clip:padding-box}
   ::-webkit-scrollbar-track{background:transparent}
