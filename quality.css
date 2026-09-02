@@ -4,6 +4,9 @@
 #home .c-body{align-self:stretch}
 #home .c-desc{padding-bottom:24px}
 #home .c-go{opacity:.72;transform:none}
+#home :is(.section-head,.cs-group-head)>*{min-width:0}
+#home :is(.c-name,.c-desc,.section-copy,.cs-group-copy){overflow-wrap:anywhere}
+#home .section-copy{max-width:48%;text-align:right}
 #home .tool-section.schedule .grid{grid-template-columns:1fr}
 #home .tool-section.schedule .card{min-height:132px;border-color:#bdd8ce;background:linear-gradient(110deg,#fff 0%,#fff 62%,#eef8f4 100%);box-shadow:0 12px 28px rgba(10,107,86,.07)}
 #home .tool-section.schedule .c-desc{max-width:66ch;padding-bottom:0}
@@ -11,5 +14,36 @@
 .calendar-card-status.is-complete{border-color:#d8e1dd;background:#f2f5f4;color:#76837d}
 #home .cs-group .card{min-height:150px}
 #home .cs-group.daily .card{min-height:132px}
+
+/* Floating utilities: keep launchers separated and opened panels fully on-screen. */
+.history-widget:not(.is-open){bottom:104px}
+.tracking-widget:not(.is-open){bottom:160px}
+.counsel-widget:not(.is-open){bottom:216px}
+.history-widget.is-open,.tracking-widget.is-open,.counsel-widget.is-open{bottom:max(18px,env(safe-area-inset-bottom))}
+
+/* One consistent, visible keyboard focus treatment across the dashboard utilities. */
+:where(button,a[href],input,select,textarea,[contenteditable="true"]):focus-visible{
+  outline:3px solid rgba(10,107,86,.28);
+  outline-offset:2px;
+}
+:where(button,input,select,textarea):disabled{cursor:not-allowed;opacity:.62}
+
+@supports(height:100dvh){
+  .assistant-widget.is-open .assistant-panel{height:min(680px,calc(100dvh - 20px))}
+  .counsel-widget.is-open .counsel-panel{height:min(690px,calc(100dvh - 20px))}
+  .history-widget.is-open .history-panel{height:min(620px,calc(100dvh - 20px))}
+  .tracking-widget.is-open .tracking-panel{max-height:min(650px,calc(100dvh - 20px))}
+}
+
 @media(max-width:800px){#home .card{min-height:142px}}
-@media(max-width:620px){#home .card,#home .cs-group .card{min-height:0}.calendar-card-status{margin-top:9px}#home .c-desc{padding-bottom:0}}
+@media(max-width:620px){
+  #home .card,#home .cs-group .card{min-height:0}
+  #home .section-head{align-items:flex-start}
+  #home .section-copy{max-width:none;text-align:left}
+  .calendar-card-status{margin-top:9px}
+  #home .c-desc{padding-bottom:0}
+  .history-widget:not(.is-open){bottom:90px}
+  .tracking-widget:not(.is-open){bottom:143px}
+  .counsel-widget:not(.is-open){bottom:196px}
+  .history-widget.is-open,.tracking-widget.is-open,.counsel-widget.is-open{bottom:max(10px,env(safe-area-inset-bottom))}
+}
