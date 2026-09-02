@@ -68,6 +68,7 @@ const polishStyle = `<!-- winco-global-polish -->
   body[data-winco-module="csdaily"] :is(.progress-card,.section){border-color:var(--wc-line);border-radius:17px;box-shadow:var(--wc-shadow-sm)}
   body[data-winco-module="order"] .card:hover,
   body[data-winco-module="csdaily"] .section:hover{border-color:#c7d9d2;box-shadow:var(--wc-shadow)}
+  body[data-winco-module="order"] .sub{white-space:pre-wrap;overflow-wrap:anywhere}
 
   /* Parts and vendor price tools */
   body[data-winco-module="parts"] :is(.banner,.ecard,.qpanel,.dock-in),

@@ -18,7 +18,7 @@ for (const expected of [
 }
 
 const index = fs.readFileSync("index.html.html", "utf8");
-for (const expected of ["today-schedule.css", 'class="home-layout"', 'id="todaySchedule"', "today-schedule.js"]) {
+for (const expected of ["today-schedule.css", 'class="grid schedule-split"', 'id="todaySchedule"', "today-schedule.js"]) {
   if (!index.includes(expected)) throw new Error(`Today schedule asset missing: ${expected}`);
 }
 
