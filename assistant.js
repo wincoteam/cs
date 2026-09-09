@@ -29,6 +29,7 @@
   let isAnswering = false;
   let savedPosition = null;
   let suppressLaunchClickUntil = 0;
+  let suppressPanelToggleUntil = 0;
   const AI_ENDPOINT = "/api/ask";
   const POSITION_KEY = "winco_assistant_position_v1";
 
@@ -62,6 +63,19 @@
     const top = clamp(savedPosition.top,8,window.innerHeight-panelHeight-8);
     widget.style.left = left+"px";
     widget.style.top = top+"px";
+  }
+
+  function applyPanelPosition(position){
+    if(!position) return;
+    const width = widget.offsetWidth || 410;
+    const height = widget.offsetHeight || Math.min(680,window.innerHeight-36);
+    const left = clamp(position.left,8,window.innerWidth-width-8);
+    const top = clamp(position.top,8,window.innerHeight-height-8);
+    widget.style.left = left+"px";
+    widget.style.top = top+"px";
+    widget.style.right = "auto";
+    widget.style.bottom = "auto";
+    savedPosition = {left:left,top:top};
   }
 
   function savePosition(){
@@ -120,6 +134,50 @@
     }
     launch.addEventListener("pointerup",finishDrag);
     launch.addEventListener("pointercancel",finishDrag);
+  }
+
+  function enablePanelDrag(){
+    if(!head) return;
+    let pointerId = null;
+    let originX = 0;
+    let originY = 0;
+    let originLeft = 0;
+    let originTop = 0;
+    let moved = false;
+
+    head.addEventListener("pointerdown",function(event){
+      if(!widget.classList.contains("is-open") || event.button !== 0 || event.target.closest("button")) return;
+      const rect = widget.getBoundingClientRect();
+      pointerId = event.pointerId;
+      originX = event.clientX;
+      originY = event.clientY;
+      originLeft = rect.left;
+      originTop = rect.top;
+      moved = false;
+      head.setPointerCapture(pointerId);
+    });
+    head.addEventListener("pointermove",function(event){
+      if(pointerId !== event.pointerId) return;
+      const dx = event.clientX-originX;
+      const dy = event.clientY-originY;
+      if(!moved && Math.hypot(dx,dy)<5) return;
+      moved = true;
+      event.preventDefault();
+      head.classList.add("is-dragging");
+      applyPanelPosition({left:originLeft+dx,top:originTop+dy});
+    });
+    function finishDrag(event){
+      if(pointerId !== event.pointerId) return;
+      try{ head.releasePointerCapture(pointerId); }catch(error){}
+      pointerId = null;
+      head.classList.remove("is-dragging");
+      if(moved){
+        suppressPanelToggleUntil = Date.now()+450;
+        savePosition();
+      }
+    }
+    head.addEventListener("pointerup",finishDrag);
+    head.addEventListener("pointercancel",finishDrag);
   }
 
   const groups = [
@@ -986,11 +1044,11 @@
   if(head){
     let lastTouchAt = 0;
     head.addEventListener("dblclick",function(event){
-      if(event.target.closest("button")) return;
+      if(event.target.closest("button") || Date.now()<suppressPanelToggleUntil) return;
       setOpen(false);
     });
     head.addEventListener("pointerup",function(event){
-      if(event.pointerType !== "touch" || event.target.closest("button")) return;
+      if(event.pointerType !== "touch" || event.target.closest("button") || head.classList.contains("is-dragging") || Date.now()<suppressPanelToggleUntil) return;
       const now = Date.now();
       if(now-lastTouchAt<350){
         event.preventDefault();
@@ -1050,6 +1108,7 @@
   savedPosition = readPosition();
   if(savedPosition) requestAnimationFrame(function(){ applyLauncherPosition(savedPosition); });
   enableLauncherDrag();
+  enablePanelDrag();
   if(typeof window.addEventListener === "function"){
     window.addEventListener("resize",function(){
       if(widget.classList.contains("is-open")) fitPanelToViewport();

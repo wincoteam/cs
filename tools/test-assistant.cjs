@@ -1,6 +1,14 @@
 const fs = require("fs");
 const vm = require("vm");
 
+const assistantSource = fs.readFileSync("assistant.js", "utf8");
+if (!assistantSource.includes("function enablePanelDrag()") ||
+    !assistantSource.includes("applyPanelPosition({left:originLeft+dx,top:originTop+dy})") ||
+    !assistantSource.includes("enablePanelDrag();")) {
+  console.error("Assistant expanded-panel dragging is missing");
+  process.exit(1);
+}
+
 class Element {
   constructor() {
     this.dataset = {};
@@ -33,7 +41,7 @@ const sandbox = {
 };
 sandbox.window.window = sandbox.window;
 vm.runInNewContext(fs.readFileSync("assistant-data.js", "utf8"), sandbox);
-const source = fs.readFileSync("assistant.js", "utf8").replace(
+const source = assistantSource.replace(
   /\}\)\(\);\s*$/,
   `window.__ask=function(query){
     const full=contextualQuery(query);
