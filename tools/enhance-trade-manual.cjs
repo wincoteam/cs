@@ -1,5 +1,27 @@
 module.exports = function enhanceTradeManual(source) {
-  if (source.includes('id="tradeManual"')) return source;
+  const manualTextsFunction = String.raw`function manualTexts(product){
+  const shipping=/배송비/.test(product.note)?product.note:'배송비 3,000원 포함';
+  return [
+    {
+      title:'1단계 · 보상판매 상품 및 절차 안내',
+      text:'보상판매는 현재 ['+product.name+'] 제품으로 진행 가능합니다.\n\n<진행 절차>\n1. 제품 선택 후 선결제(무통장입금)\n2. 기존 기기 반납 (선불 발송)\n3. 입고 확인\n4. 새 상품 발송\n\n<보상판매 가격>\n- '+product.name+' : 공홈가 '+won(product.retail)+' → '+won(product.reward)+' ('+shipping+')'
+    },
+    {
+      title:'2단계 · 입금 계좌 안내',
+      text:'확인하였습니다.\n\n진행을 원하실 경우\n계좌번호는 BNK경남은행 / 207-0212-2558-00 / 주식회사 윈코\n로 입금 부탁드립니다 :)!'
+    },
+    {
+      title:'3단계 · 입금 확인 및 반납 안내',
+      text:'입금 확인하였습니다 :)!\n입고 확인 후 정상적인 새 제품으로 발송 진행 도와드리겠습니다.\n\n보상판매 건 관련 이전 제품 보내주실 위치는\n\n[🚚 보내실 곳]\n이름 : 윈코 보상판매센터 / 물류센터\n주소 : 인천 검단구 갑문3로 26 은산해운창고 윈코\n전화번호 : 010-3445-7293\n\n위 주소로 선불 발송 부탁드리며,\n\n입금자명 / 수령자 정보(성함·연락처·주소)를 함께 전달 부탁드립니다!\n\n또한 현금영수증 또는 세금계산서 발행 여부도 함께 알려주세요. 세금계산서 발행을 원하실 경우 사업자등록증도 함께 첨부 부탁드립니다.'
+    }
+  ];
+}`;
+
+  if (source.includes('id="tradeManual"')) {
+    const functionPattern = /function manualTexts\(product\)\{[\s\S]*?\n\}(?=\nfunction renderManual\(\)\{)/;
+    if (!functionPattern.test(source)) throw new Error('Existing trade manual function not found');
+    return source.replace(functionPattern, manualTextsFunction);
+  }
 
   const manualCss = `
 .manual{margin-top:30px}
@@ -62,23 +84,7 @@ function manualProduct(){
   const current=items.find(item=>item.type==='trade'&&item.name===preset.name);
   return {...preset,reward:current&&Number(current.price)>0?Number(current.price):preset.reward,note:current&&current.note?current.note:'배송비 3,000원 포함'};
 }
-function manualTexts(product){
-  const shipping=/배송비/.test(product.note)?product.note:'배송비 3,000원 포함';
-  return [
-    {
-      title:'1단계 · 보상판매 상품 및 절차 안내',
-      text:'보상판매는 현재 ['+product.name+'] 제품으로 진행 가능합니다.\n\n<진행 절차>\n1. 제품 선택 후 선결제(무통장입금)\n2. 기존 기기 반납 (선불 발송)\n3. 입고 확인\n4. 새 상품 발송\n\n<보상판매 가격>\n- '+product.name+' : 공홈가 '+won(product.retail)+' → '+won(product.reward)+' ('+shipping+')'
-    },
-    {
-      title:'2단계 · 입금 계좌 안내',
-      text:'확인하였습니다.\n\n진행을 원하실 경우\n계좌번호는 BNK경남은행 / 207-0212-2558-00 / 주식회사 윈코\n로 입금 부탁드립니다 :)!'
-    },
-    {
-      title:'3단계 · 입금 확인 및 반납 안내',
-      text:'입금 확인하였습니다 :)!\n입고 확인 후 정상적인 새 제품으로 발송 진행 도와드리겠습니다.\n\n보상판매 건 관련 이전 제품 보내주실 위치는\n\n[🚚 보내실 곳]\n이름 : 윈코 보상판매센터 / 물류센터\n주소 : 인천 검단구 갑문3로 26 은산해운창고 윈코\n전화번호 : 010-3445-7293\n\n위 주소로 선불 발송 부탁드리며,\n\n입금자명 / 수령자 정보(성함·연락처·주소)를 함께 전달 부탁드립니다!\n\n또한 현금영수증 또는 세금계산서 발행 여부도 함께 알려주세요. 세금계산서 발행을 원하실 경우 사업자등록증도 함께 첨부 부탁드립니다.'
-    }
-  ];
-}
+${manualTextsFunction}
 function renderManual(){
   if(!manualProducts||!manualCards)return;
   manualProducts.innerHTML=MANUAL_PRODUCTS.map(product=>{

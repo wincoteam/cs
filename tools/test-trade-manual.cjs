@@ -1,5 +1,6 @@
 const fs = require('fs');
 const assert = require('assert');
+const vm = require('vm');
 
 const html = fs.readFileSync('index.html.html','utf8');
 const match = html.match(/<script type="application\/json" id="mod-data">([\s\S]*?)<\/script>/);
@@ -12,6 +13,15 @@ assert(trade && contacts,'trade and contacts modules should exist');
 const tradeSource = Buffer.from(trade.b64,'base64').toString('utf8');
 const contactsSource = Buffer.from(contacts.b64,'base64').toString('utf8');
 const assistantData = fs.readFileSync('assistant-data.js','utf8');
+
+const scripts = [...tradeSource.matchAll(/<script(?![^>]*application\/json)[^>]*>([\s\S]*?)<\/script>/g)];
+assert(scripts.length > 0,'trade module should contain executable scripts');
+scripts.forEach((script,index)=>{
+  assert.doesNotThrow(
+    ()=>new vm.Script(script[1],{filename:`trade-module-script-${index}.js`}),
+    `trade module script ${index} should parse`
+  );
+});
 
 assert(tradeSource.includes('id="tradeManual"'),'trade manual should be rendered');
 assert(tradeSource.includes("data-manual-product"),'product selector should be available');

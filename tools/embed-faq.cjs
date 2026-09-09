@@ -283,6 +283,14 @@ for (const module of modules) {
   if (module.id === "vendor") decoded = enhanceVendorQuantityCalculator(decoded);
   if (module.id === "trade") decoded = enhanceTradeManual(decoded);
   const polished = applyPolish(decoded, module.id);
+  const embeddedScripts = [...polished.matchAll(/<script(?![^>]*application\/json)[^>]*>([\s\S]*?)<\/script>/g)];
+  embeddedScripts.forEach((script, index) => {
+    try {
+      new vm.Script(script[1], {filename: `${module.id}-module-script-${index}.js`});
+    } catch (error) {
+      throw new Error(`${module.id} embedded script ${index}: ${error.message}`);
+    }
+  });
   module.b64 = Buffer.from(polished, "utf8").toString("base64");
 }
 const source = applyPolish(fs.readFileSync("faq-module.html", "utf8"), "faq");
