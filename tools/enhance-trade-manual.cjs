@@ -1,10 +1,65 @@
 module.exports = function enhanceTradeManual(source) {
-  const manualTextsFunction = String.raw`function manualTexts(product){
+  const defaultItemsMatch = source.match(/const DEFAULT_ITEMS = \[[\s\S]*?\];/);
+  if (defaultItemsMatch && !defaultItemsMatch[0].includes("name:'전동드라이버'")) {
+    const ledItem = "  {type:'trade',name:'LED 캠핑 랜턴',price:18000,note:'배송비 3,000원 포함'},";
+    if (!source.includes(ledItem)) throw new Error('LED camping lantern default item not found');
+    source = source.replace(ledItem, `${ledItem}\n  {type:'trade',name:'전동드라이버',price:19900,note:'배송비 3,000원 포함'},`);
+  }
+
+  const declarations = String.raw`
+const MANUAL_PRESETS = [
+  {id:'airmonster-3',label:'에어몬스터 3종',kind:'trade',products:[
+    {name:'에어몬스터 프로 New',retail:89000,reward:68000},
+    {name:'에어몬스터 터보',retail:199000,reward:168000},
+    {name:'에어몬스터2',retail:109000,reward:85000}
+  ]},
+  {id:'stretch-lantern',label:'스트레치 랜턴',kind:'trade',products:[{name:'스트레치 랜턴',reward:38000}]},
+  {id:'led-camping-lantern',label:'LED 캠핑 랜턴',kind:'trade',products:[{name:'LED 캠핑 랜턴',reward:18000}]},
+  {id:'electric-driver',label:'전동드라이버',kind:'trade',products:[{name:'전동드라이버',reward:19900}]},
+  {id:'replacement-motor',label:'교체용 모터',kind:'purchase',products:[{name:'에어매트·에어베드 교체용 모터',reward:33000}]}
+];
+const manualProducts = document.getElementById('manualProducts');
+const manualCards = document.getElementById('manualCards');
+let selectedManualProduct = MANUAL_PRESETS[0].id;`;
+
+  const manualFunctions = String.raw`function manualProduct(){
+  const preset=MANUAL_PRESETS.find(entry=>entry.id===selectedManualProduct)||MANUAL_PRESETS[0];
+  return {...preset,products:preset.products.map(product=>{
+    const current=items.find(item=>item.name===product.name);
+    return {...product,reward:current&&Number(current.price)>0?Number(current.price):product.reward,note:current&&current.note?current.note:(preset.kind==='purchase'?'상품 30,000원 + 배송비 3,000원 · 기존 제품 유지, 모터만 출고':'배송비 3,000원 포함')};
+  })};
+}
+function manualPriceLine(product,preset){
   const shipping=/배송비/.test(product.note)?product.note:'배송비 3,000원 포함';
+  if(preset.kind==='purchase')return '- '+product.name+' : '+won(product.reward)+' ('+product.note+')';
+  if(product.retail)return '- '+product.name+' : 공홈가 '+won(product.retail)+' → '+won(product.reward)+' ('+shipping+')';
+  return '- '+product.name+' : '+won(product.reward)+' ('+shipping+')';
+}
+function manualTexts(preset){
+  const product=preset.products[0];
+  const receipt='또한 현금영수증 또는 세금계산서 발행 여부도 함께 전달 부탁드리며,\n세금계산서 발행을 원하실 경우 사업자등록증도 함께 첨부 부탁드립니다.';
+  if(preset.kind==='purchase'){
+    return [
+      {
+        title:'1단계 · 협의구매 상품 및 절차 안내',
+        text:'['+product.name+']는 협의구매로 진행 가능합니다.\n\n<진행 절차>\n1. 제품 확인 후 선결제(무통장입금)\n2. 입금 확인\n3. 교체용 모터 발송\n\n<협의구매 가격>\n'+manualPriceLine(product,preset)
+      },
+      {
+        title:'2단계 · 입금 계좌 안내',
+        text:'확인하였습니다.\n\n진행을 원하실 경우\n계좌번호는 BNK경남은행 / 207-0212-2558-00 / 주식회사 윈코\n로 입금 부탁드립니다 :)!'
+      },
+      {
+        title:'3단계 · 입금 확인 및 발송 정보 안내',
+        text:'입금 확인하였습니다 :)!\n교체용 모터 발송 진행 도와드리겠습니다.\n\n수령자 정보(성함·연락처·주소)를 함께 전달 부탁드립니다!\n\n'+receipt
+      }
+    ];
+  }
+  const intro=preset.products.length>1?'보상판매는 현재 아래 '+preset.products.length+'개 제품으로 진행 가능합니다.':'보상판매는 현재 ['+product.name+'] 제품으로 진행 가능합니다.';
+  const prices=preset.products.map(item=>manualPriceLine(item,preset)).join('\n');
   return [
     {
       title:'1단계 · 보상판매 상품 및 절차 안내',
-      text:'보상판매는 현재 ['+product.name+'] 제품으로 진행 가능합니다.\n\n<진행 절차>\n1. 제품 선택 후 선결제(무통장입금)\n2. 기존 기기 반납 (선불 발송)\n3. 입고 확인\n4. 새 상품 발송\n\n<보상판매 가격>\n- '+product.name+' : 공홈가 '+won(product.retail)+' → '+won(product.reward)+' ('+shipping+')'
+      text:intro+'\n\n<진행 절차>\n1. 제품 선택 후 선결제(무통장입금)\n2. 기존 기기 반납 (선불 발송)\n3. 입고 확인\n4. 새 상품 발송\n\n<보상판매 가격>\n'+prices
     },
     {
       title:'2단계 · 입금 계좌 안내',
@@ -12,15 +67,32 @@ module.exports = function enhanceTradeManual(source) {
     },
     {
       title:'3단계 · 입금 확인 및 반납 안내',
-      text:'입금 확인하였습니다 :)!\n입고 확인 후 정상적인 새 제품으로 발송 진행 도와드리겠습니다.\n\n보상판매 건 관련 이전 제품 보내주실 위치는\n\n[🚚 보내실 곳]\n이름 : 윈코 보상판매센터 / 물류센터\n주소 : 인천 검단구 갑문3로 26 은산해운창고 윈코\n전화번호 : 010-3445-7293\n\n위 주소로 선불 발송 부탁드리며,\n\n입금자명 / 수령자 정보(성함·연락처·주소)를 함께 전달 부탁드립니다!\n\n또한 현금영수증 또는 세금계산서 발행 여부도 함께 알려주세요. 세금계산서 발행을 원하실 경우 사업자등록증도 함께 첨부 부탁드립니다.'
+      text:'입금 확인하였습니다 :)!\n입고 확인 후 정상적인 새 제품으로 발송 진행 도와드리겠습니다.\n\n보상판매 건 관련 이전 제품 보내주실 위치는\n\n[🚚 보내실 곳]\n이름 : 윈코 보상판매센터 / 물류센터\n주소 : 인천 검단구 갑문3로 26 은산해운창고 윈코\n전화번호 : 010-3445-7293\n\n위 주소로 선불 발송 부탁드리며,\n\n입금자명 / 수령자 정보(성함·연락처·주소)를 함께 전달 부탁드립니다!\n\n'+receipt
     }
   ];
+}
+function renderManual(){
+  if(!manualProducts||!manualCards)return;
+  manualProducts.innerHTML=MANUAL_PRESETS.map(preset=>{
+    const resolved={...preset,products:preset.products.map(product=>{
+      const current=items.find(item=>item.name===product.name);
+      return {...product,reward:current&&Number(current.price)>0?Number(current.price):product.reward};
+    })};
+    const active=preset.id===selectedManualProduct;
+    const detail=resolved.products.length>1?resolved.products.length+'개 제품 묶음 안내':(resolved.kind==='purchase'?'협의구매 '+won(resolved.products[0].reward):'보상가 '+won(resolved.products[0].reward));
+    return '<button class="manual-product'+(active?' is-active':'')+'" type="button" data-manual-product="'+esc(preset.id)+'" aria-pressed="'+active+'"><span class="manual-product-name">'+esc(preset.label)+'</span><span class="manual-product-price">'+esc(detail)+'</span></button>';
+  }).join('');
+  manualCards.innerHTML=manualTexts(manualProduct()).map((manual,index)=>'<article class="manual-card"><div class="manual-card-head"><span class="manual-step">'+(index+1)+'</span><strong class="manual-title">'+esc(manual.title)+'</strong><button class="manual-copy" type="button" data-manual-copy="'+index+'">안내문 복사</button></div><div class="manual-output">'+esc(manual.text)+'</div></article>').join('');
 }`;
 
   if (source.includes('id="tradeManual"')) {
-    const functionPattern = /function manualTexts\(product\)\{[\s\S]*?\n\}(?=\nfunction renderManual\(\)\{)/;
-    if (!functionPattern.test(source)) throw new Error('Existing trade manual function not found');
-    return source.replace(functionPattern, manualTextsFunction);
+    const declarationPattern = /\nconst MANUAL_(?:PRODUCTS|PRESETS) = \[[\s\S]*?let selectedManualProduct = [^;]+;/;
+    const functionPattern = /function manualProduct\(\)\{[\s\S]*?\n\}(?=\nasync function copyManual\(index,button\)\{)/;
+    if (!declarationPattern.test(source) || !functionPattern.test(source)) throw new Error('Existing trade manual structure not found');
+    return source
+      .replace('제품 선택 후 단계별 안내문을 복사하세요.', '안내 유형을 선택한 후 단계별 안내문을 복사하세요.')
+      .replace(declarationPattern, declarations)
+      .replace(functionPattern, manualFunctions);
   }
 
   const manualCss = `
@@ -57,7 +129,7 @@ module.exports = function enhanceTradeManual(source) {
   <section class="manual" id="tradeManual" aria-labelledby="tradeManualTitle">
     <div class="manual-heading">
       <h2 id="tradeManualTitle">보상판매 고객 안내 매뉴얼</h2>
-      <p>제품 선택 후 단계별 안내문을 복사하세요.</p>
+      <p>안내 유형을 선택한 후 단계별 안내문을 복사하세요.</p>
     </div>
     <div class="manual-products" id="manualProducts" aria-label="보상판매 제품 선택"></div>
     <div class="manual-grid" id="manualCards" aria-live="polite"></div>
@@ -65,36 +137,11 @@ module.exports = function enhanceTradeManual(source) {
   if (!source.includes('<div id="priceView"></div>')) throw new Error('Trade price view not found');
   source = source.replace('<div id="priceView"></div>', `<div id="priceView"></div>${manualHtml}`);
 
-  const declarations = `
-const MANUAL_PRODUCTS = [
-  {name:'에어몬스터 프로 New',retail:89000,reward:68000},
-  {name:'에어몬스터 터보',retail:199000,reward:168000},
-  {name:'에어몬스터2',retail:109000,reward:85000}
-];
-const manualProducts = document.getElementById('manualProducts');
-const manualCards = document.getElementById('manualCards');
-let selectedManualProduct = MANUAL_PRODUCTS[0].name;`;
   const statusLine = "const status = document.getElementById('status');";
   if (!source.includes(statusLine)) throw new Error('Trade status declaration not found');
   source = source.replace(statusLine, `${statusLine}${declarations}`);
 
-  const helpers = `
-function manualProduct(){
-  const preset=MANUAL_PRODUCTS.find(product=>product.name===selectedManualProduct)||MANUAL_PRODUCTS[0];
-  const current=items.find(item=>item.type==='trade'&&item.name===preset.name);
-  return {...preset,reward:current&&Number(current.price)>0?Number(current.price):preset.reward,note:current&&current.note?current.note:'배송비 3,000원 포함'};
-}
-${manualTextsFunction}
-function renderManual(){
-  if(!manualProducts||!manualCards)return;
-  manualProducts.innerHTML=MANUAL_PRODUCTS.map(product=>{
-    const current=items.find(item=>item.type==='trade'&&item.name===product.name);
-    const reward=current&&Number(current.price)>0?Number(current.price):product.reward;
-    const active=product.name===selectedManualProduct;
-    return '<button class="manual-product'+(active?' is-active':'')+'" type="button" data-manual-product="'+esc(product.name)+'" aria-pressed="'+active+'"><span class="manual-product-name">'+esc(product.name)+'</span><span class="manual-product-price">보상가 '+won(reward)+'</span></button>';
-  }).join('');
-  manualCards.innerHTML=manualTexts(manualProduct()).map((manual,index)=>'<article class="manual-card"><div class="manual-card-head"><span class="manual-step">'+(index+1)+'</span><strong class="manual-title">'+esc(manual.title)+'</strong><button class="manual-copy" type="button" data-manual-copy="'+index+'">안내문 복사</button></div><div class="manual-output">'+esc(manual.text)+'</div></article>').join('');
-}
+  const helpers = `${manualFunctions}
 async function copyManual(index,button){
   const manual=manualTexts(manualProduct())[index];
   if(!manual)return;
