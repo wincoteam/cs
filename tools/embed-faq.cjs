@@ -1,6 +1,7 @@
 const fs = require("fs");
 const vm = require("vm");
 const enhanceVendorQuantityCalculator = require("./enhance-vendor.cjs");
+const enhanceTradeManual = require("./enhance-trade-manual.cjs");
 
 const indexPath = "index.html.html";
 const CS_ADDITIONAL_PRESET = [
@@ -29,7 +30,8 @@ const CS_ADDITIONAL_PRESET = [
   {category:"제품증상",question:"[스트레치랜턴] 다리를 펼쳐도 고정되지 않고 다시 접히는데 정상인가요?",answer:"다리 부분은 편리하게 펴고 접을 수 있도록 고정되지 않는 구조로 제작되었습니다.\n\n손으로 들어 올리거나 제품을 뒤집으면 다리가 접히는 현상은 정상입니다."},
   {category:"제품증상",question:"[스트레치랜턴] 하단부 지름은 얼마인가요?",answer:"하단부 지름은 6.5cm입니다."},
   {category:"제품증상",question:"[스트레치랜턴] 헤드를 바닷물에 담가도 되나요?",answer:"바닷물과 민물에서 모두 사용할 수 있습니다. 다만 램프 홀더는 IPX7 방수 등급으로 설계되어 있으므로 장시간 물에 담가 사용하지 마세요.\n\n사용 후에는 깨끗한 물로 염분을 제거하고 완전히 말려 보관해 주세요."},
-  {category:"제품증상",question:"[스트레치랜턴] 영하의 날씨에서도 작동하나요?",answer:"권장 작동 온도는 10℃~40℃입니다.\n\n배터리 제품 특성상 추운 겨울이나 영하 환경에서는 정상 작동하더라도 성능과 사용 시간이 줄어들 수 있습니다."}
+  {category:"제품증상",question:"[스트레치랜턴] 영하의 날씨에서도 작동하나요?",answer:"권장 작동 온도는 10℃~40℃입니다.\n\n배터리 제품 특성상 추운 겨울이나 영하 환경에서는 정상 작동하더라도 성능과 사용 시간이 줄어들 수 있습니다."},
+  {category:"보상판매",question:"보상판매하고 싶은데 제품은 어떤 게 있고 금액이 어떻게 되나요?",answer:"보상판매는 현재 아래 3개 제품으로 진행 가능합니다.\n\n<진행 절차>\n1. 제품 선택 후 선결제(무통장입금)\n2. 기존 기기 반납 (선불 발송)\n3. 입고 확인\n4. 새 상품 발송\n\n<보상판매 가격>\n- 에어몬스터 프로 New : 공홈가 89,000원 → 68,000원 (배송비 3,000원 포함)\n- 에어몬스터 터보 : 공홈가 199,000원 → 168,000원 (배송비 3,000원 포함)\n- 에어몬스터2 : 공홈가 109,000원 → 85,000원 (배송비 3,000원 포함)\n\n제품별 단계 안내문은 [보상판매 가격표]에서 선택 후 복사할 수 있습니다."}
 ];
 const polishStyle = `<!-- winco-global-polish -->
 <style id="winco-global-polish">
@@ -229,7 +231,10 @@ function mergeCsPresets(source) {
   if (!presetMatch) throw new Error("CS_PRESET not found");
   const current = evaluateExpression(presetMatch[1]);
   const additions = new Map(CS_ADDITIONAL_PRESET.map(row => [row.question, row]));
-  const merged = current.filter(row => !additions.has(row.question)).concat(CS_ADDITIONAL_PRESET);
+  const merged = current.filter(row =>
+    !additions.has(row.question) &&
+    !(row && row.category === "보상판매" && String(row.question || "").includes("보상판매하고 싶은데 제품"))
+  ).concat(CS_ADDITIONAL_PRESET);
   source = source.replace(
     presetPattern,
     `const CS_PRESET = ${JSON.stringify(merged)}; /*__WINCO_PRESET__*/\n        const CS_REQUIRED_PRESET = ${JSON.stringify(CS_ADDITIONAL_PRESET)}; /*__WINCO_REQUIRED_PRESET__*/`
@@ -244,7 +249,9 @@ function mergeCsPresets(source) {
             if(saved){
               var data = JSON.parse(saved);
               if(Array.isArray(data)){
-                faqs = data;
+                faqs = data.filter(function(row){
+                  return !(row && row.category === "보상판매" && String(row.question || "").includes("보상판매하고 싶은데 제품"));
+                });
                 var known = new Set(faqs.map(function(row){ return row && row.question; }));
                 var changed = false;
                 CS_REQUIRED_PRESET.forEach(function(row){
@@ -274,6 +281,7 @@ for (const module of modules) {
   let decoded = Buffer.from(module.b64, "base64").toString("utf8");
   if (module.id === "cs") decoded = mergeCsPresets(decoded);
   if (module.id === "vendor") decoded = enhanceVendorQuantityCalculator(decoded);
+  if (module.id === "trade") decoded = enhanceTradeManual(decoded);
   const polished = applyPolish(decoded, module.id);
   module.b64 = Buffer.from(polished, "utf8").toString("base64");
 }
@@ -506,7 +514,7 @@ function buildAssistantKnowledge() {
   [
     {
       title: "인천 창고 · 보상판매 반납",
-      answer: "이름: 윈코 보상판매센터 / 물류센터\n주소: 인천시 검단구 오류동 1544-3번지 은산해운창고",
+      answer: "이름: 윈코 보상판매센터 / 물류센터\n주소: 인천 검단구 갑문3로 26 은산해운창고 윈코\n전화번호: 010-3445-7293",
       category: "발송 주소",
       keywords: "보상판매 기존기기 반납 선불발송 인천 물류센터 창고 어디로 보내"
     },
