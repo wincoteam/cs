@@ -8,6 +8,12 @@ if (!assistantSource.includes("function enablePanelDrag()") ||
   console.error("Assistant expanded-panel dragging is missing");
   process.exit(1);
 }
+if (!assistantSource.includes("if(!opened) return;") ||
+    !assistantSource.includes("widget.classList.add(\"is-always-open\")") ||
+    !assistantSource.includes("setOpen(true);")) {
+  console.error("Assistant should always start and remain expanded");
+  process.exit(1);
+}
 
 class Element {
   constructor() {
@@ -15,7 +21,7 @@ class Element {
     this.style = {};
     this.value = "";
     this.textContent = "";
-    this.classList = {toggle() {}, contains() { return false; }};
+    this.classList = {add() {}, toggle() {}, contains() { return false; }};
   }
   addEventListener() {}
   setAttribute() {}
@@ -26,6 +32,7 @@ const elements = {};
 const document = {
   getElementById(id) { return elements[id] || (elements[id] = new Element()); },
   addEventListener() {},
+  dispatchEvent() {},
   body: new Element()
 };
 const sandbox = {
@@ -33,6 +40,7 @@ const sandbox = {
   document,
   localStorage: {getItem() { return null; }},
   navigator: {},
+  CustomEvent: function(type,options) { this.type=type; this.detail=options&&options.detail; },
   requestAnimationFrame(fn) { fn(); },
   setTimeout,
   clearTimeout,

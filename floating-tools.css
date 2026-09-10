@@ -1,0 +1,22 @@
+.counsel-launch,.tracking-launch,.history-launch,
+.counsel-head,.tracking-head,.history-head{
+  touch-action:none;
+  user-select:none;
+}
+.counsel-launch,.tracking-launch,.history-launch{cursor:grab}
+.counsel-head,.tracking-head,.history-head{cursor:grab}
+.counsel-head button,.tracking-head button,.history-head button{cursor:pointer}
+.counsel-widget.is-floating-dragging,
+.tracking-widget.is-floating-dragging,
+.history-widget.is-floating-dragging{
+  opacity:.96;
+  filter:drop-shadow(0 22px 28px rgba(20,49,41,.2));
+}
+.counsel-widget.is-floating-dragging :is(.counsel-launch,.counsel-head),
+.tracking-widget.is-floating-dragging :is(.tracking-launch,.tracking-head),
+.history-widget.is-floating-dragging :is(.history-launch,.history-head){cursor:grabbing}
+@media(max-width:620px){
+  .counsel-widget.has-floating-position,
+  .tracking-widget.has-floating-position,
+  .history-widget.has-floating-position{width:min(430px,calc(100vw - 20px))}
+}

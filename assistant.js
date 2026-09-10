@@ -1019,7 +1019,9 @@
   }
 
   function setOpen(opened){
+    if(!opened) return;
     widget.classList.toggle("is-open",opened);
+    widget.classList.add("is-always-open");
     launch.setAttribute("aria-expanded",String(opened));
     if(opened){
       fitPanelToViewport();
@@ -1103,10 +1105,10 @@
     if(event.key === "Escape" && widget.classList.contains("is-open")) setOpen(false);
   });
   document.addEventListener("winco-popup-open",function(event){
-    if(event.detail !== "assistant") setOpen(false);
+    if(event.detail === "assistant") return;
   });
   savedPosition = readPosition();
-  if(savedPosition) requestAnimationFrame(function(){ applyLauncherPosition(savedPosition); });
+  setOpen(true);
   enableLauncherDrag();
   enablePanelDrag();
   if(typeof window.addEventListener === "function"){
