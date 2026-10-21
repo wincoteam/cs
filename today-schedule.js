@@ -42,6 +42,7 @@
     const id=check.closest(".today-schedule-item").dataset.id,now=Date.now();
     const rows=read().map(row=>row&&row.id===id?Object.assign({},row,{completed:check.checked,completedAt:check.checked?now:null,updatedAt:now}):row);
     write(rows);render();
+    if(typeof window.wincoRefreshCommandDeck==="function")window.wincoRefreshCommandDeck();
     const frame=document.querySelector("#frameHost iframe");
     try{if(frame&&frame.contentWindow)frame.contentWindow.postMessage({wincoCalendarUpdated:true},"*")}catch(e){}
   });
